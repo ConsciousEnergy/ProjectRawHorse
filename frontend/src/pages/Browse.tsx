@@ -9,6 +9,14 @@ function Browse() {
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
   
+  // Advanced filter states
+  const [entityTypeFilter, setEntityTypeFilter] = useState('');
+  const [minAmount, setMinAmount] = useState('');
+  const [maxAmount, setMaxAmount] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
+  
   // Data states
   const [entities, setEntities] = useState<Entity[]>([]);
   const [moneyFlows, setMoneyFlows] = useState<MoneyFlow[]>([]);
@@ -19,24 +27,56 @@ function Browse() {
     loadData();
   }, [activeTab]);
 
+  const buildParams = () => {
+    const params: any = { limit: 100 };
+    
+    if (searchTerm.trim()) {
+      params.search = searchTerm;
+    }
+    
+    if (activeTab === 'entities' && entityTypeFilter) {
+      params.entity_type = entityTypeFilter;
+    }
+    
+    if ((activeTab === 'money-flows' || activeTab === 'awards') && minAmount) {
+      params.min_amount = parseFloat(minAmount);
+    }
+    
+    if ((activeTab === 'money-flows' || activeTab === 'awards') && maxAmount) {
+      params.max_amount = parseFloat(maxAmount);
+    }
+    
+    if ((activeTab === 'money-flows' || activeTab === 'awards') && startDate) {
+      params.start_date = startDate;
+    }
+    
+    if ((activeTab === 'money-flows' || activeTab === 'awards') && endDate) {
+      params.end_date = endDate;
+    }
+    
+    return params;
+  };
+
   const loadData = async () => {
     setLoading(true);
     try {
+      const params = buildParams();
+      
       switch (activeTab) {
         case 'entities':
-          const entitiesData = await getEntities({ limit: 100 });
+          const entitiesData = await getEntities(params);
           setEntities(entitiesData);
           break;
         case 'money-flows':
-          const flowsData = await getMoneyFlows({ limit: 100 });
+          const flowsData = await getMoneyFlows(params);
           setMoneyFlows(flowsData);
           break;
         case 'awards':
-          const awardsData = await getAwards({ limit: 100 });
+          const awardsData = await getAwards(params);
           setAwards(awardsData);
           break;
         case 'foia':
-          const foiaData = await getFOIATargets({ limit: 100 });
+          const foiaData = await getFOIATargets(params);
           setFOIATargets(foiaData);
           break;
       }
@@ -47,37 +87,18 @@ function Browse() {
     }
   };
 
-  const handleSearch = async () => {
-    if (!searchTerm.trim()) {
-      loadData();
-      return;
-    }
-    
-    setLoading(true);
-    try {
-      switch (activeTab) {
-        case 'entities':
-          const entitiesData = await getEntities({ search: searchTerm });
-          setEntities(entitiesData);
-          break;
-        case 'money-flows':
-          const flowsData = await getMoneyFlows({ search: searchTerm });
-          setMoneyFlows(flowsData);
-          break;
-        case 'awards':
-          const awardsData = await getAwards({ search: searchTerm });
-          setAwards(awardsData);
-          break;
-        case 'foia':
-          const foiaData = await getFOIATargets({ search: searchTerm });
-          setFOIATargets(foiaData);
-          break;
-      }
-    } catch (error) {
-      console.error('Error searching:', error);
-    } finally {
-      setLoading(false);
-    }
+  const handleSearch = () => {
+    loadData();
+  };
+
+  const handleClearFilters = () => {
+    setSearchTerm('');
+    setEntityTypeFilter('');
+    setMinAmount('');
+    setMaxAmount('');
+    setStartDate('');
+    setEndDate('');
+    loadData();
   };
 
   const formatCurrency = (amount?: number) => {
@@ -132,7 +153,72 @@ function Browse() {
           onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
         />
         <button onClick={handleSearch} className="btn btn-primary">Search</button>
+        <button onClick={() => setShowFilters(!showFilters)} className="btn btn-secondary">
+          {showFilters ? 'Hide Filters' : 'Show Filters'}
+        </button>
+        <button onClick={handleClearFilters} className="btn btn-secondary">Clear All</button>
       </div>
+
+      {showFilters && (
+        <div className="filters-panel">
+          <h4>Advanced Filters</h4>
+          
+          {activeTab === 'entities' && (
+            <div className="filter-group">
+              <label>Entity Type:</label>
+              <select value={entityTypeFilter} onChange={(e) => setEntityTypeFilter(e.target.value)}>
+                <option value="">All Types</option>
+                <option value="Corporation">Corporation</option>
+                <option value="Government Agency">Government Agency</option>
+                <option value="Non-Profit">Non-Profit</option>
+                <option value="Research Institution">Research Institution</option>
+              </select>
+            </div>
+          )}
+          
+          {(activeTab === 'money-flows' || activeTab === 'awards') && (
+            <>
+              <div className="filter-group">
+                <label>Amount Range:</label>
+                <div className="range-inputs">
+                  <input
+                    type="number"
+                    placeholder="Min ($)"
+                    value={minAmount}
+                    onChange={(e) => setMinAmount(e.target.value)}
+                  />
+                  <span>to</span>
+                  <input
+                    type="number"
+                    placeholder="Max ($)"
+                    value={maxAmount}
+                    onChange={(e) => setMaxAmount(e.target.value)}
+                  />
+                </div>
+              </div>
+              
+              <div className="filter-group">
+                <label>Date Range:</label>
+                <div className="range-inputs">
+                  <input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                  />
+                  <span>to</span>
+                  <input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                  />
+                </div>
+              </div>
+            </>
+          )}
+          
+          <button onClick={handleSearch} className="btn btn-primary">Apply Filters</button>
+        </div>
+      )}
 
       <div className="card">
         {loading ? (
