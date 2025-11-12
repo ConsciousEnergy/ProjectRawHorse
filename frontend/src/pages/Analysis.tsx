@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { getMoneyFlowGraph, getFinancialFlows, getTimeline } from '../services/api';
+import { getFinancialFlows, getTimeline } from '../services/api';
+import NetworkGraph from '../components/NetworkGraph';
 
 function Analysis() {
-  const [graphData, setGraphData] = useState<any>(null);
   const [financialData, setFinancialData] = useState<any>(null);
   const [timelineData, setTimelineData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -13,13 +13,11 @@ function Analysis() {
 
   const loadAnalysisData = async () => {
     try {
-      const [graph, financial, timeline] = await Promise.all([
-        getMoneyFlowGraph(1000000),
+      const [financial, timeline] = await Promise.all([
         getFinancialFlows(),
         getTimeline()
       ]);
       
-      setGraphData(graph);
       setFinancialData(financial);
       setTimelineData(timeline);
     } catch (error) {
@@ -49,17 +47,12 @@ function Analysis() {
       </div>
 
       <div className="card">
-        <h3>Network Graph</h3>
+        <h3>Entity Network Graph</h3>
         <p>
-          Showing {graphData?.nodes?.length || 0} entities and {graphData?.edges?.length || 0} money flows 
-          (minimum $1M). For detailed interactive visualization, use external tools like Gephi with exported data.
+          Interactive visualization of entity relationships. Click and drag nodes to explore connections.
+          Use controls to zoom and center the view.
         </p>
-        <div style={{ padding: '40px', textAlign: 'center', backgroundColor: '#1a1a1a', borderRadius: '8px' }}>
-          <p>Interactive D3.js network graph would be rendered here</p>
-          <p style={{ fontSize: '0.9rem', color: '#888' }}>
-            Node count: {graphData?.nodes?.length || 0} | Edge count: {graphData?.edges?.length || 0}
-          </p>
-        </div>
+        <NetworkGraph />
       </div>
 
       <div className="card">
