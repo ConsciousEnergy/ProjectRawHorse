@@ -115,6 +115,44 @@ function Dashboard() {
           <li>DOE, NASA, DHS, and other public databases</li>
         </ul>
       </div>
+
+      <div className="card support-card">
+        <div className="support-header">
+          <h3>💜 Support This Project</h3>
+        </div>
+        <p>
+          Project RawHorse is open-source and freely available. If you find this tool valuable 
+          for UAP research and transparency advocacy, please consider supporting our work.
+        </p>
+        <p>
+          Your donations help fund development, server costs, and support our broader research 
+          into advanced energy systems and LENR fusion experiments.
+        </p>
+        <div className="support-actions">
+          <a 
+            href="https://conscious.energy/donations/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="btn btn-primary support-btn"
+          >
+            ❤️ Support via Donations
+          </a>
+          <a 
+            href="https://github.com/ConsciousEnergy/ProjectRawHorse" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="btn btn-secondary"
+          >
+            ⭐ Star on GitHub
+          </a>
+        </div>
+        <p className="support-note">
+          <small>
+            Donations accepted via Bitcoin, PayPal, and GoFundMe • 
+            <a href="https://conscious.energy" target="_blank" rel="noopener noreferrer"> Learn more about Conscious Energy</a>
+          </small>
+        </p>
+      </div>
     </div>
   );
 }
