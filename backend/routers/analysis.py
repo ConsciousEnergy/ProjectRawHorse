@@ -21,39 +21,71 @@ async def get_entity_graph(
     db: Session = Depends(get_db)
 ):
     """Get entity relationship graph data"""
-    # Get entities
-    entities = db.query(Entity).limit(limit).all()
-    
-    # Get relationships
+    # Get all relationships first to know which entities to include
     relationships = db.query(Relationship).limit(limit * 2).all()
     
-    # Calculate node importance (number of connections)
+    # Get all entities
+    all_entities = db.query(Entity).all()
+    
+    # Create a mapping of names to entities for lookup
+    entity_map = {}
+    for e in all_entities:
+        # Map by display name, normalized name, and id
+        if e.display_name:
+            entity_map[e.display_name] = e
+            entity_map[e.display_name.lower()] = e
+        if e.normalized_name:
+            entity_map[e.normalized_name] = e
+        entity_map[e.entity_id] = e
+    
+    # Extract all unique entity names from relationships
+    entity_names_in_graph = set()
+    for r in relationships:
+        entity_names_in_graph.add(r.source)
+        entity_names_in_graph.add(r.target)
+    
+    # Calculate connection counts
     connection_counts = {}
     for r in relationships:
         connection_counts[r.source] = connection_counts.get(r.source, 0) + 1
         connection_counts[r.target] = connection_counts.get(r.target, 0) + 1
     
-    # Create nodes with calculated importance
+    # Create nodes - use entity names as IDs to match relationships
     nodes = []
-    for e in entities:
-        # Check if entity appears in relationships by name
-        connections = 0
-        for name_variant in [e.display_name, e.normalized_name, e.entity_id]:
-            if name_variant in connection_counts:
-                connections = max(connections, connection_counts[name_variant])
+    seen_names = set()
+    
+    for entity_name in entity_names_in_graph:
+        if entity_name in seen_names:
+            continue
+        seen_names.add(entity_name)
         
-        # Scale node size: base 5, +2 per connection, max 20
-        node_value = min(5 + (connections * 2), 20)
+        # Try to find the entity in our database
+        entity = entity_map.get(entity_name) or entity_map.get(entity_name.lower())
+        
+        # Get connection count
+        connections = connection_counts.get(entity_name, 0)
+        
+        # Scale node size: base 8, +3 per connection, max 25
+        node_value = min(8 + (connections * 3), 25)
+        
+        # Determine entity type
+        if entity and entity.entity_type:
+            entity_type = entity.entity_type
+        else:
+            # Infer from name if not in database
+            from data_loader import infer_entity_type
+            entity_type = infer_entity_type(entity_name)
         
         nodes.append(
             GraphNode(
-                id=e.entity_id,
-                name=e.display_name,
-                type=e.entity_type or "Unknown",
+                id=entity_name,  # Use name as ID to match relationships
+                name=entity_name,
+                type=entity_type,
                 value=node_value
             )
         )
     
+    # Create edges using entity names (which now match node IDs)
     edges = [
         GraphEdge(
             source=r.source,

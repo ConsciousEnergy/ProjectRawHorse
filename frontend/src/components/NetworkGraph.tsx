@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import ForceGraph2D from 'react-force-graph-2d';
+import { forceCollide } from 'd3-force';
 import { getEntityGraph } from '../services/api';
 import type { GraphData as APIGraphData, GraphNode } from '../types';
 import './NetworkGraph.css';
@@ -28,6 +29,28 @@ function NetworkGraph() {
   useEffect(() => {
     loadGraphData();
   }, []);
+
+  // Configure forces after data loads for better spacing
+  useEffect(() => {
+    if (fgRef.current && graphData.nodes.length > 0) {
+      const fg = fgRef.current;
+      
+      // Stronger repulsion to prevent clustering
+      fg.d3Force('charge').strength(-600).distanceMax(500);
+      
+      // Longer link distance for more spread
+      fg.d3Force('link').distance(150);
+      
+      // Add collision force to prevent node overlap
+      fg.d3Force('collision', forceCollide()
+        .radius((node: any) => (node.val || 6) + 30)
+        .strength(0.9)
+      );
+      
+      // Reheat simulation to apply new forces
+      fg.d3ReheatSimulation();
+    }
+  }, [graphData]);
 
   const loadGraphData = async () => {
     try {
@@ -154,11 +177,17 @@ function NetworkGraph() {
         nodeVal={getNodeSize}
         linkLabel="label"
         linkColor={() => 'rgba(91, 79, 255, 0.4)'}
-        linkWidth={1.5}
-        linkDirectionalParticles={3}
-        linkDirectionalParticleWidth={2}
-        linkDirectionalParticleSpeed={0.005}
+        linkWidth={2}
+        linkDirectionalParticles={4}
+        linkDirectionalParticleWidth={2.5}
+        linkDirectionalParticleSpeed={0.006}
         backgroundColor="#ffffff"
+        // Improved force simulation for better spacing
+        d3AlphaDecay={0.01}
+        d3VelocityDecay={0.15}
+        warmupTicks={100}
+        cooldownTicks={200}
+        cooldownTime={5000}
         nodeCanvasObject={(node: any, ctx, globalScale) => {
           const label = node.name;
           const nodeSize = getNodeSize(node);
@@ -205,9 +234,7 @@ function NetworkGraph() {
         onNodeHover={(node) => {
           document.body.style.cursor = node ? 'pointer' : 'default';
         }}
-        cooldownTicks={100}
         onEngineStop={() => fgRef.current?.zoomToFit(400, 50)}
-        d3VelocityDecay={0.3}
         minZoom={0.3}
         maxZoom={8}
       />
