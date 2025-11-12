@@ -51,11 +51,15 @@ def load_entities(db: Session, csv_path: str) -> int:
         reader = csv.DictReader(f)
         for row in reader:
             try:
+                # Map CSV columns to database fields
+                # CSV has 'name' but DB expects 'display_name'
+                name = row.get('name', row.get('display_name', ''))
+                
                 entity = Entity(
                     entity_id=row.get('entity_id', ''),
-                    display_name=row.get('display_name', ''),
-                    normalized_name=row.get('normalized_name', ''),
-                    entity_type=row.get('entity_type')
+                    display_name=name,
+                    normalized_name=row.get('normalized_name', name.lower() if name else ''),
+                    entity_type=row.get('type', row.get('entity_type'))
                 )
                 db.add(entity)
                 count += 1
