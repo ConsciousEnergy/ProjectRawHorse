@@ -1,10 +1,47 @@
-# UAP Data Explorer - Project Summary
+# Project RawHorse - Implementation Summary
 
-## Implementation Complete! ✅
+**Version:** v0.2.0-alpha  
+**Date:** November 11, 2025  
+**Status:** ✅ Feature-Complete Alpha
 
-All planned features have been successfully implemented. The application is ready for testing and deployment.
+## v0.2.0-alpha - Major Milestone! ✅
 
-## What Was Built
+All core alpha features successfully implemented! The application now includes complete visualization, filtering, contribution system, and all critical bug fixes. Ready for executable builds and expanded visualizations.
+
+## 🆕 New in v0.2.0-alpha
+
+### Network Visualization
+- ✅ Interactive entity relationship graph (13 nodes, 15 connections)
+- ✅ Color-coded by entity type with dynamic legend
+- ✅ Zoom controls (Fit, Center, Zoom In/Out)
+- ✅ Smart entity type inference
+- ✅ Collision detection and optimal spacing
+- ✅ Click-to-zoom interactions
+
+### Advanced Filtering
+- ✅ Entity type filters
+- ✅ Amount range filters (min/max)
+- ✅ Date range filters
+- ✅ Show/hide filter panel
+- ✅ Clear all filters functionality
+
+### Complete Contribution System
+- ✅ Award contributions (NEW)
+- ✅ FOIA Target contributions (NEW)
+- ✅ Entity contributions (existing)
+- ✅ Money Flow contributions (existing)
+- ✅ All with GitHub PR automation
+
+### Critical Bug Fixes
+- ✅ Network graph node/edge mismatch
+- ✅ Entity type classification (100% vs 0%)
+- ✅ Graph clustering and spacing
+- ✅ Entity name loading from CSV
+- ✅ Database dependency injection
+- ✅ SPA routing for React Router
+- ✅ Contribution backend completion
+
+## What Was Built (v0.1.0 - v0.2.0)
 
 ### 1. Complete Backend (FastAPI + Python)
 - ✅ SQLite database with normalized schema
