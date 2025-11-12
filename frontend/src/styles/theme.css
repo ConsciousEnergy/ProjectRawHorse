@@ -1,0 +1,123 @@
+/* Project RawHorse - Theme System */
+/* Based on the purple and gold horses from the logo */
+
+:root {
+  /* Light Mode - Default */
+  --color-primary: #5B4FFF;        /* Purple Horse */
+  --color-secondary: #D4A218;      /* Gold Horse */
+  --color-accent: #8B7FFF;         /* Light Purple */
+  --color-accent-gold: #E6B933;    /* Light Gold */
+  
+  /* Backgrounds */
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F5F5F7;
+  --bg-tertiary: #E8E8EA;
+  --bg-elevated: #FFFFFF;
+  
+  /* Text */
+  --text-primary: #1C1C1E;
+  --text-secondary: #48484A;
+  --text-tertiary: #8E8E93;
+  --text-inverse: #FFFFFF;
+  
+  /* Borders */
+  --border-color: #D1D1D6;
+  --border-hover: #A1A1A6;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.12);
+  
+  /* States */
+  --color-success: #34C759;
+  --color-warning: #FF9500;
+  --color-error: #FF3B30;
+  --color-info: #007AFF;
+  
+  /* Sidebar */
+  --sidebar-bg: var(--bg-secondary);
+  --sidebar-border: var(--border-color);
+  --sidebar-text: var(--text-primary);
+  --sidebar-hover: var(--bg-tertiary);
+  --sidebar-active-bg: var(--color-primary);
+  --sidebar-active-text: var(--text-inverse);
+  
+  /* Cards */
+  --card-bg: var(--bg-elevated);
+  --card-border: var(--border-color);
+  --card-shadow: var(--shadow-sm);
+  
+  /* Inputs */
+  --input-bg: var(--bg-primary);
+  --input-border: var(--border-color);
+  --input-focus: var(--color-primary);
+  
+  /* Buttons */
+  --btn-primary-bg: var(--color-primary);
+  --btn-primary-hover: #4A3EE6;
+  --btn-primary-text: var(--text-inverse);
+  --btn-secondary-bg: var(--bg-tertiary);
+  --btn-secondary-hover: var(--border-color);
+  --btn-secondary-text: var(--text-primary);
+}
+
+/* Dark Mode */
+[data-theme="dark"] {
+  /* Backgrounds */
+  --bg-primary: #1C1C1E;
+  --bg-secondary: #2C2C2E;
+  --bg-tertiary: #3A3A3C;
+  --bg-elevated: #2C2C2E;
+  
+  /* Text */
+  --text-primary: #FFFFFF;
+  --text-secondary: #E5E5EA;
+  --text-tertiary: #AEAEB2;
+  --text-inverse: #1C1C1E;
+  
+  /* Borders */
+  --border-color: #48484A;
+  --border-hover: #636366;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
+  
+  /* Sidebar */
+  --sidebar-bg: var(--bg-secondary);
+  --sidebar-border: var(--border-color);
+  --sidebar-text: var(--text-primary);
+  --sidebar-hover: var(--bg-tertiary);
+  --sidebar-active-bg: var(--color-primary);
+  --sidebar-active-text: var(--text-inverse);
+  
+  /* Cards */
+  --card-bg: var(--bg-elevated);
+  --card-border: var(--border-color);
+  --card-shadow: var(--shadow-md);
+  
+  /* Inputs */
+  --input-bg: var(--bg-tertiary);
+  --input-border: var(--border-color);
+  --input-focus: var(--color-primary);
+  
+  /* Buttons */
+  --btn-primary-bg: var(--color-primary);
+  --btn-primary-hover: #6B5FFF;
+  --btn-primary-text: var(--text-inverse);
+  --btn-secondary-bg: var(--bg-tertiary);
+  --btn-secondary-hover: var(--border-color);
+  --btn-secondary-text: var(--text-primary);
+}
+
+/* Smooth transitions for theme switching */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Disable transitions on theme change to prevent flash */
+.theme-transitioning * {
+  transition: none !important;
+}

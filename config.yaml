@@ -1,0 +1,31 @@
+app:
+  name: "Project RawHorse"
+  version: "1.0.0"
+  
+server:
+  host: "127.0.0.1"
+  port_range: [8000, 8100]
+  auto_open_browser: true
+  
+database:
+  path: "data/prh.db"
+  
+data_sources:
+  entities_dir: "data/entities"
+  financial_dir: "data/financial"
+  foia_dir: "data/foia"
+  reference_dir: "data/reference"
+  evidence_dir: "data/evidence"
+  visualizations_dir: "data/visualizations"
+  scripts_dir: "data/scripts"
+  docs_dir: "data/docs"
+  
+github:
+  repository_url: "https://github.com/consciousenergy/UAPUFOData"
+  branch_prefix: "contribution"
+  enabled: true
+  
+features:
+  github_integration: true
+  advanced_analysis: true
+  export_pdf: true

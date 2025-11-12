@@ -1,0 +1,17 @@
+# Git LFS Configuration for Project RawHorse
+
+# Data files - track with LFS
+*.csv filter=lfs diff=lfs merge=lfs -text
+*.xlsx filter=lfs diff=lfs merge=lfs -text
+*.png filter=lfs diff=lfs merge=lfs -text
+*.jpg filter=lfs diff=lfs merge=lfs -text
+*.jpeg filter=lfs diff=lfs merge=lfs -text
+
+# Exclude small reference files from LFS
+data/reference/keywords_deduped.txt !filter !diff !merge text
+data/reference/keyword_weights.csv !filter !diff !merge text
+
+# Databases
+*.db filter=lfs diff=lfs merge=lfs -text
+*.sqlite filter=lfs diff=lfs merge=lfs -text
+

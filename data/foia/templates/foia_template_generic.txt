@@ -1,0 +1,33 @@
+FOIA REQUEST
+
+[Date]
+[FOIA Office Name]
+[Agency/Subtier]
+[Address/Email]
+
+Re: Freedom of Information Act Request – Contract Materials for Potential GFP/IUID/Novation Activity
+
+To the FOIA Officer,
+
+Pursuant to 5 U.S.C. § 552, I request the following records for contract PIID/Award ID: [PIID or Award ID], between [Agency/Subtier] and [Contractor/Entity], including any modifications between [Start Date] and [End Date]:
+
+1) Final Statements of Work (SOW), CDRLs, attachments, exhibits, and all referenced security or handling guides.
+2) All DD Form 254s (prime and subcontract) and any security classification guidance referenced therein.
+3) Property clauses and records indicating Government-Furnished Property (GFP), including any change in Government property custodianship, inventory reports, or special tooling/test equipment under FAR 52.245-1.
+4) Records referencing Item Unique Identification (IUID) or UID registries under DFARS 252.211-7003, including any IUID assignment following GFP-related modifications.
+5) Any novation or change-of-name agreements and related memoranda under FAR Subpart 42.12, including contracting officer determinations and contractor submissions.
+6) Any references to Special Access Program (SAP) or SAP Facility (SAPF) requirements under DoDM 5205.07, and any JSIG/ICS 705 or SCIF references embedded in contract attachments.
+7) All unclassified technical attachments related to special tooling/test equipment or test articles, including drawings/specifications that may be releasable, and any redaction logs if withheld.
+
+I request a search of correspondence, contract files, and e-systems used by your acquisition and security offices. If any portion is exempt, please provide segregable non-exempt portions and release determination letters.
+
+Fee Category: [News Media / Educational / Other].
+Fee Waiver: [Justification].
+Preferred format: electronic, searchable PDFs.
+
+Expedited processing is requested due to time-sensitive public interest in the subject matter.
+
+Sincerely,
+[Name]
+[Affiliation]
+[Email/Phone]
