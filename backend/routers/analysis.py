@@ -23,17 +23,37 @@ async def get_entity_graph(
     """Get entity relationship graph data"""
     # Get entities
     entities = db.query(Entity).limit(limit).all()
-    nodes = [
-        GraphNode(
-            id=e.entity_id,
-            name=e.display_name,
-            type=e.entity_type or "unknown"
-        )
-        for e in entities
-    ]
     
     # Get relationships
     relationships = db.query(Relationship).limit(limit * 2).all()
+    
+    # Calculate node importance (number of connections)
+    connection_counts = {}
+    for r in relationships:
+        connection_counts[r.source] = connection_counts.get(r.source, 0) + 1
+        connection_counts[r.target] = connection_counts.get(r.target, 0) + 1
+    
+    # Create nodes with calculated importance
+    nodes = []
+    for e in entities:
+        # Check if entity appears in relationships by name
+        connections = 0
+        for name_variant in [e.display_name, e.normalized_name, e.entity_id]:
+            if name_variant in connection_counts:
+                connections = max(connections, connection_counts[name_variant])
+        
+        # Scale node size: base 5, +2 per connection, max 20
+        node_value = min(5 + (connections * 2), 20)
+        
+        nodes.append(
+            GraphNode(
+                id=e.entity_id,
+                name=e.display_name,
+                type=e.entity_type or "Unknown",
+                value=node_value
+            )
+        )
+    
     edges = [
         GraphEdge(
             source=r.source,
