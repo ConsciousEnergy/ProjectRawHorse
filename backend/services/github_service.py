@@ -9,7 +9,7 @@ from typing import Optional
 from github import Github, GithubException
 import io
 
-from models.schemas import EntityCreate, MoneyFlowCreate, AwardCreate
+from models.schemas import EntityCreate, MoneyFlowCreate, AwardCreate, FOIATargetCreate
 
 
 class GitHubService:
@@ -207,6 +207,54 @@ class GitHubService:
         upstream = self.github.get_repo(self.repo_name)
         pr = upstream.create_pull(
             title=f"Add award: {award.recipient_name}",
+            body=pr_body,
+            head=f"{fork.owner.login}:{branch_name}",
+            base=upstream.default_branch
+        )
+        
+        return pr.html_url
+    
+    def create_foia_target_pr(
+        self,
+        foia_target: FOIATargetCreate,
+        contributor_name: Optional[str] = None,
+        contributor_email: Optional[str] = None,
+        notes: Optional[str] = None
+    ) -> str:
+        """Create PR with new FOIA target"""
+        fork = self._get_or_create_fork()
+        branch_name = self._generate_branch_name("foia-target")
+        self._create_branch(fork, branch_name)
+        
+        # Prepare CSV row
+        csv_content = f"{foia_target.agency},{foia_target.record_request},{foia_target.timeframe or ''},{foia_target.relevance or ''},{foia_target.notes or ''}\n"
+        
+        file_path = "UAPUFOResearch/foia_targets.csv"
+        try:
+            file = fork.get_contents(file_path, ref=branch_name)
+            current_content = file.decoded_content.decode('utf-8')
+            new_content = current_content + csv_content
+            
+            fork.update_file(
+                path=file_path,
+                message=f"Add FOIA target: {foia_target.agency}",
+                content=new_content,
+                sha=file.sha,
+                branch=branch_name
+            )
+        except GithubException:
+            fork.create_file(
+                path=file_path,
+                message=f"Add FOIA target: {foia_target.agency}",
+                content=csv_content,
+                branch=branch_name
+            )
+        
+        pr_body = self._generate_pr_body("foia_target", foia_target, contributor_name, contributor_email, notes)
+        
+        upstream = self.github.get_repo(self.repo_name)
+        pr = upstream.create_pull(
+            title=f"Add FOIA target: {foia_target.agency} - {foia_target.record_request}",
             body=pr_body,
             head=f"{fork.owner.login}:{branch_name}",
             base=upstream.default_branch
