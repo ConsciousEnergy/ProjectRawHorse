@@ -292,6 +292,36 @@ A: No, except for GitHub contributions. All other features work offline.
 - **Discussions**: [GitHub Discussions](https://github.com/consciousenergy/project-rawhorse/discussions)
 - **Documentation**: See docs/ directory
 
+## 💝 Support This Project
+
+Project RawHorse is a labor of love for transparency and open research. If you find this project valuable, please consider supporting its development:
+
+### Ways to Support
+
+**🌟 Star this Repository**  
+Give us a star on GitHub! It helps others discover the project.
+
+**🔗 Share with Others**  
+Spread the word about open UAP research and data transparency.
+
+**💰 Financial Support**
+
+Help us continue development and expand our research:
+
+- **Donate via Website**: [conscious.energy/donations](https://conscious.energy/donations/)
+- **Support ICCF25 Campaign**: [GoFundMe - ICCF25](https://www.gofundme.com/f/iccf25-conscious-energy)
+- **Bitcoin**: Available on our [donations page](https://conscious.energy/donations/)
+- **GitHub Sponsors**: Coming soon!
+
+Your support helps us:
+- Maintain and improve the application
+- Add new features and visualizations
+- Expand data coverage
+- Host community resources
+- Continue independent research (Project Proteus and more)
+
+Every contribution, no matter the size, makes a difference! 🙏
+
 ## Acknowledgments
 
 Built on publicly available data from:
