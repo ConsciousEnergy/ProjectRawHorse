@@ -40,6 +40,32 @@ def parse_float(value_str: Optional[str]) -> Optional[float]:
         return None
 
 
+def infer_entity_type(name: str) -> str:
+    """Infer entity type from name patterns"""
+    if not name:
+        return "Unknown"
+    
+    name_lower = name.lower()
+    
+    # Government entities
+    if any(term in name_lower for term in ['government', 'dept', 'department', 'agency', 'administration', 'nga', 'dod', 'nasa', 'darpa']):
+        return "Government Agency"
+    
+    # Investment/Capital firms
+    if any(term in name_lower for term in ['capital', 'partners', 'ventures', 'investment', 'equity']):
+        return "Investment Firm"
+    
+    # Research institutions
+    if any(term in name_lower for term in ['laboratories', 'research', 'institute', 'university', 'lab']):
+        return "Research Institution"
+    
+    # Corporations (default for business entities)
+    if any(term in name_lower for term in ['inc.', 'inc', 'llc', 'corp', 'corporation', 'company', 'technologies', 'systems', 'solutions', 'services', 'group']):
+        return "Corporation"
+    
+    return "Organization"
+
+
 def load_entities(db: Session, csv_path: str) -> int:
     """Load entities from CSV file"""
     if not os.path.exists(csv_path):
@@ -54,12 +80,17 @@ def load_entities(db: Session, csv_path: str) -> int:
                 # Map CSV columns to database fields
                 # CSV has 'name' but DB expects 'display_name'
                 name = row.get('name', row.get('display_name', ''))
+                entity_type = row.get('type', row.get('entity_type'))
+                
+                # If type is empty, infer from name
+                if not entity_type or entity_type.strip() == '':
+                    entity_type = infer_entity_type(name)
                 
                 entity = Entity(
                     entity_id=row.get('entity_id', ''),
                     display_name=name,
                     normalized_name=row.get('normalized_name', name.lower() if name else ''),
-                    entity_type=row.get('type', row.get('entity_type'))
+                    entity_type=entity_type
                 )
                 db.add(entity)
                 count += 1
