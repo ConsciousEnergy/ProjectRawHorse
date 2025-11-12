@@ -1,0 +1,61 @@
+name,uei,duns,cage,url,city,state,country,type,notes,source_pack,tag
+Sandia National Laboratories,,,,,,,,DOE/NNSA FFRDC,,ffrdc_uarc_search_kits_full.csv,ffrdc_uarc
+Los Alamos National Laboratory,,,,,,,,DOE/NNSA FFRDC,,ffrdc_uarc_search_kits_full.csv,ffrdc_uarc
+Lawrence Livermore National Laboratory,,,,,,,,DOE/NNSA FFRDC,,ffrdc_uarc_search_kits_full.csv,ffrdc_uarc
+Oak Ridge National Laboratory,,,,,,,,DOE/NNSA FFRDC,,ffrdc_uarc_search_kits_full.csv,ffrdc_uarc
+Idaho National Laboratory,,,,,,,,DOE/NNSA FFRDC,,ffrdc_uarc_search_kits_full.csv,ffrdc_uarc
+Argonne National Laboratory,,,,,,,,DOE/NNSA FFRDC,,ffrdc_uarc_search_kits_full.csv,ffrdc_uarc
+Pacific Northwest National Laboratory,,,,,,,,DOE/NNSA FFRDC,,ffrdc_uarc_search_kits_full.csv,ffrdc_uarc
+Brookhaven National Laboratory,,,,,,,,DOE/NNSA FFRDC,,ffrdc_uarc_search_kits_full.csv,ffrdc_uarc
+National Renewable Energy Laboratory,,,,,,,,DOE/NNSA FFRDC,,ffrdc_uarc_search_kits_full.csv,ffrdc_uarc
+MITRE Corporation,,,,,,,,DoD/IC FFRDC,,ffrdc_uarc_search_kits_full.csv,ffrdc_uarc
+The Aerospace Corporation,,,,,,,,DoD/IC FFRDC,,ffrdc_uarc_search_kits_full.csv,ffrdc_uarc
+Institute for Defense Analyses (IDA),,,,,,,,DoD/IC FFRDC,,ffrdc_uarc_search_kits_full.csv,ffrdc_uarc
+Center for Naval Analyses (CNA),,,,,,,,DoD/IC FFRDC,,ffrdc_uarc_search_kits_full.csv,ffrdc_uarc
+RAND Corporation,,,,,,,,DoD/IC FFRDC,,ffrdc_uarc_search_kits_full.csv,ffrdc_uarc
+Jet Propulsion Laboratory (JPL),,,,,,,,NASA/FFRDC,,ffrdc_uarc_search_kits_full.csv,ffrdc_uarc
+Johns Hopkins Applied Physics Laboratory (APL),,,,,,,,UARC,,ffrdc_uarc_search_kits_full.csv,ffrdc_uarc
+"Applied Research Laboratories, The University of Texas at Austin (ARL:UT)",,,,,,,,UARC,,ffrdc_uarc_search_kits_full.csv,ffrdc_uarc
+Penn State Applied Research Laboratory (ARL),,,,,,,,UARC,,ffrdc_uarc_search_kits_full.csv,ffrdc_uarc
+Georgia Tech Research Institute (GTRI),,,,,,,,UARC,,ffrdc_uarc_search_kits_full.csv,ffrdc_uarc
+University of Washington Applied Physics Laboratory (UW APL),,,,,,,,UARC,,ffrdc_uarc_search_kits_full.csv,ffrdc_uarc
+University of Hawaii Applied Research Laboratory (UH APL),,,,,,,,UARC,,ffrdc_uarc_search_kits_full.csv,ffrdc_uarc
+University of California UARC (NASA Ames),,,,,,,,UARC,,ffrdc_uarc_search_kits_full.csv,ffrdc_uarc
+University of Maryland ARLIS (Applied Research Lab for Intelligence & Security),,,,,,,,UARC,,ffrdc_uarc_search_kits_full.csv,ffrdc_uarc
+Lockheed Martin (Skunk Works),,,,,,,,Prime/Integrator,,ffrdc_uarc_search_kits_full.csv,ffrdc_uarc
+Northrop Grumman,,,,,,,,Prime/Integrator,,ffrdc_uarc_search_kits_full.csv,ffrdc_uarc
+Boeing (Phantom Works),,,,,,,,Prime/Integrator,,ffrdc_uarc_search_kits_full.csv,ffrdc_uarc
+Raytheon (RTX),,,,,,,,Prime/Integrator,,ffrdc_uarc_search_kits_full.csv,ffrdc_uarc
+BAE Systems,,,,,,,,Prime/Integrator,,ffrdc_uarc_search_kits_full.csv,ffrdc_uarc
+SAIC,,,,,,,,Prime/Integrator,,ffrdc_uarc_search_kits_full.csv,ffrdc_uarc
+Leidos,,,,,,,,Prime/Integrator,,ffrdc_uarc_search_kits_full.csv,ffrdc_uarc
+Booz Allen Hamilton,,,,,,,,Prime/Integrator,,ffrdc_uarc_search_kits_full.csv,ffrdc_uarc
+Peraton,,,,,,,,Prime/Integrator,,ffrdc_uarc_search_kits_full.csv,ffrdc_uarc
+Peraton Enterprise Solutions,,,,,,,,Prime/Integrator,,ffrdc_uarc_search_kits_full.csv,ffrdc_uarc
+Peraton Labs,,,,,,,,Prime/Integrator,,ffrdc_uarc_search_kits_full.csv,ffrdc_uarc
+Peraton Technology Services,,,,,,,,Prime/Integrator,,ffrdc_uarc_search_kits_full.csv,ffrdc_uarc
+PAR Government,,,,,,,,Prime/Integrator,,ffrdc_uarc_search_kits_full.csv,ffrdc_uarc
+Anduril,,,,,,,,Prime/Integrator,,ffrdc_uarc_search_kits_full.csv,ffrdc_uarc
+Palantir,,,,,,,,Prime/Integrator,,ffrdc_uarc_search_kits_full.csv,ffrdc_uarc
+L3Harris,,,,,,,,Prime/Integrator,,ffrdc_uarc_search_kits_full.csv,ffrdc_uarc
+General Atomics,,,,,,,,Prime/Integrator,,ffrdc_uarc_search_kits_full.csv,ffrdc_uarc
+Sierra Nevada Corporation (SNC),,,,,,,,Prime/Integrator,,ffrdc_uarc_search_kits_full.csv,ffrdc_uarc
+Kratos Defense & Security,,,,,,,,Prime/Integrator,,ffrdc_uarc_search_kits_full.csv,ffrdc_uarc
+Aerojet Rocketdyne,,,,,,,,,,non_peraton_watchlist.csv,watchlist
+HRL Laboratories,,,,,,,,,,non_peraton_watchlist.csv,watchlist
+SRI International,,,,,,,,,,non_peraton_watchlist.csv,watchlist
+MITRE,,,,,,,,,,non_peraton_watchlist.csv,watchlist
+IDA/CNA/RAND,,,,,,,,,,non_peraton_watchlist.csv,watchlist
+JHU/APL,,,,,,,,,,non_peraton_watchlist.csv,watchlist
+GTRI,,,,,,,,,,non_peraton_watchlist.csv,watchlist
+ARL:UT,,,,,,,,,,non_peraton_watchlist.csv,watchlist
+Penn State ARL,,,,,,,,,,non_peraton_watchlist.csv,watchlist
+"Sivananthan Laboratories, Inc.",,,,,,,,,,usaspending_query_pack.csv,usaspending_q
+UES Inc.,,,,,,,,,,usaspending_query_pack.csv,usaspending_q
+"UES Services, Inc.",,,,,,,,,,usaspending_query_pack.csv,usaspending_q
+"Advanced Ceramic Fibers, L.L.C.",,,,,,,,,,usaspending_query_pack.csv,usaspending_q
+Intrinsic Semiconductor Corp.,,,,,,,,,,usaspending_query_pack.csv,usaspending_q
+"HYPRES, Inc.",,,,,,,,,,usaspending_query_pack.csv,usaspending_q
+"SEEQC, Inc.",,,,,,,,,,usaspending_query_pack.csv,usaspending_q
+Plasmonics Inc.,,,,,,,,,,usaspending_query_pack.csv,usaspending_q
+"Aegis Technologies Group, LLC (The)",,,,,,,,,,usaspending_query_pack.csv,usaspending_q

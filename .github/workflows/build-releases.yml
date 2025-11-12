@@ -1,0 +1,112 @@
+name: Build Releases
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - os: ubuntu-latest
+            artifact_name: UAP-Data-Explorer-Linux
+            asset_name: UAP-Data-Explorer-Linux.tar.gz
+          - os: windows-latest
+            artifact_name: UAP-Data-Explorer-Windows
+            asset_name: UAP-Data-Explorer-Windows.zip
+          - os: macos-latest
+            artifact_name: UAP-Data-Explorer-macOS
+            asset_name: UAP-Data-Explorer-macOS.zip
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+          pip install -r build_requirements.txt
+
+      - name: Install Node dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
+
+      - name: Copy frontend to backend static
+        shell: bash
+        run: |
+          mkdir -p backend/static
+          cp -r frontend/dist/* backend/static/
+
+      - name: Build executable
+        run: python build_executable.py
+
+      - name: Package Linux build
+        if: runner.os == 'Linux'
+        run: |
+          cd dist
+          tar -czf ../${{ matrix.asset_name }} UAP-Data-Explorer
+
+      - name: Package Windows build
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          cd dist
+          Compress-Archive -Path UAP-Data-Explorer -DestinationPath ../${{ matrix.asset_name }}
+
+      - name: Package macOS build
+        if: runner.os == 'macOS'
+        run: |
+          cd dist
+          zip -r ../${{ matrix.asset_name }} UAP-Data-Explorer
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: ${{ matrix.asset_name }}
+
+  release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v3
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            UAP-Data-Explorer-Linux/UAP-Data-Explorer-Linux.tar.gz
+            UAP-Data-Explorer-Windows/UAP-Data-Explorer-Windows.zip
+            UAP-Data-Explorer-macOS/UAP-Data-Explorer-macOS.zip
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

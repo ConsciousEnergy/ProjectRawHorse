@@ -1,0 +1,4 @@
+award_uid,piid,mod_number,fain,uri,award_type,action_date,current_total_value,description,funding_agency,awarding_agency,recipient_uei,recipient_duns,recipient_cage,source_file,action_date_std,current_total_value_std,kw_hits,kw_top3,entity_id,credibility_score
+FA8650-04-M-7104,FA8650-04-M-7104,,,,,,,,,,,,,raw/UAP_RE_Contractor_Pack_2025-11-06/piid_seeds_from_sbir.csv,,,0,,9e02d019e47b84ae,0.6
+HQ0860-22-C-7511,HQ0860-22-C-7511,,,,,,,,,,,,,raw/UAP_RE_Contractor_Pack_2025-11-06/piid_seeds_from_sbir.csv,,,0,,9e02d019e47b84ae,0.6
+W31P4Q-11-C-0098,W31P4Q-11-C-0098,,,,,,,,,,,,,raw/UAP_RE_Contractor_Pack_2025-11-06/piid_seeds_from_sbir.csv,,,0,,9e02d019e47b84ae,0.6

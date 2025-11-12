@@ -1,0 +1,29 @@
+source,target,relationship,amount_usd,start_date,end_date,source_citation,__source_file,source_norm,target_norm,edge_id
+Veritas Capital,acquires DynCorp Gov't Services from CSC,M&A,850000000.0,2004-12-13,,,uap_money_edges_v3.csv,VERITAS CAPITAL,ACQUIRES DYNCORP GOV T SERVICES FROM CSC,5f253d79345a22a2
+Lockheed Martin (seller),Veritas Capital (buyer),M&A / Divestiture,815000000.0,2010-11-29,,,uap_money_edges_v3.csv,LOCKHEED MARTIN SELLER,VERITAS CAPITAL BUYER,eeb88bd31da051cd
+The SI Organization,to acquire QinetiQ North America (Services & Solutions Group),Acquisition agreement,165000000.0,2014-04-22,,,uap_money_edges_v3.csv,THE SI ORGANIZATION,TO ACQUIRE QINETIQ NORTH AMERICA SERVICES & SOLUTIONS GROUP,32d34da0c7deaef9
+NGA,Perspecta,Govt. contract (IDIQ),824000000.0,2019-08-12,,,uap_money_edges_v3.csv,NGA,PERSPECTA,051e70bf678da2ae
+NGA,Perspecta,Govt. contract (task order),223000000.0,2019-08-13,,,uap_money_edges_v3.csv,NGA,PERSPECTA,eed68297c0e7dc18
+Peraton,acquires Northrop Grumman Federal IT & Mission Support Services,Carve-out / M&A,3400000000.0,2021-02-01,,,uap_money_edges_v3.csv,PERATON,ACQUIRES NORTHROP GRUMMAN FEDERAL IT & MISSION SUPPORT SERVICES,dc2e413f77292c0c
+Peraton (Veritas),acquires Perspecta,M&A,7100000000.0,2021-05-06,,,uap_money_edges_v3.csv,PERATON VERITAS,ACQUIRES PERSPECTA,195f032b92ec0293
+Peraton,completes acquisition of Perspecta,M&A (Close),7100000000.0,2021-05-06,,,uap_money_edges_v3.csv,PERATON,COMPLETES ACQUISITION OF PERSPECTA,ad2f1c846594ccaf
+Veritas Capital + Evergreen Coast Capital,acquire Cubic Corporation,Take-private,2800000000.0,2021-05-25,,,uap_money_edges_v3.csv,VERITAS CAPITAL + EVERGREEN COAST CAPITAL,ACQUIRE CUBIC CORPORATION,e4a1926045aac0cd
+DCSA,Peraton (via Perspecta Enterprise Solutions),Govt. contract (OTA),474000000.0,2021-06-15,,,uap_money_edges_v3.csv,DCSA,PERATON VIA PERSPECTA ENTERPRISE SOLUTIONS,1acd8233240ace54
+HII (Huntington Ingalls Industries),acquires Alion Science & Technology from Veritas,Sale/Exit,1650000000.0,2021-08-19,,,uap_money_edges_v3.csv,HII HUNTINGTON INGALLS INDUSTRIES,ACQUIRES ALION SCIENCE & TECHNOLOGY FROM VERITAS,ab14d16235e59da2
+TSA (DHS),Peraton,Govt. contract,342700000.0,2022-12-21,,,uap_money_edges_v3.csv,TSA DHS,PERATON,88d8b926d2ac67e9
+DCSA,Peraton,Govt. contract,2250000000.0,2023-01-03,,,uap_money_edges_v3.csv,DCSA,PERATON,10ca8348a8177009
+Bain Capital,to acquire Guidehouse from Veritas Capital,Sale/Exit,5300000000.0,2023-11-20,,,uap_money_edges_v3.csv,BAIN CAPITAL,TO ACQUIRE GUIDEHOUSE FROM VERITAS CAPITAL,45e9e98e3d50e4dc
+Lockheed Martin EIG,The SI Organization,RELATED_TO,,,,,uap_entity_edges.csv,LOCKHEED MARTIN EIG,THE SI ORGANIZATION,b5aaa4a15aa06642
+The SI Organization,QinetiQ North America SSG,RELATED_TO,,,,,uap_entity_edges.csv,THE SI ORGANIZATION,QINETIQ NORTH AMERICA SSG,9a9e3c270c6ed2c9
+The SI Organization,Vencore,RELATED_TO,,,,,uap_entity_edges.csv,THE SI ORGANIZATION,VENCORE,6beb71b768ca9239
+Vencore,Perspecta,RELATED_TO,,,,,uap_entity_edges.csv,VENCORE,PERSPECTA,6477a6c670b2e250
+Perspecta,Peraton,RELATED_TO,,,,,uap_entity_edges.csv,PERSPECTA,PERATON,86e28999aea9e8a4
+Northrop Grumman Federal IT/MSS,Peraton,RELATED_TO,,,,,uap_entity_edges.csv,NORTHROP GRUMMAN FEDERAL IT MSS,PERATON,bc3715335ffa672b
+Peraton,Arcfield,RELATED_TO,,,,,uap_entity_edges.csv,PERATON,ARCFIELD,4be1f880b8e47c77
+NGA,Perspecta,RELATED_TO,,,,,uap_entity_edges.csv,NGA,PERSPECTA,29cedce099ff4800
+DCSA,Peraton,RELATED_TO,,,,,uap_entity_edges.csv,DCSA,PERATON,223375a129d2b598
+TSA,Peraton,RELATED_TO,,,,,uap_entity_edges.csv,TSA,PERATON,295bfc51c746729b
+Robert Cardillo,Peraton,RELATED_TO,,,,,uap_entity_edges.csv,ROBERT CARDILLO,PERATON,e997206e167bf31f
+Veritas Capital,Peraton,RELATED_TO,,,,,uap_entity_edges.csv,VERITAS CAPITAL,PERATON,014990de4f68ba7a
+Veritas Capital,The SI Organization,RELATED_TO,,,,,uap_entity_edges.csv,VERITAS CAPITAL,THE SI ORGANIZATION,ae5f584fd1528a14
+Veritas Capital,Arcfield,RELATED_TO,,,,,uap_entity_edges.csv,VERITAS CAPITAL,ARCFIELD,05f5fbb0c6f8e885

@@ -1,0 +1,24 @@
+Center,Operator,Sponsor_Agency,Sponsor_Subagency,Aliases
+Oak Ridge National Laboratory (ORNL),"UT-Battelle, LLC",DOE,Office of Science,UT-Battelle|UT Battelle|Oak Ridge National Laboratory|ORNL
+Los Alamos National Laboratory (LANL),"Triad National Security, LLC",DOE,NNSA,Triad National Security|LANL|Los Alamos National Laboratory|Triad
+Lawrence Livermore National Laboratory (LLNL),"Lawrence Livermore National Security, LLC",DOE,NNSA,LLNS|Lawrence Livermore National Laboratory|LLNL|Lawrence Livermore National Security
+Savannah River National Laboratory (SRNL),"Battelle Savannah River Alliance, LLC",DOE,Office of Environmental Management,BSRA|Savannah River National Laboratory|SRNL|Battelle Savannah River Alliance
+Argonne National Laboratory (ANL),"UChicago Argonne, LLC",DOE,Office of Science,UChicago Argonne|Argonne National Laboratory|ANL|UChicago Argonne LLC
+Brookhaven National Laboratory (BNL),"Brookhaven Science Associates, LLC",DOE,Office of Science,Brookhaven Science Associates|BSA|Brookhaven National Laboratory|BNL
+Fermi National Accelerator Laboratory (Fermilab),"Fermi Research Alliance, LLC",DOE,Office of Science,Fermi Research Alliance|FRA|Fermilab|Fermi National Accelerator Laboratory
+Thomas Jefferson National Accelerator Facility (JLab),"Jefferson Science Associates, LLC",DOE,Office of Science,Jefferson Science Associates|JSA|Jefferson Lab|JLab|Thomas Jefferson National Accelerator Facility
+National Renewable Energy Laboratory (NREL),"Alliance for Sustainable Energy, LLC",DOE,EERE,Alliance for Sustainable Energy|NREL
+Sandia National Laboratories,"National Technology & Engineering Solutions of Sandia, LLC",DOE,NNSA,NTESS|National Technology and Engineering Solutions of Sandia|Sandia National Laboratories|Sandia
+Idaho National Laboratory (INL),"Battelle Energy Alliance, LLC",DOE,Office of Nuclear Energy,Battelle Energy Alliance|BEA|Idaho National Laboratory|INL
+Ames National Laboratory,Iowa State University,DOE,Office of Science,Iowa State University|Ames National Laboratory|Ames Lab
+SLAC National Accelerator Laboratory (SLAC),Stanford University,DOE,Office of Science,SLAC|Stanford University|SLAC National Accelerator Laboratory
+Princeton Plasma Physics Laboratory (PPPL),Princeton University,DOE,Office of Science,PPPL|Princeton University|Princeton Plasma Physics Laboratory
+Jet Propulsion Laboratory (JPL),California Institute of Technology,NASA,JPL,JPL|Jet Propulsion Laboratory|Caltech|California Institute of Technology
+MIT Lincoln Laboratory,Massachusetts Institute of Technology,DoD,OSD,MIT Lincoln Laboratory|Lincoln Laboratory|MIT
+Software Engineering Institute (SEI),Carnegie Mellon University,DoD,OSD,Software Engineering Institute|SEI|Carnegie Mellon University|CMU
+Center for Naval Analyses (CNA),CNA Corporation,DoD,Department of the Navy,CNA|Center for Naval Analyses
+RAND FFRDCs (NDRI/PAF/Arroyo),RAND Corporation,DoD,OSD/USAF/Army,RAND|National Defense Research Institute|Project AIR FORCE|Arroyo Center
+Aerospace FFRDC,The Aerospace Corporation,DoD,Department of the Air Force/USSF,Aerospace Corporation|The Aerospace Corporation|Aerospace FFRDC
+NCAR (NSF),University Corporation for Atmospheric Research (UCAR),NSF,NCSES/NCAR,UCAR|NCAR|National Center for Atmospheric Research
+Frederick National Laboratory for Cancer Research (FNLCR),"Leidos Biomedical Research, Inc.",NIH,NCI,Frederick National Laboratory|FNLCR|Leidos Biomedical Research|Leidos Biomedical
+National Cybersecurity FFRDC (NCF),MITRE Corporation,DOC,NIST/NCCoE,MITRE|National Cybersecurity FFRDC|NCF|NCCoE
