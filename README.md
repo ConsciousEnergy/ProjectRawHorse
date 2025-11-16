@@ -26,7 +26,10 @@ A cross-platform, single-click desktop application for exploring and analyzing p
 **See [INSTALL_GUIDE.md](INSTALL_GUIDE.md) for detailed instructions**
 
 ---
+## Screenshots of Applications UI
 <img width="1893" height="937" alt="Screenshot 2025-11-16 084427" src="https://github.com/user-attachments/assets/9b59ce0b-49ab-4bfe-96a1-9139eada53bd" />
+
+<img width="1899" height="873" alt="Screenshot 2025-11-16 084455" src="https://github.com/user-attachments/assets/db1dd1f3-4003-4ebe-9b96-57f8f948117c" />
 
 ## Features
 
