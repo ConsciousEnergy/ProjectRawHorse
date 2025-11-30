@@ -8,10 +8,29 @@ from datetime import datetime
 from typing import Optional
 from pathlib import Path
 from sqlalchemy.orm import Session
-from database import Entity, MoneyFlow, Award, FOIATarget, Relationship
+from database import Entity, MoneyFlow, Award, FOIATarget, Relationship, SearchLog
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Government agency acronym expansion map
+AGENCY_ACRONYMS = {
+    'NGA': 'National Geospatial-Intelligence Agency',
+    'DOD': 'Department of Defense',
+    'NASA': 'National Aeronautics and Space Administration',
+    'DARPA': 'Defense Advanced Research Projects Agency',
+    'DIA': 'Defense Intelligence Agency',
+    'NSA': 'National Security Agency',
+    'CIA': 'Central Intelligence Agency',
+    'FBI': 'Federal Bureau of Investigation',
+    'DCSA': 'Defense Counterintelligence and Security Agency',
+    'TSA': 'Transportation Security Administration',
+    'DHS': 'Department of Homeland Security',
+    'AARO': 'All-domain Anomaly Resolution Office',
+    'NRO': 'National Reconnaissance Office',
+    'USSF': 'United States Space Force',
+    'USAF': 'United States Air Force',
+}
 
 
 def parse_date(date_str: Optional[str]) -> Optional[datetime]:
@@ -46,9 +65,16 @@ def infer_entity_type(name: str) -> str:
         return "Unknown"
     
     name_lower = name.lower()
+    name_stripped = name.strip()
     
-    # Government entities
-    if any(term in name_lower for term in ['government', 'dept', 'department', 'agency', 'administration', 'nga', 'dod', 'nasa', 'darpa']):
+    # Exact match for government acronyms (to avoid false positives like "Singa Corporation")
+    gov_acronyms = ['NGA', 'DOD', 'NASA', 'DARPA', 'DIA', 'NSA', 'CIA', 'FBI', 
+                     'DCSA', 'TSA', 'DHS', 'AARO', 'NRO', 'USSF', 'USAF']
+    if name_stripped.upper() in gov_acronyms:
+        return "Government Agency"
+    
+    # General government entity patterns (using word boundaries)
+    if any(term in name_lower for term in ['government', 'dept', 'department', 'agency', 'administration']):
         return "Government Agency"
     
     # Investment/Capital firms
