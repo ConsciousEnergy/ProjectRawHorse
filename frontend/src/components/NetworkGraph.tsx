@@ -80,19 +80,21 @@ function NetworkGraph() {
     }
   };
 
+  // Color map - single source of truth for all entity colors
+  const colorMap: Record<string, string> = {
+    'Corporation': '#5B4FFF',           // Purple (primary)
+    'Government Agency': '#FFD700',     // Gold (accent)  
+    'Investment Firm': '#FF6B9D',       // Pink
+    'Research Institution': '#FFA500',  // Orange
+    'Non-Profit': '#7B6FFF',           // Light purple
+    'Organization': '#00D4AA',          // Teal
+    'Unknown': '#8B8B8B',               // Gray
+    'default': '#9B9B9B'                // Default gray
+  };
+
   const getNodeColor = (node: ForceGraphNode) => {
-    // Enhanced color scheme with more types
-    const colors: Record<string, string> = {
-      'Corporation': '#5B4FFF',           // Purple (primary)
-      'Government Agency': '#FFD700',     // Gold (accent)
-      'Investment Firm': '#FF6B9D',       // Pink
-      'Research Institution': '#FFA500',  // Orange
-      'Non-Profit': '#7B6FFF',           // Light purple
-      'Organization': '#00D4AA',          // Teal
-      'Unknown': '#8B8B8B',               // Gray
-      'default': '#9B9B9B'                // Default gray
-    };
-    return colors[node.type || 'default'] || colors.default;
+    // Use the single source of truth color map
+    return colorMap[node.type || 'default'] || colorMap.default;
   };
 
   const getNodeSize = (node: ForceGraphNode) => {
@@ -105,17 +107,6 @@ function NetworkGraph() {
     const types = new Set(graphData.nodes.map(n => n.type).filter(Boolean));
     return Array.from(types).sort();
   }, [graphData.nodes]);
-
-  // Color map for legend
-  const colorMap: Record<string, string> = {
-    'Corporation': '#5B4FFF',
-    'Government Agency': '#FFD700',
-    'Investment Firm': '#FF6B9D',
-    'Research Institution': '#FFA500',
-    'Non-Profit': '#7B6FFF',
-    'Organization': '#00D4AA',
-    'Unknown': '#8B8B8B',
-  };
 
   if (loading) {
     return (
@@ -172,7 +163,17 @@ function NetworkGraph() {
       <ForceGraph2D
         ref={fgRef}
         graphData={graphData}
-        nodeLabel={(node: any) => `${node.name}${node.type ? ` (${node.type})` : ''}`}
+        nodeLabel={(node: any) => {
+          // Build tooltip with full name if available
+          let label = node.name;
+          if (node.full_name) {
+            label = `${node.name} - ${node.full_name}`;
+          }
+          if (node.type) {
+            label += ` (${node.type})`;
+          }
+          return label;
+        }}
         nodeColor={getNodeColor}
         nodeVal={getNodeSize}
         linkLabel="label"

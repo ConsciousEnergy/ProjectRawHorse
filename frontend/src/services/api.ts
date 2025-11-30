@@ -64,6 +64,18 @@ export const getTimeline = async () => {
   return response.data;
 };
 
+// Search endpoint
+export const searchGlobal = async (query: string, types?: string[], limit?: number) => {
+  const response = await api.get('/search', {
+    params: {
+      q: query,
+      types: types,
+      limit: limit,
+    },
+  });
+  return response.data;
+};
+
 // Export endpoints
 export const exportEntitiesCSV = () => {
   window.open(`${API_BASE_URL}/export/csv/entities`, '_blank');

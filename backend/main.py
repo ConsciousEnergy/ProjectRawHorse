@@ -15,7 +15,7 @@ import logging
 from database import init_database, get_session_maker
 from data_loader import load_all_data, is_database_populated
 from dependencies import set_session_local, get_db
-from routers import data, analysis, export_router, contribute
+from routers import data, analysis, export_router, contribute, search
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -89,6 +89,7 @@ app.include_router(data.router, prefix="/api/data", tags=["data"])
 app.include_router(analysis.router, prefix="/api/analysis", tags=["analysis"])
 app.include_router(export_router.router, prefix="/api/export", tags=["export"])
 app.include_router(contribute.router, prefix="/api/contribute", tags=["contribute"])
+app.include_router(search.router, prefix="/api", tags=["search"])
 
 @app.get("/api/health")
 async def health_check():
@@ -109,6 +110,14 @@ if os.path.exists(static_dir):
         if os.path.exists(logo_path):
             return FileResponse(logo_path)
         return {"error": "Logo not found"}
+    
+    # Serve PRH logo
+    @app.get("/PRHLogo.png")
+    async def get_prh_logo():
+        logo_path = os.path.join(static_dir, "PRHLogo.png")
+        if os.path.exists(logo_path):
+            return FileResponse(logo_path)
+        return {"error": "PRH Logo not found"}
     
     # Catch-all route for SPA - must be last!
     @app.get("/{full_path:path}")
