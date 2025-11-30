@@ -76,12 +76,17 @@ async def get_entity_graph(
             from data_loader import infer_entity_type
             entity_type = infer_entity_type(entity_name)
         
+        # Get full name for acronyms
+        from data_loader import AGENCY_ACRONYMS
+        full_name = AGENCY_ACRONYMS.get(entity_name.strip().upper())
+        
         nodes.append(
             GraphNode(
                 id=entity_name,  # Use name as ID to match relationships
                 name=entity_name,
                 type=entity_type,
-                value=node_value
+                value=node_value,
+                full_name=full_name
             )
         )
     

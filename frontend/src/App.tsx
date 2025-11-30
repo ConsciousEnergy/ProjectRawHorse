@@ -10,6 +10,7 @@ import Contribute from './pages/Contribute';
 import About from './pages/About';
 import LegalDisclaimer from './components/LegalDisclaimer';
 import ThemeToggle from './components/ThemeToggle';
+import SearchBar from './components/SearchBar';
 
 import './styles/theme.css';
 import './App.css';
@@ -29,8 +30,14 @@ function Navigation() {
   return (
     <nav className="sidebar">
       <div className="sidebar-header">
+        <img src="/PRHLogo.png" alt="Project RawHorse Logo" className="sidebar-logo" />
         <h1>Project RawHorse</h1>
       </div>
+      
+      <div className="sidebar-search">
+        <SearchBar />
+      </div>
+      
       <ul className="nav-items">
         {navItems.map((item) => {
           const Icon = item.icon;
