@@ -51,6 +51,7 @@ export interface GraphNode {
   name: string;
   type: string;
   value?: number;
+  full_name?: string;  // Expanded name for acronyms
 }
 
 export interface GraphEdge {
@@ -63,4 +64,21 @@ export interface GraphEdge {
 export interface GraphData {
   nodes: GraphNode[];
   edges: GraphEdge[];
+}
+
+export interface SearchResult {
+  type: 'entity' | 'award' | 'money_flow' | 'foia_target';
+  id: string | number;
+  title: string;
+  description: string;
+  matched_field: string;
+  matched_text: string;
+  relevance: number;
+  metadata: any;
+}
+
+export interface SearchResponse {
+  query: string;
+  total_results: number;
+  results: SearchResult[];
 }

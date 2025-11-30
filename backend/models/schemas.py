@@ -147,6 +147,7 @@ class GraphNode(BaseModel):
     name: str
     type: str
     value: Optional[float] = None
+    full_name: Optional[str] = None  # Expanded name for acronyms
 
 
 class GraphEdge(BaseModel):

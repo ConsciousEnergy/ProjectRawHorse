@@ -2,7 +2,8 @@
 Database initialization and management with SQLAlchemy
 """
 import os
-from sqlalchemy import create_engine, Column, Integer, String, Float, Date, Text, Index
+from datetime import datetime
+from sqlalchemy import create_engine, Column, Integer, String, Float, Date, Text, Index, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
@@ -90,6 +91,23 @@ class Relationship(Base):
     
     __table_args__ = (
         Index('idx_relationship_source_target', 'source', 'target'),
+    )
+
+
+class SearchLog(Base):
+    """Track search queries for analytics and improvements"""
+    __tablename__ = "search_logs"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    query = Column(String, index=True, nullable=False)
+    results_count = Column(Integer, nullable=False)
+    search_timestamp = Column(DateTime, default=datetime.utcnow, index=True)
+    response_time_ms = Column(Integer)
+    types_searched = Column(String)  # Comma-separated list of types
+    
+    __table_args__ = (
+        Index('idx_search_timestamp', 'search_timestamp'),
+        Index('idx_search_query', 'query'),
     )
 
 

@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { getEntities, getMoneyFlows, getAwards, getFOIATargets } from '../services/api';
 import type { Entity, MoneyFlow, Award, FOIATarget } from '../types';
 
 type TabType = 'entities' | 'money-flows' | 'awards' | 'foia';
 
 function Browse() {
+  const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<TabType>('entities');
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
@@ -23,9 +25,29 @@ function Browse() {
   const [awards, setAwards] = useState<Award[]>([]);
   const [foiaTargets, setFOIATargets] = useState<FOIATarget[]>([]);
 
+  // Initialize from URL parameters
+  useEffect(() => {
+    const tab = searchParams.get('tab') as TabType;
+    const search = searchParams.get('search');
+    const highlight = searchParams.get('highlight');
+    
+    if (tab && ['entities', 'money-flows', 'awards', 'foia'].includes(tab)) {
+      setActiveTab(tab);
+    }
+    
+    if (search) {
+      setSearchTerm(search);
+    }
+    
+    // Store highlight ID for later use (could add visual highlighting)
+    if (highlight) {
+      sessionStorage.setItem('highlightId', highlight);
+    }
+  }, [searchParams]);
+
   useEffect(() => {
     loadData();
-  }, [activeTab]);
+  }, [activeTab, searchTerm]);
 
   const buildParams = () => {
     const params: any = { limit: 100 };
