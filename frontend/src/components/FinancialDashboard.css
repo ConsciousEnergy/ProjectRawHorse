@@ -1,0 +1,285 @@
+.financial-dashboard-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.dashboard-header {
+  text-align: center;
+}
+
+.dashboard-header h3 {
+  margin: 0 0 0.5rem 0;
+  color: var(--text-color);
+  font-size: 1.5rem;
+}
+
+.dashboard-description {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.stats-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: var(--card-bg);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  transition: all 0.2s;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(91, 79, 255, 0.1);
+}
+
+.stat-icon {
+  font-size: 2rem;
+  opacity: 0.8;
+}
+
+.stat-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 1.5rem;
+}
+
+.chart-card {
+  padding: 1.5rem;
+  background: var(--card-bg);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.chart-card.full-width {
+  grid-column: 1 / -1;
+}
+
+.chart-card h4 {
+  margin: 0 0 1rem 0;
+  color: var(--text-color);
+  font-size: 1.1rem;
+}
+
+.custom-tooltip {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 0.75rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.tooltip-label {
+  margin: 0 0 0.25rem 0;
+  font-weight: 600;
+  color: var(--text-color);
+  font-size: 0.9rem;
+}
+
+.tooltip-value {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--primary-color);
+  font-weight: 700;
+}
+
+.tooltip-percentage {
+  margin: 0.25rem 0 0 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.agency-details {
+  padding: 1.5rem;
+  background: var(--card-bg);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.agency-details h4 {
+  margin: 0 0 1rem 0;
+  color: var(--text-color);
+  font-size: 1.1rem;
+}
+
+.agency-table {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.agency-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background: var(--bg-color);
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.agency-row:hover {
+  background: var(--border-color);
+  transform: translateX(4px);
+}
+
+.agency-rank {
+  font-weight: 700;
+  color: var(--text-secondary);
+  min-width: 32px;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.agency-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.agency-name {
+  flex: 1;
+  color: var(--text-color);
+  font-size: 0.95rem;
+}
+
+.agency-amount {
+  font-weight: 600;
+  color: var(--primary-color);
+  font-size: 1rem;
+  min-width: 100px;
+  text-align: right;
+}
+
+.agency-percent {
+  font-weight: 500;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  min-width: 60px;
+  text-align: right;
+}
+
+.loading,
+.error {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-secondary);
+}
+
+.error {
+  color: #ff6b6b;
+}
+
+.retry-button {
+  padding: 0.5rem 1rem;
+  background: var(--secondary-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.retry-button:hover {
+  background: var(--secondary-hover);
+  transform: translateY(-1px);
+}
+
+/* Recharts custom styling */
+.recharts-legend-wrapper {
+  padding-top: 1rem;
+}
+
+.recharts-legend-item-text {
+  color: var(--text-color) !important;
+  font-size: 0.85rem;
+}
+
+.recharts-cartesian-axis-tick-value {
+  fill: var(--text-secondary);
+  font-size: 0.8rem;
+}
+
+.recharts-pie-label-text {
+  font-size: 0.75rem;
+  fill: var(--text-color);
+}
+
+/* Responsive design */
+@media (max-width: 1024px) {
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-card {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .stats-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-card {
+    padding: 1rem;
+  }
+
+  .stat-icon {
+    font-size: 1.5rem;
+  }
+
+  .stat-value {
+    font-size: 1.25rem;
+  }
+
+  .agency-row {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .agency-amount,
+  .agency-percent {
+    min-width: auto;
+  }
+
+  .chart-card {
+    padding: 1rem;
+  }
+
+  .recharts-pie-label-text {
+    font-size: 0.6rem;
+  }
+}
+

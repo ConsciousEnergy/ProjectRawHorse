@@ -67,9 +67,21 @@ def infer_entity_type(name: str) -> str:
     name_lower = name.lower()
     name_stripped = name.strip()
     
+    # National Laboratories (DOE, specific pattern)
+    if 'national laboratory' in name_lower or 'national lab' in name_lower:
+        return "National Laboratory"
+    
+    # FFRDCs (Federally Funded Research and Development Centers)
+    if 'ffrdc' in name_lower or any(term in name_lower for term in ['lincoln laboratory', 'aerospace corporation', 'jpl', 'jet propulsion']):
+        return "FFRDC"
+    
+    # Academic Institutions
+    if any(term in name_lower for term in ['university', 'institute of technology', 'college']):
+        return "Academic Institution"
+    
     # Exact match for government acronyms (to avoid false positives like "Singa Corporation")
     gov_acronyms = ['NGA', 'DOD', 'NASA', 'DARPA', 'DIA', 'NSA', 'CIA', 'FBI', 
-                     'DCSA', 'TSA', 'DHS', 'AARO', 'NRO', 'USSF', 'USAF']
+                     'DCSA', 'TSA', 'DHS', 'AARO', 'NRO', 'USSF', 'USAF', 'DOE', 'NSF', 'NIH', 'DOC']
     if name_stripped.upper() in gov_acronyms:
         return "Government Agency"
     
@@ -81,8 +93,8 @@ def infer_entity_type(name: str) -> str:
     if any(term in name_lower for term in ['capital', 'partners', 'ventures', 'investment', 'equity']):
         return "Investment Firm"
     
-    # Research institutions
-    if any(term in name_lower for term in ['laboratories', 'research', 'institute', 'university', 'lab']):
+    # Research institutions (general, after more specific types)
+    if any(term in name_lower for term in ['laboratories', 'research', 'institute', 'lab']):
         return "Research Institution"
     
     # Corporations (default for business entities)

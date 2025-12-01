@@ -59,8 +59,54 @@ export const getFinancialFlows = async () => {
   return response.data;
 };
 
-export const getTimeline = async () => {
-  const response = await api.get('/analysis/timeline');
+export const getTimeline = async (groupBy: string = 'year') => {
+  const response = await api.get('/analysis/timeline', {
+    params: { group_by: groupBy }
+  });
+  return response.data;
+};
+
+// New analysis endpoints for enhanced visualizations
+export const getMoneyFlowGraphWeighted = async (minAmount?: number, limit?: number) => {
+  const response = await api.get<GraphData>('/analysis/money-flow-graph', {
+    params: {
+      min_amount: minAmount,
+      limit: limit
+    }
+  });
+  return response.data;
+};
+
+export const getTopRecipientsByType = async () => {
+  const response = await api.get('/analysis/top-recipients');
+  return response.data;
+};
+
+export const getAgencySpendingBreakdown = async () => {
+  const response = await api.get('/analysis/agency-breakdown');
+  return response.data;
+};
+
+export const getAmountDistribution = async () => {
+  const response = await api.get('/analysis/flow-distribution');
+  return response.data;
+};
+
+export const getNetworkMetrics = async () => {
+  const response = await api.get('/analysis/network-metrics');
+  return response.data;
+};
+
+export const getNetworkCentrality = async (entityName?: string) => {
+  const url = entityName 
+    ? `/analysis/network-metrics/centrality/${entityName}`
+    : '/analysis/network-metrics';
+  const response = await api.get(url);
+  return response.data;
+};
+
+export const getNetworkCommunities = async () => {
+  const response = await api.get('/analysis/network-metrics/communities');
   return response.data;
 };
 

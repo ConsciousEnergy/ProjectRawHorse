@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import ForceGraph2D from 'react-force-graph-2d';
 import { forceCollide } from 'd3-force';
 import { getEntityGraph } from '../services/api';
@@ -86,8 +86,12 @@ function NetworkGraph() {
     'Government Agency': '#FFD700',     // Gold (accent)  
     'Investment Firm': '#FF6B9D',       // Pink
     'Research Institution': '#FFA500',  // Orange
+    'FFRDC': '#4169E1',                 // Royal Blue
+    'National Laboratory': '#20B2AA',   // Light Sea Green
+    'Academic Institution': '#9370DB',  // Medium Purple
     'Non-Profit': '#7B6FFF',           // Light purple
     'Organization': '#00D4AA',          // Teal
+    'Individual': '#FF8C00',            // Dark Orange
     'Unknown': '#8B8B8B',               // Gray
     'default': '#9B9B9B'                // Default gray
   };
@@ -101,12 +105,6 @@ function NetworkGraph() {
     // Use value if provided, otherwise calculate from connections
     return node.val || 6;  // Slightly larger default
   };
-
-  // Get unique types from actual data
-  const uniqueTypes = React.useMemo(() => {
-    const types = new Set(graphData.nodes.map(n => n.type).filter(Boolean));
-    return Array.from(types).sort();
-  }, [graphData.nodes]);
 
   if (loading) {
     return (
@@ -148,16 +146,6 @@ function NetworkGraph() {
         <button onClick={() => fgRef.current?.zoom(0.5, 400)}>
           Zoom Out
         </button>
-      </div>
-      
-      <div className="graph-legend">
-        <h5 style={{ margin: '0 0 10px 0', fontSize: '0.9rem', color: '#999' }}>Entity Types:</h5>
-        {uniqueTypes.map(type => (
-          <div key={type} className="legend-item">
-            <span className="legend-color" style={{ backgroundColor: colorMap[type] || '#9B9B9B' }}></span>
-            <span>{type}</span>
-          </div>
-        ))}
       </div>
 
       <ForceGraph2D
