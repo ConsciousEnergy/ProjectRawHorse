@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { getFinancialFlows, getTimeline } from '../services/api';
 import NetworkGraph from '../components/NetworkGraph';
+import SkeletonLoader from '../components/SkeletonLoader';
 
 function Analysis() {
   const [financialData, setFinancialData] = useState<any>(null);
   const [timelineData, setTimelineData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     loadAnalysisData();
@@ -13,6 +15,7 @@ function Analysis() {
 
   const loadAnalysisData = async () => {
     try {
+      setError(null);
       const [financial, timeline] = await Promise.all([
         getFinancialFlows(),
         getTimeline()
@@ -22,6 +25,7 @@ function Analysis() {
       setTimelineData(timeline);
     } catch (error) {
       console.error('Error loading analysis data:', error);
+      setError('Failed to load analysis data. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -35,16 +39,21 @@ function Analysis() {
     }).format(amount);
   };
 
-  if (loading) {
-    return <div className="loading">Loading analysis data...</div>;
-  }
-
   return (
-    <div className="analysis">
+    <div className="analysis fade-in" role="main" aria-label="Analysis page">
       <div className="page-header">
-        <h2>Analysis</h2>
+        <h1>Analysis</h1>
         <p>Visualize relationships and financial networks</p>
       </div>
+
+      {error && (
+        <div className="alert alert-error" role="alert">
+          {error}
+          <button onClick={loadAnalysisData} className="btn btn-secondary" style={{ marginLeft: '12px', padding: '6px 12px' }}>
+            Retry
+          </button>
+        </div>
+      )}
 
       <div className="card">
         <h3>Entity Network Graph</h3>
@@ -55,67 +64,92 @@ function Analysis() {
         <NetworkGraph />
       </div>
 
-      <div className="card">
-        <h3>Top Recipients (Inflows)</h3>
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>Entity</th>
-              <th>Total Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            {financialData?.inflows?.slice(0, 10).map((item: any, idx: number) => (
-              <tr key={idx}>
-                <td>{item.entity}</td>
-                <td>{formatCurrency(item.amount)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {loading ? (
+        <>
+          <div className="card">
+            <h3>Top Recipients (Inflows)</h3>
+            <SkeletonLoader type="table" />
+          </div>
+          <div className="card">
+            <h3>Top Sources (Outflows)</h3>
+            <SkeletonLoader type="table" />
+          </div>
+          <div className="card">
+            <h3>Timeline</h3>
+            <SkeletonLoader type="table" />
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="card fade-in">
+            <h3>Top Recipients (Inflows)</h3>
+            <div className="data-table-wrapper">
+              <table className="data-table" role="table" aria-label="Top recipients by inflows">
+                <thead>
+                  <tr>
+                    <th>Entity</th>
+                    <th>Total Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {financialData?.inflows?.slice(0, 10).map((item: any, idx: number) => (
+                    <tr key={idx}>
+                      <td>{item.entity}</td>
+                      <td>{formatCurrency(item.amount)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
 
-      <div className="card">
-        <h3>Top Sources (Outflows)</h3>
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>Entity</th>
-              <th>Total Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            {financialData?.outflows?.slice(0, 10).map((item: any, idx: number) => (
-              <tr key={idx}>
-                <td>{item.entity}</td>
-                <td>{formatCurrency(item.amount)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          <div className="card fade-in">
+            <h3>Top Sources (Outflows)</h3>
+            <div className="data-table-wrapper">
+              <table className="data-table" role="table" aria-label="Top sources by outflows">
+                <thead>
+                  <tr>
+                    <th>Entity</th>
+                    <th>Total Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {financialData?.outflows?.slice(0, 10).map((item: any, idx: number) => (
+                    <tr key={idx}>
+                      <td>{item.entity}</td>
+                      <td>{formatCurrency(item.amount)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
 
-      <div className="card">
-        <h3>Timeline</h3>
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>Year</th>
-              <th>Transaction Count</th>
-              <th>Total Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            {timelineData?.timeline?.map((item: any) => (
-              <tr key={item.year}>
-                <td>{item.year}</td>
-                <td>{item.count}</td>
-                <td>{formatCurrency(item.total_amount)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          <div className="card fade-in">
+            <h3>Timeline</h3>
+            <div className="data-table-wrapper">
+              <table className="data-table" role="table" aria-label="Financial timeline">
+                <thead>
+                  <tr>
+                    <th>Year</th>
+                    <th>Transaction Count</th>
+                    <th>Total Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {timelineData?.timeline?.map((item: any) => (
+                    <tr key={item.year}>
+                      <td>{item.year}</td>
+                      <td>{item.count}</td>
+                      <td>{formatCurrency(item.total_amount)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

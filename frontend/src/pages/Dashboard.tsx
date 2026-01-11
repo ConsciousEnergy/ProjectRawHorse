@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { getStats } from '../services/api';
 import type { Stats } from '../types';
+import SkeletonLoader from '../components/SkeletonLoader';
 
 function Dashboard() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     loadStats();
@@ -12,10 +14,12 @@ function Dashboard() {
 
   const loadStats = async () => {
     try {
+      setError(null);
       const data = await getStats();
       setStats(data);
     } catch (error) {
       console.error('Error loading stats:', error);
+      setError('Failed to load dashboard statistics. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -40,53 +44,68 @@ function Dashboard() {
     return `${startYear} - ${endYear}`;
   };
 
-  if (loading) {
-    return <div className="loading">Loading...</div>;
-  }
-
   return (
-    <div className="dashboard">
+    <div className="dashboard fade-in" role="main" aria-label="Dashboard">
       <div className="page-header">
-        <h2>Dashboard</h2>
+        <h1>Dashboard</h1>
         <p>Overview of UAP research data and federal spending</p>
       </div>
 
-      <div className="stats-grid">
-        <div className="stat-card">
-          <h4>Total Entities</h4>
-          <p className="value">{stats?.total_entities || 0}</p>
+      {error && (
+        <div className="alert alert-error" role="alert">
+          {error}
+          <button onClick={loadStats} className="btn btn-secondary" style={{ marginLeft: '12px', padding: '6px 12px' }}>
+            Retry
+          </button>
         </div>
-        
-        <div className="stat-card">
-          <h4>Money Flows</h4>
-          <p className="value">{stats?.total_money_flows || 0}</p>
+      )}
+
+      {loading ? (
+        <div className="stats-grid">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div key={i} className="stat-card">
+              <SkeletonLoader type="stat" />
+            </div>
+          ))}
         </div>
-        
-        <div className="stat-card">
-          <h4>Federal Awards</h4>
-          <p className="value">{stats?.total_awards || 0}</p>
+      ) : (
+        <div className="stats-grid fade-in" role="region" aria-label="Statistics overview">
+          <div className="stat-card" role="article" aria-label="Total entities statistic">
+            <h4>Total Entities</h4>
+            <p className="value" aria-live="polite">{stats?.total_entities || 0}</p>
+          </div>
+          
+          <div className="stat-card" role="article" aria-label="Money flows statistic">
+            <h4>Money Flows</h4>
+            <p className="value" aria-live="polite">{stats?.total_money_flows || 0}</p>
+          </div>
+          
+          <div className="stat-card" role="article" aria-label="Federal awards statistic">
+            <h4>Federal Awards</h4>
+            <p className="value" aria-live="polite">{stats?.total_awards || 0}</p>
+          </div>
+          
+          <div className="stat-card" role="article" aria-label="FOIA targets statistic">
+            <h4>FOIA Targets</h4>
+            <p className="value" aria-live="polite">{stats?.total_foia_targets || 0}</p>
+          </div>
+          
+          <div className="stat-card" role="article" aria-label="Total spending tracked statistic">
+            <h4>Total Spending Tracked</h4>
+            <p className="value" aria-live="polite">{formatCurrency(stats?.total_money_amount || 0)}</p>
+          </div>
+          
+          <div className="stat-card" role="article" aria-label="Date range statistic">
+            <h4>Date Range</h4>
+            <p className="value" aria-live="polite">
+              {stats?.date_range_start && stats?.date_range_end 
+                ? formatDateRange(stats.date_range_start, stats.date_range_end)
+                : 'N/A'
+              }
+            </p>
+          </div>
         </div>
-        
-        <div className="stat-card">
-          <h4>FOIA Targets</h4>
-          <p className="value">{stats?.total_foia_targets || 0}</p>
-        </div>
-        
-        <div className="stat-card">
-          <h4>Total Spending Tracked</h4>
-          <p className="value">{formatCurrency(stats?.total_money_amount || 0)}</p>
-        </div>
-        
-        <div className="stat-card">
-          <h4>Date Range</h4>
-          <p className="value">
-            {stats?.date_range_start && stats?.date_range_end 
-              ? formatDateRange(stats.date_range_start, stats.date_range_end)
-              : 'N/A'
-            }
-          </p>
-        </div>
-      </div>
+      )}
 
       <div className="card">
         <h3>Welcome to Project RawHorse</h3>

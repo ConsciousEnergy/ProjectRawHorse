@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { getEntities, getMoneyFlows, getAwards, getFOIATargets } from '../services/api';
 import type { Entity, MoneyFlow, Award, FOIATarget } from '../types';
+import SkeletonLoader from '../components/SkeletonLoader';
 
 type TabType = 'entities' | 'money-flows' | 'awards' | 'foia';
 
@@ -133,34 +134,50 @@ function Browse() {
   };
 
   return (
-    <div className="browse">
+    <div className="browse" role="main" aria-label="Browse page">
       <div className="page-header">
-        <h2>Browse Data</h2>
+        <h1>Browse Data</h1>
         <p>Explore entities, money flows, awards, and FOIA targets</p>
       </div>
 
-      <div className="tabs">
+      <div className="tabs" role="tablist" aria-label="Data type tabs">
         <button 
           className={activeTab === 'entities' ? 'active' : ''} 
           onClick={() => setActiveTab('entities')}
+          role="tab"
+          aria-selected={activeTab === 'entities'}
+          aria-controls="entities-panel"
+          id="entities-tab"
         >
           Entities
         </button>
         <button 
           className={activeTab === 'money-flows' ? 'active' : ''} 
           onClick={() => setActiveTab('money-flows')}
+          role="tab"
+          aria-selected={activeTab === 'money-flows'}
+          aria-controls="money-flows-panel"
+          id="money-flows-tab"
         >
           Money Flows
         </button>
         <button 
           className={activeTab === 'awards' ? 'active' : ''} 
           onClick={() => setActiveTab('awards')}
+          role="tab"
+          aria-selected={activeTab === 'awards'}
+          aria-controls="awards-panel"
+          id="awards-tab"
         >
           Awards
         </button>
         <button 
           className={activeTab === 'foia' ? 'active' : ''} 
           onClick={() => setActiveTab('foia')}
+          role="tab"
+          aria-selected={activeTab === 'foia'}
+          aria-controls="foia-panel"
+          id="foia-tab"
         >
           FOIA Targets
         </button>
@@ -244,105 +261,113 @@ function Browse() {
 
       <div className="card">
         {loading ? (
-          <div className="loading">Loading...</div>
+          <SkeletonLoader type="table" />
         ) : (
-          <>
+          <div className="fade-in" role="tabpanel" aria-labelledby={`${activeTab}-tab`} id={`${activeTab}-panel`}>
             {activeTab === 'entities' && (
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>Entity ID</th>
-                    <th>Display Name</th>
-                    <th>Normalized Name</th>
-                    <th>Type</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {entities.map((entity) => (
-                    <tr key={entity.entity_id}>
-                      <td>{entity.entity_id}</td>
-                      <td>{entity.display_name}</td>
-                      <td>{entity.normalized_name}</td>
-                      <td>{entity.entity_type || 'N/A'}</td>
+              <div className="data-table-wrapper">
+                <table className="data-table" role="table" aria-label="Entities table">
+                  <thead>
+                    <tr>
+                      <th>Entity ID</th>
+                      <th>Display Name</th>
+                      <th>Normalized Name</th>
+                      <th>Type</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {entities.map((entity) => (
+                      <tr key={entity.entity_id}>
+                        <td>{entity.entity_id}</td>
+                        <td>{entity.display_name}</td>
+                        <td>{entity.normalized_name}</td>
+                        <td>{entity.entity_type || 'N/A'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
 
             {activeTab === 'money-flows' && (
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>Source</th>
-                    <th>Target</th>
-                    <th>Relationship</th>
-                    <th>Amount</th>
-                    <th>Date</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {moneyFlows.map((flow) => (
-                    <tr key={flow.id}>
-                      <td>{flow.source}</td>
-                      <td>{flow.target}</td>
-                      <td>{flow.relationship || 'N/A'}</td>
-                      <td>{formatCurrency(flow.amount_usd)}</td>
-                      <td>{flow.start_date || 'N/A'}</td>
+              <div className="data-table-wrapper">
+                <table className="data-table" role="table" aria-label="Money flows table">
+                  <thead>
+                    <tr>
+                      <th>Source</th>
+                      <th>Target</th>
+                      <th>Relationship</th>
+                      <th>Amount</th>
+                      <th>Date</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {moneyFlows.map((flow) => (
+                      <tr key={flow.id}>
+                        <td>{flow.source}</td>
+                        <td>{flow.target}</td>
+                        <td>{flow.relationship || 'N/A'}</td>
+                        <td>{formatCurrency(flow.amount_usd)}</td>
+                        <td>{flow.start_date || 'N/A'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
 
             {activeTab === 'awards' && (
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>PIID</th>
-                    <th>Recipient</th>
-                    <th>Agency</th>
-                    <th>Amount</th>
-                    <th>Date</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {awards.map((award) => (
-                    <tr key={award.id}>
-                      <td>{award.piid || 'N/A'}</td>
-                      <td>{award.recipient_name || 'N/A'}</td>
-                      <td>{award.awarding_agency || 'N/A'}</td>
-                      <td>{formatCurrency(award.award_amount)}</td>
-                      <td>{award.action_date || 'N/A'}</td>
+              <div className="data-table-wrapper">
+                <table className="data-table" role="table" aria-label="Awards table">
+                  <thead>
+                    <tr>
+                      <th>PIID</th>
+                      <th>Recipient</th>
+                      <th>Agency</th>
+                      <th>Amount</th>
+                      <th>Date</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {awards.map((award) => (
+                      <tr key={award.id}>
+                        <td>{award.piid || 'N/A'}</td>
+                        <td>{award.recipient_name || 'N/A'}</td>
+                        <td>{award.awarding_agency || 'N/A'}</td>
+                        <td>{formatCurrency(award.award_amount)}</td>
+                        <td>{award.action_date || 'N/A'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
 
             {activeTab === 'foia' && (
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>Agency</th>
-                    <th>Record Request</th>
-                    <th>Timeframe</th>
-                    <th>Relevance</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {foiaTargets.map((foia) => (
-                    <tr key={foia.id}>
-                      <td>{foia.agency}</td>
-                      <td>{foia.record_request}</td>
-                      <td>{foia.timeframe || 'N/A'}</td>
-                      <td>{foia.relevance || 'N/A'}</td>
+              <div className="data-table-wrapper">
+                <table className="data-table" role="table" aria-label="FOIA targets table">
+                  <thead>
+                    <tr>
+                      <th>Agency</th>
+                      <th>Record Request</th>
+                      <th>Timeframe</th>
+                      <th>Relevance</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {foiaTargets.map((foia) => (
+                      <tr key={foia.id}>
+                        <td>{foia.agency}</td>
+                        <td>{foia.record_request}</td>
+                        <td>{foia.timeframe || 'N/A'}</td>
+                        <td>{foia.relevance || 'N/A'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
-          </>
+          </div>
         )}
       </div>
     </div>

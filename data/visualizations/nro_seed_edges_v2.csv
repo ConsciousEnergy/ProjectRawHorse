@@ -1,0 +1,32 @@
+source,target,relationship,since
+NRO,BlackSky Technology Inc.,EOCL,2022-05-25
+NRO,Maxar Technologies,EOCL,2022-05-25
+NRO,Planet Labs PBC,EOCL,2022-05-25
+NRO,"Airbus U.S. Space & Defense, Inc.",SCE – Commercial Radar,2022-01-20
+NRO,Capella Space,SCE – Commercial Radar,2022-01-20
+NRO,"ICEYE US, Inc.",SCE – Commercial Radar,2022-01-20
+NRO,PredaSAR (Terran Orbital),SCE – Commercial Radar,2022-01-20
+NRO,"Umbra Lab, Inc.",SCE – Commercial Radar,2022-01-20
+NRO,Aurora Insight,SCE – Commercial RF,2022-09-28
+NRO,HawkEye 360 Inc.,SCE – Commercial RF,2022-09-28
+NRO,Kleos Space Inc.,SCE – Commercial RF,2022-09-28
+NRO,PredaSAR (Terran Orbital),SCE – Commercial RF,2022-09-28
+NRO,"Spire Global, Inc.",SCE – Commercial RF,2022-09-28
+NRO,"Umbra Lab, Inc.",SCE – Commercial RF,2022-09-28
+NRO,BlackSky Technology Inc.,SCE – Hyperspectral,2023-03-22
+NRO,HyperSat,SCE – Hyperspectral,2023-03-22
+NRO,Orbital Sidekick,SCE – Hyperspectral,2023-03-22
+NRO,Pixxel,SCE – Hyperspectral,2023-03-22
+NRO,Planet Labs PBC,SCE – Hyperspectral,2023-03-22
+NRO,Xplore Inc.,SCE – Hyperspectral,2023-03-22
+NRO,Hydrosat,SCE – Thermal/EO-IR,2025-07-21
+NRO,"Airbus U.S. Space & Defense, Inc.",SCE – EO Studies,2023-12-05
+NRO,Albedo Space,SCE – EO Studies,2023-12-05
+NRO,Hydrosat,SCE – EO Studies,2023-12-05
+NRO,Muon Space,SCE – EO Studies,2023-12-05
+NRO,Turion Space,SCE – EO Studies,2023-12-05
+NRO,"Umbra Lab, Inc.",SCE – Commercial RF,2024-02-28
+NRO,Capella Space,SCE – Commercial Radar,2024-12-05
+NRO,"ICEYE US, Inc.",SCE – Commercial Radar,2024-12-05
+NRO,"Umbra Lab, Inc.",SCE – Commercial Radar,2024-12-05
+NRO,(Program) NRO CSPO Commercial Foundation,Commercial Foundation RFI,2025-07-24

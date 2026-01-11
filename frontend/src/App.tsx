@@ -77,6 +77,9 @@ function App() {
   return (
     <Router>
       <div className="app">
+        <a href="#main-content" className="skip-link">
+          Skip to main content
+        </a>
         {!disclaimerAccepted && (
           <LegalDisclaimer onAccept={handleDisclaimerAccept} />
         )}
@@ -84,7 +87,7 @@ function App() {
         <ThemeToggle />
         <Navigation />
         
-        <main className="main-content">
+        <main id="main-content" className="main-content" role="main">
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/browse" element={<Browse />} />
