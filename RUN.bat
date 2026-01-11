@@ -8,6 +8,7 @@ echo ================================================================
 echo.
 
 REM Check if installed
+REM cspell:ignore venv
 if not exist "venv" (
     echo ERROR: Project RawHorse is not installed yet!
     echo.
@@ -24,6 +25,7 @@ echo Press Ctrl+C to stop the server when done.
 echo.
 
 REM Activate virtual environment and start
+REM cspell:ignore venv
 call venv\Scripts\activate.bat
 cd backend
 python main.py

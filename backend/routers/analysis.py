@@ -6,8 +6,9 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
-from database import Entity, MoneyFlow, Relationship
+from database import Entity, MoneyFlow, Relationship, Award
 from models.schemas import GraphData, GraphNode, GraphEdge
+from collections import defaultdict
 
 # Import database dependency
 from dependencies import get_db
@@ -15,40 +16,151 @@ from dependencies import get_db
 router = APIRouter()
 
 
+def infer_relationships_from_awards(db: Session) -> List[GraphEdge]:
+    """
+    Infer relationships from Awards data to create more connections:
+    1. Awarding Agency -> Recipient relationships
+    2. Co-recipients (entities that received awards from same agency)
+    3. Entities with same NAICS codes (same industry)
+    """
+    inferred_edges = []
+    seen_edges = set()  # Track (source, target) pairs to avoid duplicates
+    
+    # Get all awards
+    awards = db.query(Award).filter(
+        Award.recipient_name.isnot(None),
+        Award.awarding_agency.isnot(None)
+    ).all()
+    
+    # 1. Create Awarding Agency -> Recipient relationships
+    agency_recipient_map = defaultdict(set)
+    for award in awards:
+        if award.awarding_agency and award.recipient_name:
+            agency = award.awarding_agency.strip()
+            recipient = award.recipient_name.strip()
+            if agency and recipient and agency != recipient:
+                edge_key = (agency, recipient)
+                if edge_key not in seen_edges:
+                    inferred_edges.append(GraphEdge(
+                        source=agency,
+                        target=recipient,
+                        label="Award Recipient"
+                    ))
+                    seen_edges.add(edge_key)
+                agency_recipient_map[agency].add(recipient)
+    
+    # 2. Create co-recipient relationships (entities that received awards from same agency)
+    # Group recipients by agency
+    for agency, recipients in agency_recipient_map.items():
+        recipients_list = list(recipients)
+        # Create connections between all pairs of recipients from same agency
+        for i in range(len(recipients_list)):
+            for j in range(i + 1, len(recipients_list)):
+                source = recipients_list[i]
+                target = recipients_list[j]
+                edge_key = tuple(sorted([source, target]))  # Undirected edge
+                if edge_key not in seen_edges:
+                    inferred_edges.append(GraphEdge(
+                        source=source,
+                        target=target,
+                        label="Co-Recipient (Same Agency)"
+                    ))
+                    seen_edges.add(edge_key)
+    
+    # 3. Create relationships based on NAICS codes (same industry)
+    naics_entity_map = defaultdict(set)
+    for award in awards:
+        if award.recipient_name and award.naics_code:
+            entity = award.recipient_name.strip()
+            naics = award.naics_code.strip()
+            if entity and naics:
+                naics_entity_map[naics].add(entity)
+    
+    # Connect entities with same NAICS code
+    for naics, entities in naics_entity_map.items():
+        if len(entities) > 1:  # Only if multiple entities share the code
+            entities_list = list(entities)
+            for i in range(len(entities_list)):
+                for j in range(i + 1, len(entities_list)):
+                    source = entities_list[i]
+                    target = entities_list[j]
+                    edge_key = tuple(sorted([source, target]))
+                    if edge_key not in seen_edges:
+                        inferred_edges.append(GraphEdge(
+                            source=source,
+                            target=target,
+                            label=f"Same Industry (NAICS: {naics})"
+                        ))
+                        seen_edges.add(edge_key)
+    
+    return inferred_edges
+
+
 @router.get("/graph/entities", response_model=GraphData)
 async def get_entity_graph(
-    limit: int = Query(100, le=500),
+    limit: int = Query(500, le=1000),
     db: Session = Depends(get_db)
 ):
-    """Get entity relationship graph data"""
-    # Get all relationships first to know which entities to include
-    relationships = db.query(Relationship).limit(limit * 2).all()
+    """Get entity relationship graph data
+    
+    Returns all relationships AND money flows combined into one graph.
+    Includes NRO commercial partner relationships and original money flows.
+    """
+    # Get all relationships (no limit to ensure NRO data is included)
+    relationships = db.query(Relationship).all()
+    
+    # Also get money flows and convert them to relationship-like edges
+    # This combines both datasets into one unified graph
+    money_flows = db.query(MoneyFlow).all()
     
     # Get all entities
     all_entities = db.query(Entity).all()
     
     # Create a mapping of names to entities for lookup
+    # Support multiple name variations for better matching
     entity_map = {}
     for e in all_entities:
-        # Map by display name, normalized name, and id
+        # Map by display name (exact and lowercase)
         if e.display_name:
             entity_map[e.display_name] = e
             entity_map[e.display_name.lower()] = e
+            # Also map with stripped quotes and normalized
+            name_clean = e.display_name.strip('"').strip()
+            entity_map[name_clean] = e
+            entity_map[name_clean.lower()] = e
+        # Map by normalized name
         if e.normalized_name:
             entity_map[e.normalized_name] = e
+            entity_map[e.normalized_name.lower()] = e
+        # Map by entity_id
         entity_map[e.entity_id] = e
     
-    # Extract all unique entity names from relationships
+    # Infer additional relationships from Awards data
+    inferred_edges = infer_relationships_from_awards(db)
+    
+    # Extract all unique entity names from relationships, money flows, AND inferred edges
     entity_names_in_graph = set()
     for r in relationships:
         entity_names_in_graph.add(r.source)
         entity_names_in_graph.add(r.target)
+    for mf in money_flows:
+        entity_names_in_graph.add(mf.source)
+        entity_names_in_graph.add(mf.target)
+    for ie in inferred_edges:
+        entity_names_in_graph.add(ie.source)
+        entity_names_in_graph.add(ie.target)
     
-    # Calculate connection counts
+    # Calculate connection counts (from relationships, money flows, AND inferred edges)
     connection_counts = {}
     for r in relationships:
         connection_counts[r.source] = connection_counts.get(r.source, 0) + 1
         connection_counts[r.target] = connection_counts.get(r.target, 0) + 1
+    for mf in money_flows:
+        connection_counts[mf.source] = connection_counts.get(mf.source, 0) + 1
+        connection_counts[mf.target] = connection_counts.get(mf.target, 0) + 1
+    for ie in inferred_edges:
+        connection_counts[ie.source] = connection_counts.get(ie.source, 0) + 1
+        connection_counts[ie.target] = connection_counts.get(ie.target, 0) + 1
     
     # Create nodes - use entity names as IDs to match relationships
     nodes = []
@@ -59,8 +171,12 @@ async def get_entity_graph(
             continue
         seen_names.add(entity_name)
         
-        # Try to find the entity in our database
-        entity = entity_map.get(entity_name) or entity_map.get(entity_name.lower())
+        # Try to find the entity in our database (try multiple variations)
+        entity_name_clean = entity_name.strip('"').strip()
+        entity = (entity_map.get(entity_name) or 
+                 entity_map.get(entity_name.lower()) or
+                 entity_map.get(entity_name_clean) or
+                 entity_map.get(entity_name_clean.lower()))
         
         # Get connection count
         connections = connection_counts.get(entity_name, 0)
@@ -90,7 +206,7 @@ async def get_entity_graph(
             )
         )
     
-    # Create edges using entity names (which now match node IDs)
+    # Create edges from relationships
     edges = [
         GraphEdge(
             source=r.source,
@@ -99,6 +215,32 @@ async def get_entity_graph(
         )
         for r in relationships
     ]
+    
+    # Also add edges from money flows (combine both datasets)
+    for mf in money_flows:
+        # Create a label that includes amount if available
+        label = mf.relationship or "Money Flow"
+        if mf.amount_usd:
+            # Format large amounts nicely
+            if mf.amount_usd >= 1_000_000_000:
+                amount_str = f"${mf.amount_usd / 1_000_000_000:.2f}B"
+            elif mf.amount_usd >= 1_000_000:
+                amount_str = f"${mf.amount_usd / 1_000_000:.2f}M"
+            else:
+                amount_str = f"${mf.amount_usd:,.0f}"
+            label = f"{label} ({amount_str})"
+        
+        edges.append(
+            GraphEdge(
+                source=mf.source,
+                target=mf.target,
+                label=label,
+                value=mf.amount_usd
+            )
+        )
+    
+    # Add inferred edges from Awards data
+    edges.extend(inferred_edges)
     
     return GraphData(nodes=nodes, edges=edges)
 

@@ -158,9 +158,16 @@ async def get_stats(db: Session = Depends(get_db)):
     
     total_money = db.query(func.sum(MoneyFlow.amount_usd)).scalar() or 0
     
-    # Get date range
-    min_date = db.query(func.min(MoneyFlow.start_date)).scalar()
-    max_date = db.query(func.max(MoneyFlow.start_date)).scalar()
+    # Get date range from money flows and awards
+    min_money_date = db.query(func.min(MoneyFlow.start_date)).scalar()
+    max_money_date = db.query(func.max(MoneyFlow.start_date)).scalar()
+    min_award_date = db.query(func.min(Award.action_date)).scalar()
+    max_award_date = db.query(func.max(Award.action_date)).scalar()
+    
+    # Combine date ranges from both sources
+    dates = [d for d in [min_money_date, max_money_date, min_award_date, max_award_date] if d is not None]
+    min_date = min(dates) if dates else None
+    max_date = max(dates) if dates else None
     
     return StatsResponse(
         total_entities=total_entities,

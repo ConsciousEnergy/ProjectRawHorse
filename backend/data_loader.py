@@ -227,8 +227,83 @@ def load_foia_targets(db: Session, csv_path: str) -> int:
     return count
 
 
+def load_nro_seeds_as_entities(db: Session, csv_path: str) -> int:
+    """Load unique entities from NRO seeds CSV file
+    
+    Extracts unique entity names from the NRO seeds file and adds them as entities.
+    Also ensures NRO itself exists as an entity.
+    """
+    if not os.path.exists(csv_path):
+        logger.warning(f"NRO seeds file not found: {csv_path}")
+        return 0
+    
+    # First, ensure NRO exists as an entity
+    nro_entity = db.query(Entity).filter(Entity.display_name == "NRO").first()
+    if not nro_entity:
+        nro_entity = Entity(
+            entity_id="nro",
+            display_name="NRO",
+            normalized_name="nro",
+            entity_type="Government Agency"
+        )
+        db.add(nro_entity)
+        db.commit()
+        logger.info("Added NRO as entity")
+    
+    # Extract unique entities from seeds file
+    entities_seen = set()
+    entities_seen.add("NRO")  # Don't duplicate NRO
+    count = 0
+    
+    with open(csv_path, 'r', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            try:
+                entity_name = row.get('entity', '').strip()
+                if not entity_name or entity_name in entities_seen:
+                    continue
+                
+                entities_seen.add(entity_name)
+                
+                # Check if entity already exists
+                existing = db.query(Entity).filter(
+                    Entity.display_name == entity_name
+                ).first()
+                
+                if existing:
+                    continue  # Skip if already exists
+                
+                # Infer entity type from name
+                entity_type = infer_entity_type(entity_name)
+                
+                # Create normalized name for entity_id
+                normalized = entity_name.lower().replace(' ', '_').replace(',', '').replace('.', '').replace('&', 'and')
+                entity_id = f"nro_seed_{normalized}"
+                
+                entity = Entity(
+                    entity_id=entity_id,
+                    display_name=entity_name,
+                    normalized_name=normalized,
+                    entity_type=entity_type
+                )
+                db.add(entity)
+                count += 1
+            except Exception as e:
+                logger.error(f"Error loading NRO seed entity: {e}")
+                continue
+    
+    db.commit()
+    logger.info(f"Loaded {count} entities from NRO seeds")
+    return count
+
+
 def load_relationships(db: Session, csv_path: str) -> int:
-    """Load relationships from CSV file"""
+    """Load relationships from CSV file
+    
+    Supports both formats:
+    - Standard: source, target, label
+    - NRO edges: source, target, relationship (used as label)
+    """
     if not os.path.exists(csv_path):
         logger.warning(f"Relationships file not found: {csv_path}")
         return 0
@@ -238,10 +313,12 @@ def load_relationships(db: Session, csv_path: str) -> int:
         reader = csv.DictReader(f)
         for row in reader:
             try:
+                # Support both 'label' and 'relationship' field names
+                label = row.get('label') or row.get('relationship', 'RELATED_TO')
                 relationship = Relationship(
                     source=row.get('source', ''),
                     target=row.get('target', ''),
-                    label=row.get('label', 'RELATED_TO')
+                    label=label
                 )
                 db.add(relationship)
                 count += 1
@@ -283,6 +360,18 @@ def load_all_data(db: Session, config: dict, project_root: str = "."):
     # Load relationships
     relationships_path = os.path.join(project_root, config['data_sources']['entities_dir'], "entity_relationships.csv")
     load_relationships(db, relationships_path)
+    
+    # Load NRO seeds as entities (extract unique entities from seeds file)
+    nro_seeds_path = os.path.join(project_root, config['data_sources']['entities_dir'], "nro_public_partners_seeds_v2.csv")
+    if os.path.exists(nro_seeds_path):
+        logger.info("Loading NRO seeds as entities")
+        load_nro_seeds_as_entities(db, nro_seeds_path)
+    
+    # Load NRO seed edges (optional - for NRO commercial partner relationships)
+    nro_edges_path = os.path.join(project_root, config['data_sources']['visualizations_dir'], "nro_seed_edges_v2.csv")
+    if os.path.exists(nro_edges_path):
+        logger.info("Loading NRO seed edges as relationships")
+        load_relationships(db, nro_edges_path)
     
     logger.info("Data loading complete")
 
