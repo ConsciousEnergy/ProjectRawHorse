@@ -76,6 +76,10 @@ class FOIATargetBase(BaseModel):
     timeframe: Optional[str] = None
     relevance: Optional[str] = None
     notes: Optional[str] = None
+    specificity_score: Optional[float] = None
+    likelihood_score: Optional[float] = None
+    priority_score: Optional[float] = None
+    quality_notes: Optional[str] = None
 
 
 class FOIATargetCreate(FOIATargetBase):
@@ -160,6 +164,40 @@ class GraphEdge(BaseModel):
 class GraphData(BaseModel):
     nodes: List[GraphNode]
     edges: List[GraphEdge]
+
+
+# Sankey Diagram Models
+class SankeyNode(BaseModel):
+    name: str
+    value: float
+    category: str
+
+
+class SankeyLink(BaseModel):
+    source: str
+    target: str
+    value: float
+    label: Optional[str] = None
+    type: Optional[str] = None  # 'money_flow' or 'relationship'
+
+
+class SankeyData(BaseModel):
+    nodes: List[SankeyNode]
+    links: List[SankeyLink]
+
+
+# Data Version Models
+class DataVersionResponse(BaseModel):
+    version: int
+    last_updated: Optional[datetime] = None
+    last_modified_by: Optional[str] = None
+
+
+class DataRefreshResponse(BaseModel):
+    success: bool
+    message: str
+    version: int
+    last_updated: Optional[datetime] = None
 
 
 # Export Models

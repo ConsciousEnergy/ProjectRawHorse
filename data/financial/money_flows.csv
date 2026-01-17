@@ -1,4 +1,5 @@
 source,target,relationship,amount_usd,start_date,end_date,source_citation,__source_file,source_norm,target_norm,edge_id
+US Air Force,MITRE Corporation,Contract,1884824707.0,2025-10-01,2028-09-30,https://orangeslices.ai/mitre-awarded-1-9b-us-air-force-national-security-engineering-center-nsec-services-contract/,manual_addition.csv,US AIR FORCE,MITRE CORPORATION,62ddc5e72a685019
 Veritas Capital,acquires DynCorp Gov't Services from CSC,M&A,850000000.0,2004-12-13,,,uap_money_edges_v3.csv,VERITAS CAPITAL,ACQUIRES DYNCORP GOV T SERVICES FROM CSC,5f253d79345a22a2
 Lockheed Martin (seller),Veritas Capital (buyer),M&A / Divestiture,815000000.0,2010-11-29,,,uap_money_edges_v3.csv,LOCKHEED MARTIN SELLER,VERITAS CAPITAL BUYER,eeb88bd31da051cd
 The SI Organization,to acquire QinetiQ North America (Services & Solutions Group),Acquisition agreement,165000000.0,2014-04-22,,,uap_money_edges_v3.csv,THE SI ORGANIZATION,TO ACQUIRE QINETIQ NORTH AMERICA SERVICES & SOLUTIONS GROUP,32d34da0c7deaef9
