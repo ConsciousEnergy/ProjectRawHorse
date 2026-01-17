@@ -77,3 +77,15 @@ frontend/node_modules/
 # Exclude built frontend
 frontend/dist/
 frontend/build/
+
+# Cache and temporary files
+data/scripts/.cache/
+*.backup
+*.backup*
+*_backup.py
+*_fixed.py
+*_backup*.csv
+
+# Test output files
+data/financial/test_*.csv
+data/financial/enriched_flows_*.csv
