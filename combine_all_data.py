@@ -16,7 +16,7 @@ from database import init_database, get_session_maker, Entity, Relationship, Mon
 from data_loader import (
     load_entities, load_money_flows, load_awards, 
     load_foia_targets, load_relationships,
-    load_nro_seeds_as_entities
+    load_nro_seeds_as_entities, load_transcript_entities
 )
 
 # Get project root directory
@@ -35,7 +35,8 @@ print(f"Database path: {db_path}")
 print("\nThis script will:")
 print("  1. Load all original data files (entities, money flows, awards, FOIA, relationships)")
 print("  2. Add NRO entities and relationships")
-print("  3. Combine everything into one complete dataset")
+print("  3. Add UAPGerb transcript entities, relationships, and FOIA targets")
+print("  4. Combine everything into one complete dataset")
 print("\nNOTE: This will add data but won't delete existing data unless duplicates are found.")
 print("\nStarting data combination...")
 
@@ -132,6 +133,38 @@ try:
         print(f"  NRO relationships added: {nro_relationships_added}")
     else:
         print(f"WARNING: NRO edges file not found: {nro_edges_path}")
+    
+    # Load UAPGerb transcript data
+    print("\n" + "="*60)
+    print("Loading UAPGerb transcript datasets...")
+    print("="*60)
+    
+    # Load transcript entities
+    transcript_entities_path = PROJECT_ROOT / config['data_sources']['entities_dir'] / "uap_gerb_transcript_entities.csv"
+    if transcript_entities_path.exists():
+        print(f"\nLoading transcript entities from: {transcript_entities_path.name}")
+        transcript_entities_added = load_transcript_entities(db, str(transcript_entities_path))
+        print(f"  Transcript entities added: {transcript_entities_added}")
+    else:
+        print(f"WARNING: Transcript entities file not found: {transcript_entities_path}")
+    
+    # Load transcript relationships
+    transcript_relationships_path = PROJECT_ROOT / config['data_sources']['entities_dir'] / "uap_gerb_transcript_relationships.csv"
+    if transcript_relationships_path.exists():
+        print(f"\nLoading transcript relationships from: {transcript_relationships_path.name}")
+        transcript_relationships_added = load_relationships(db, str(transcript_relationships_path))
+        print(f"  Transcript relationships added: {transcript_relationships_added}")
+    else:
+        print(f"WARNING: Transcript relationships file not found: {transcript_relationships_path}")
+    
+    # Load transcript FOIA targets
+    transcript_foia_path = PROJECT_ROOT / config['data_sources']['foia_dir'] / "uap_gerb_transcript_foia_targets.csv"
+    if transcript_foia_path.exists():
+        print(f"\nLoading transcript FOIA targets from: {transcript_foia_path.name}")
+        transcript_foia_added = load_foia_targets(db, str(transcript_foia_path))
+        print(f"  Transcript FOIA targets added: {transcript_foia_added}")
+    else:
+        print(f"WARNING: Transcript FOIA targets file not found: {transcript_foia_path}")
     
     # Get final counts
     entity_count_after = db.query(Entity).count()
