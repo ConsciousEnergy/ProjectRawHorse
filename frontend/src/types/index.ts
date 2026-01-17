@@ -34,6 +34,10 @@ export interface FOIATarget {
   timeframe?: string;
   relevance?: string;
   notes?: string;
+  specificity_score?: number;
+  likelihood_score?: number;
+  priority_score?: number;
+  quality_notes?: string;
 }
 
 export interface Stats {
@@ -81,4 +85,29 @@ export interface SearchResponse {
   query: string;
   total_results: number;
   results: SearchResult[];
+}
+
+export interface SankeyNode {
+  name: string;
+  value: number;
+  category: string;
+}
+
+export interface SankeyLink {
+  source: string;
+  target: string;
+  value: number;
+  label?: string;
+  type?: 'money_flow' | 'relationship';
+}
+
+export interface SankeyData {
+  nodes: SankeyNode[];
+  links: SankeyLink[];
+}
+
+export interface DataVersion {
+  version: number;
+  last_updated: string | null;
+  last_modified_by?: string | null;
 }

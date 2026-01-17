@@ -11,6 +11,8 @@ import About from './pages/About';
 import LegalDisclaimer from './components/LegalDisclaimer';
 import ThemeToggle from './components/ThemeToggle';
 import SearchBar from './components/SearchBar';
+import RefreshButton from './components/RefreshButton';
+import { DataProvider } from './contexts/DataContext';
 
 import './styles/theme.css';
 import './App.css';
@@ -75,30 +77,33 @@ function App() {
   };
 
   return (
-    <Router>
-      <div className="app">
-        <a href="#main-content" className="skip-link">
-          Skip to main content
-        </a>
-        {!disclaimerAccepted && (
-          <LegalDisclaimer onAccept={handleDisclaimerAccept} />
-        )}
-        
-        <ThemeToggle />
-        <Navigation />
-        
-        <main id="main-content" className="main-content" role="main">
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/browse" element={<Browse />} />
-            <Route path="/analysis" element={<Analysis />} />
-            <Route path="/export" element={<Export />} />
-            <Route path="/contribute" element={<Contribute />} />
-            <Route path="/about" element={<About />} />
-          </Routes>
-        </main>
-      </div>
-    </Router>
+    <DataProvider>
+      <Router>
+        <div className="app">
+          <a href="#main-content" className="skip-link">
+            Skip to main content
+          </a>
+          {!disclaimerAccepted && (
+            <LegalDisclaimer onAccept={handleDisclaimerAccept} />
+          )}
+          
+          <ThemeToggle />
+          <Navigation />
+          <RefreshButton position="floating" />
+          
+          <main id="main-content" className="main-content" role="main">
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/browse" element={<Browse />} />
+              <Route path="/analysis" element={<Analysis />} />
+              <Route path="/export" element={<Export />} />
+              <Route path="/contribute" element={<Contribute />} />
+              <Route path="/about" element={<About />} />
+            </Routes>
+          </main>
+        </div>
+      </Router>
+    </DataProvider>
   );
 }
 

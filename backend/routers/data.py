@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, func
 
-from database import Entity, MoneyFlow, Award, FOIATarget
+from database import Entity, MoneyFlow, Award, FOIATarget, DataVersion
 from models.schemas import (
     EntityResponse, EntityQueryParams,
     MoneyFlowResponse, MoneyFlowQueryParams,
@@ -164,10 +164,29 @@ async def get_stats(db: Session = Depends(get_db)):
     min_award_date = db.query(func.min(Award.action_date)).scalar()
     max_award_date = db.query(func.max(Award.action_date)).scalar()
     
-    # Combine date ranges from both sources
-    dates = [d for d in [min_money_date, max_money_date, min_award_date, max_award_date] if d is not None]
-    min_date = min(dates) if dates else None
-    max_date = max(dates) if dates else None
+    # Also parse dates from FOIA target timeframes (e.g., "1949-1951", "2003-present", "1980s-present")
+    from datetime import datetime
+    import re
+    foia_dates = []
+    foia_targets = db.query(FOIATarget.timeframe).filter(FOIATarget.timeframe.isnot(None)).all()
+    for (timeframe,) in foia_targets:
+        if timeframe:
+            # Parse various timeframe formats
+            # "1949-1951" -> extract 1949 and 1951
+            # "2003-present" -> extract 2003
+            # "1980s-present" -> extract 1980
+            year_matches = re.findall(r'\b(19\d{2}|20\d{2})\b', timeframe)
+            for year_str in year_matches:
+                try:
+                    year = int(year_str)
+                    foia_dates.append(datetime(year, 1, 1).date())
+                except (ValueError, AttributeError):
+                    continue
+    
+    # Combine date ranges from all sources
+    all_dates = [d for d in [min_money_date, max_money_date, min_award_date, max_award_date] + foia_dates if d is not None]
+    min_date = min(all_dates) if all_dates else None
+    max_date = max(all_dates) if all_dates else None
     
     return StatsResponse(
         total_entities=total_entities,
@@ -178,3 +197,61 @@ async def get_stats(db: Session = Depends(get_db)):
         date_range_start=min_date,
         date_range_end=max_date
     )
+
+
+@router.get("/version")
+async def get_data_version(db: Session = Depends(get_db)):
+    """Get current data version and last update timestamp"""
+    version_record = db.query(DataVersion).order_by(DataVersion.id.desc()).first()
+    
+    if not version_record:
+        # Initialize version if it doesn't exist
+        version_record = DataVersion(version=1)
+        db.add(version_record)
+        db.commit()
+        db.refresh(version_record)
+    
+    return {
+        "version": version_record.version,
+        "last_updated": version_record.last_updated.isoformat() if version_record.last_updated else None,
+        "last_modified_by": version_record.last_modified_by
+    }
+
+
+@router.post("/refresh")
+async def refresh_data(db: Session = Depends(get_db)):
+    """Trigger data reload from CSV files and increment version"""
+    import os
+    import yaml
+    from data_loader import load_all_data
+    
+    # Get project root
+    PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    
+    # Load configuration
+    config_path = os.path.join(PROJECT_ROOT, "config.yaml")
+    with open(config_path, "r") as f:
+        config = yaml.safe_load(f)
+    
+    # Reload all data
+    load_all_data(db, config, PROJECT_ROOT)
+    
+    # Increment version
+    version_record = db.query(DataVersion).order_by(DataVersion.id.desc()).first()
+    if version_record:
+        version_record.version += 1
+        from datetime import datetime
+        version_record.last_updated = datetime.utcnow()
+        version_record.last_modified_by = "api_refresh"
+    else:
+        version_record = DataVersion(version=1, last_modified_by="api_refresh")
+        db.add(version_record)
+    
+    db.commit()
+    
+    return {
+        "success": True,
+        "message": "Data refreshed successfully",
+        "version": version_record.version,
+        "last_updated": version_record.last_updated.isoformat() if version_record.last_updated else None
+    }
