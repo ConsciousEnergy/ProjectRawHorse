@@ -3,11 +3,13 @@ import { useSearchParams } from 'react-router-dom';
 import { getEntities, getMoneyFlows, getAwards, getFOIATargets } from '../services/api';
 import type { Entity, MoneyFlow, Award, FOIATarget } from '../types';
 import SkeletonLoader from '../components/SkeletonLoader';
+import { useDataContext } from '../contexts/DataContext';
 
 type TabType = 'entities' | 'money-flows' | 'awards' | 'foia';
 
 function Browse() {
   const [searchParams] = useSearchParams();
+  const { dataVersion } = useDataContext();
   const [activeTab, setActiveTab] = useState<TabType>('entities');
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
@@ -48,7 +50,7 @@ function Browse() {
 
   useEffect(() => {
     loadData();
-  }, [activeTab, searchTerm]);
+  }, [activeTab, searchTerm, dataVersion]);
 
   const buildParams = () => {
     const params: any = { limit: 100 };
@@ -209,8 +211,13 @@ function Browse() {
                 <option value="">All Types</option>
                 <option value="Corporation">Corporation</option>
                 <option value="Government Agency">Government Agency</option>
+                <option value="Individual">Individual</option>
                 <option value="Non-Profit">Non-Profit</option>
                 <option value="Research Institution">Research Institution</option>
+                <option value="Facility">Facility</option>
+                <option value="Program">Program</option>
+                <option value="Organization">Organization</option>
+                <option value="Investment Firm">Investment Firm</option>
               </select>
             </div>
           )}
@@ -264,108 +271,162 @@ function Browse() {
           <SkeletonLoader type="table" />
         ) : (
           <div className="fade-in" role="tabpanel" aria-labelledby={`${activeTab}-tab`} id={`${activeTab}-panel`}>
-            {activeTab === 'entities' && (
-              <div className="data-table-wrapper">
-                <table className="data-table" role="table" aria-label="Entities table">
-                  <thead>
-                    <tr>
-                      <th>Entity ID</th>
-                      <th>Display Name</th>
-                      <th>Normalized Name</th>
-                      <th>Type</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {entities.map((entity) => (
-                      <tr key={entity.entity_id}>
-                        <td>{entity.entity_id}</td>
-                        <td>{entity.display_name}</td>
-                        <td>{entity.normalized_name}</td>
-                        <td>{entity.entity_type || 'N/A'}</td>
+          {activeTab === 'entities' && (
+            <>
+              {entities.length === 0 ? (
+                <div className="empty-state">
+                  <p>No entities found. Try adjusting your search or filters.</p>
+                </div>
+              ) : (
+                <div className="data-table-wrapper">
+                  <table className="data-table" role="table" aria-label="Entities table">
+                    <thead>
+                      <tr>
+                        <th>Entity ID</th>
+                        <th>Display Name</th>
+                        <th>Normalized Name</th>
+                        <th>Type</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                    </thead>
+                    <tbody>
+                      {entities.map((entity) => (
+                        <tr key={entity.entity_id}>
+                          <td>{entity.entity_id}</td>
+                          <td>{entity.display_name}</td>
+                          <td>{entity.normalized_name}</td>
+                          <td>{entity.entity_type || 'N/A'}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </>
+          )}
 
             {activeTab === 'money-flows' && (
-              <div className="data-table-wrapper">
-                <table className="data-table" role="table" aria-label="Money flows table">
-                  <thead>
-                    <tr>
-                      <th>Source</th>
-                      <th>Target</th>
-                      <th>Relationship</th>
-                      <th>Amount</th>
-                      <th>Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {moneyFlows.map((flow) => (
-                      <tr key={flow.id}>
-                        <td>{flow.source}</td>
-                        <td>{flow.target}</td>
-                        <td>{flow.relationship || 'N/A'}</td>
-                        <td>{formatCurrency(flow.amount_usd)}</td>
-                        <td>{flow.start_date || 'N/A'}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <>
+                {moneyFlows.length === 0 ? (
+                  <div className="empty-state">
+                    <p>No money flows found. Try adjusting your search or filters.</p>
+                  </div>
+                ) : (
+                  <div className="data-table-wrapper">
+                    <table className="data-table" role="table" aria-label="Money flows table">
+                      <thead>
+                        <tr>
+                          <th>Source</th>
+                          <th>Target</th>
+                          <th>Relationship</th>
+                          <th>Amount</th>
+                          <th>Date</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {moneyFlows.map((flow) => (
+                          <tr key={flow.id}>
+                            <td>{flow.source}</td>
+                            <td>{flow.target}</td>
+                            <td>{flow.relationship || 'N/A'}</td>
+                            <td>{formatCurrency(flow.amount_usd)}</td>
+                            <td>{flow.start_date || 'N/A'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </>
             )}
 
             {activeTab === 'awards' && (
-              <div className="data-table-wrapper">
-                <table className="data-table" role="table" aria-label="Awards table">
-                  <thead>
-                    <tr>
-                      <th>PIID</th>
-                      <th>Recipient</th>
-                      <th>Agency</th>
-                      <th>Amount</th>
-                      <th>Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {awards.map((award) => (
-                      <tr key={award.id}>
-                        <td>{award.piid || 'N/A'}</td>
-                        <td>{award.recipient_name || 'N/A'}</td>
-                        <td>{award.awarding_agency || 'N/A'}</td>
-                        <td>{formatCurrency(award.award_amount)}</td>
-                        <td>{award.action_date || 'N/A'}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <>
+                {awards.length === 0 ? (
+                  <div className="empty-state">
+                    <p>No awards found. Try adjusting your search or filters.</p>
+                  </div>
+                ) : (
+                  <div className="data-table-wrapper">
+                    <table className="data-table" role="table" aria-label="Awards table">
+                      <thead>
+                        <tr>
+                          <th>PIID</th>
+                          <th>Recipient</th>
+                          <th>Agency</th>
+                          <th>Amount</th>
+                          <th>Date</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {awards.map((award) => (
+                          <tr key={award.id}>
+                            <td>{award.piid || 'N/A'}</td>
+                            <td>{award.recipient_name || 'N/A'}</td>
+                            <td>{award.awarding_agency || 'N/A'}</td>
+                            <td>{formatCurrency(award.award_amount)}</td>
+                            <td>{award.action_date || 'N/A'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </>
             )}
 
             {activeTab === 'foia' && (
-              <div className="data-table-wrapper">
-                <table className="data-table" role="table" aria-label="FOIA targets table">
-                  <thead>
-                    <tr>
-                      <th>Agency</th>
-                      <th>Record Request</th>
-                      <th>Timeframe</th>
-                      <th>Relevance</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {foiaTargets.map((foia) => (
-                      <tr key={foia.id}>
-                        <td>{foia.agency}</td>
-                        <td>{foia.record_request}</td>
-                        <td>{foia.timeframe || 'N/A'}</td>
-                        <td>{foia.relevance || 'N/A'}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <>
+                {foiaTargets.length === 0 ? (
+                  <div className="empty-state">
+                    <p>No FOIA targets found. Try adjusting your search or filters.</p>
+                  </div>
+                ) : (
+                  <div className="data-table-wrapper">
+                    <table className="data-table" role="table" aria-label="FOIA targets table">
+                      <thead>
+                        <tr>
+                          <th>Agency</th>
+                          <th>Record Request</th>
+                          <th>Timeframe</th>
+                          <th>Priority</th>
+                          <th>Specificity</th>
+                          <th>Likelihood</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {foiaTargets.map((foia) => (
+                          <tr key={foia.id}>
+                            <td>{foia.agency}</td>
+                            <td>{foia.record_request}</td>
+                            <td>{foia.timeframe || 'N/A'}</td>
+                            <td>
+                              {foia.priority_score !== null && foia.priority_score !== undefined ? (
+                                <span className={`score-badge ${foia.priority_score >= 0.7 ? 'high' : foia.priority_score >= 0.4 ? 'medium' : 'low'}`}>
+                                  {(foia.priority_score * 100).toFixed(0)}%
+                                </span>
+                              ) : 'N/A'}
+                            </td>
+                            <td>
+                              {foia.specificity_score !== null && foia.specificity_score !== undefined ? (
+                                <span className={`score-badge ${foia.specificity_score >= 0.7 ? 'high' : foia.specificity_score >= 0.4 ? 'medium' : 'low'}`}>
+                                  {(foia.specificity_score * 100).toFixed(0)}%
+                                </span>
+                              ) : 'N/A'}
+                            </td>
+                            <td>
+                              {foia.likelihood_score !== null && foia.likelihood_score !== undefined ? (
+                                <span className={`score-badge ${foia.likelihood_score >= 0.6 ? 'high' : foia.likelihood_score >= 0.3 ? 'medium' : 'low'}`}>
+                                  {(foia.likelihood_score * 100).toFixed(0)}%
+                                </span>
+                              ) : 'N/A'}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </>
             )}
           </div>
         )}
