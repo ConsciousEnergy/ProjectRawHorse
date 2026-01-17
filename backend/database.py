@@ -70,6 +70,29 @@ class Award(Base):
     )
 
 
+class MaterialsFlow(Base):
+    """Track non-financial material and technology transfers"""
+    __tablename__ = "materials_flows"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    source = Column(String, index=True, nullable=False)
+    target = Column(String, index=True, nullable=False)
+    material_type = Column(String, index=True)  # technology, equipment, IP, etc.
+    relationship = Column(String)  # Technology Transfer, Material Supply, IP Licensing, etc.
+    description = Column(Text)
+    start_date = Column(Date, index=True)
+    end_date = Column(Date)
+    source_citation = Column(Text)
+    edge_id = Column(String, unique=True)
+    source_norm = Column(String, index=True)
+    target_norm = Column(String, index=True)
+    
+    __table_args__ = (
+        Index('idx_materials_flow_type', 'material_type'),
+        Index('idx_materials_flow_date', 'start_date'),
+    )
+
+
 class FOIATarget(Base):
     __tablename__ = "foia_targets"
     
@@ -79,6 +102,11 @@ class FOIATarget(Base):
     timeframe = Column(String)
     relevance = Column(String)
     notes = Column(Text)
+    # Quality scoring fields
+    specificity_score = Column(Float, default=0.0)  # 0-1: How specific is the request?
+    likelihood_score = Column(Float, default=0.0)  # 0-1: Likelihood of getting a response
+    priority_score = Column(Float, default=0.0)  # 0-1: Overall priority/importance
+    quality_notes = Column(Text)  # Notes about quality assessment
 
 
 class Relationship(Base):
@@ -109,6 +137,16 @@ class SearchLog(Base):
         Index('idx_search_timestamp', 'search_timestamp'),
         Index('idx_search_query', 'query'),
     )
+
+
+class DataVersion(Base):
+    """Track data version for cache invalidation and refresh detection"""
+    __tablename__ = "data_version"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    version = Column(Integer, default=1, nullable=False)
+    last_updated = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+    last_modified_by = Column(String)  # Optional: track who/what modified data
 
 
 # Database connection and session management
