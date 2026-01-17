@@ -1,17 +1,20 @@
 import { useEffect, useState } from 'react';
 import { getFinancialFlows, getTimeline } from '../services/api';
 import NetworkGraph from '../components/NetworkGraph';
+import SankeyDiagram from '../components/SankeyDiagram';
 import SkeletonLoader from '../components/SkeletonLoader';
+import { useDataContext } from '../contexts/DataContext';
 
 function Analysis() {
   const [financialData, setFinancialData] = useState<any>(null);
   const [timelineData, setTimelineData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { dataVersion } = useDataContext();
 
   useEffect(() => {
     loadAnalysisData();
-  }, []);
+  }, [dataVersion]);
 
   const loadAnalysisData = async () => {
     try {
@@ -62,6 +65,15 @@ function Analysis() {
           Use controls to zoom and center the view.
         </p>
         <NetworkGraph />
+      </div>
+
+      <div className="card">
+        <h3>Sankey Flow Diagram</h3>
+        <p>
+          Visualize money flows and relationships between entities. Use the controls to filter by amount,
+          toggle between flow types, and interact with nodes and links. Click nodes to highlight connections.
+        </p>
+        <SankeyDiagram />
       </div>
 
       {loading ? (
