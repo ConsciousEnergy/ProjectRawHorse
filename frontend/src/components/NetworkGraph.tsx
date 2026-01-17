@@ -33,7 +33,7 @@ function NetworkGraph() {
   const [minConnections, setMinConnections] = useState(0);
   const [rawGraphData, setRawGraphData] = useState<ForceGraphData>({ nodes: [], links: [] });
   const fgRef = useRef<any>();
-  const centerTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const centerTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     loadGraphData();
@@ -233,16 +233,19 @@ function NetworkGraph() {
     });
   }, [rawGraphData, showInferred, minConnections]);
 
-  // Color map - single source of truth for all entity colors
+  // Color map - high contrast palette for better visual distinction
   const colorMap: Record<string, string> = {
-    'Corporation': '#5B4FFF',           // Purple (primary)
-    'Government Agency': '#FFD700',     // Gold (accent)  
-    'Investment Firm': '#FF6B9D',       // Pink
-    'Research Institution': '#FFA500',  // Orange
-    'Non-Profit': '#7B6FFF',           // Light purple
-    'Organization': '#00D4AA',          // Teal
-    'Unknown': '#8B8B8B',               // Gray
-    'default': '#9B9B9B'                // Default gray
+    'Corporation': '#5B4FFF',           // Vibrant purple-blue
+    'Government Agency': '#FF6B35',     // Bright coral-orange (high contrast)
+    'Investment Firm': '#E91E63',       // Deep pink/magenta
+    'Research Institution': '#FF9800',  // Bright orange
+    'Non-Profit': '#9C27B0',            // Deep purple (distinct from Corporation)
+    'Organization': '#00BCD4',          // Bright cyan
+    'Facility': '#4CAF50',              // Vibrant green (nature/facilities)
+    'Program': '#FF1744',               // Bright vivid red (high visibility)
+    'Individual': '#2196F3',            // Bright blue (sky blue, distinct from cyan)
+    'Unknown': '#9E9E9E',               // Light gray
+    'default': '#BDBDBD'                // Default medium-light gray
   };
 
   const getNodeColor = (node: ForceGraphNode) => {
@@ -387,7 +390,6 @@ function NetworkGraph() {
         ref={fgRef}
         graphData={graphData}
         aria-label="Interactive entity relationship network graph"
-        role="img"
         nodeLabel={(node: any) => {
           // Build tooltip with full name if available
           let label = node.name;

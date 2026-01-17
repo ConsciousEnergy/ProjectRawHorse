@@ -2,15 +2,17 @@ import { useEffect, useState } from 'react';
 import { getStats } from '../services/api';
 import type { Stats } from '../types';
 import SkeletonLoader from '../components/SkeletonLoader';
+import { useDataContext } from '../contexts/DataContext';
 
 function Dashboard() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { dataVersion } = useDataContext();
 
   useEffect(() => {
     loadStats();
-  }, []);
+  }, [dataVersion]);
 
   const loadStats = async () => {
     try {

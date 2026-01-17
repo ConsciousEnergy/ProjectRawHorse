@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { Entity, MoneyFlow, Award, FOIATarget, Stats, GraphData } from '../types';
+import type { Entity, MoneyFlow, Award, FOIATarget, Stats, GraphData, SankeyData, DataVersion } from '../types';
 
 const API_BASE_URL = '/api';
 
@@ -61,6 +61,25 @@ export const getFinancialFlows = async () => {
 
 export const getTimeline = async () => {
   const response = await api.get('/analysis/timeline');
+  return response.data;
+};
+
+export const getSankeyData = async (params?: {
+  min_amount?: number;
+  include_relationships?: boolean;
+  limit?: number;
+}) => {
+  const response = await api.get<SankeyData>('/analysis/sankey', { params });
+  return response.data;
+};
+
+export const getDataVersion = async () => {
+  const response = await api.get<DataVersion>('/data/version');
+  return response.data;
+};
+
+export const refreshData = async () => {
+  const response = await api.post('/data/refresh');
   return response.data;
 };
 

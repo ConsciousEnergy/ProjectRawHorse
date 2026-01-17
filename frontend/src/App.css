@@ -5,6 +5,24 @@
   color: var(--text-primary);
 }
 
+/* Skip link - hidden by default, visible on focus for accessibility */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--color-primary);
+  color: var(--text-inverse);
+  padding: 8px 16px;
+  text-decoration: none;
+  z-index: 1000;
+  border-radius: 0 0 4px 0;
+  font-weight: 600;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
 .sidebar {
   width: 250px;
   background-color: var(--sidebar-bg);
@@ -652,6 +670,40 @@
     margin: -16px;
     padding: 16px;
   }
+
+  .empty-state {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--text-secondary);
+  }
+
+.empty-state p {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.score-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.score-badge.high {
+  background-color: #34C759;
+  color: white;
+}
+
+.score-badge.medium {
+  background-color: #FF9500;
+  color: white;
+}
+
+.score-badge.low {
+  background-color: #8E8E93;
+  color: white;
+}
 
   .data-table {
     min-width: 600px;
