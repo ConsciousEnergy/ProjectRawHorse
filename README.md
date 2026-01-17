@@ -27,9 +27,9 @@ A cross-platform, single-click desktop application for exploring and analyzing p
 
 ---
 ## Screenshots of Applications UI
-<img width="1893" height="937" alt="Screenshot 2025-11-16 084427" src="https://github.com/user-attachments/assets/9b59ce0b-49ab-4bfe-96a1-9139eada53bd" />
+<img width="1906" height="932" alt="PRHUpdatedDashboard Screenshot" src="https://github.com/user-attachments/assets/bc8f676d-0166-4616-8aa1-78ebf6d24a7c" />
 
-<img width="1899" height="873" alt="Screenshot 2025-11-16 084455" src="https://github.com/user-attachments/assets/db1dd1f3-4003-4ebe-9b96-57f8f948117c" />
+<img width="1898" height="834" alt="PRHNetworkDiagramScreenshot" src="https://github.com/user-attachments/assets/99006280-4b0f-4aef-ab6c-a22edc36b042" />
 
 <img width="1902" height="950" alt="PRHSanskeyDiagramFeature" src="https://github.com/user-attachments/assets/81300985-ad9a-445a-baa8-c19ded430343" />
 
