@@ -31,6 +31,8 @@ A cross-platform, single-click desktop application for exploring and analyzing p
 
 <img width="1899" height="873" alt="Screenshot 2025-11-16 084455" src="https://github.com/user-attachments/assets/db1dd1f3-4003-4ebe-9b96-57f8f948117c" />
 
+<img width="1902" height="950" alt="PRHSanskeyDiagramFeature" src="https://github.com/user-attachments/assets/81300985-ad9a-445a-baa8-c19ded430343" />
+
 ## Features
 
 - **Local-First Architecture**: All data processing happens on your machine
