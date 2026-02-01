@@ -27,11 +27,18 @@ A cross-platform, single-click desktop application for exploring and analyzing p
 
 ---
 ## Screenshots of Applications UI
-<img width="1906" height="932" alt="PRHUpdatedDashboard Screenshot" src="https://github.com/user-attachments/assets/bc8f676d-0166-4616-8aa1-78ebf6d24a7c" />
+<img width="1904" height="953" alt="PRHScreenshot_7" src="https://github.com/user-attachments/assets/71df00eb-2c17-42c1-b2f4-16212c8a507a" />
 
-<img width="1898" height="834" alt="PRHNetworkDiagramScreenshot" src="https://github.com/user-attachments/assets/99006280-4b0f-4aef-ab6c-a22edc36b042" />
+<img width="1903" height="952" alt="PRHScreenshot_6" src="https://github.com/user-attachments/assets/3b6c65f8-a9ee-4db8-9cee-a8351cc08c17" />
 
-<img width="1902" height="950" alt="PRHSanskeyDiagramFeature" src="https://github.com/user-attachments/assets/81300985-ad9a-445a-baa8-c19ded430343" />
+<img width="1905" height="953" alt="PRHScreenshot_5" src="https://github.com/user-attachments/assets/bb8410f5-8be8-4d12-ac95-b5ff2fdf099b" />
+
+<img width="1919" height="955" alt="PRHScreenshot_4" src="https://github.com/user-attachments/assets/fb9abf07-59d1-45b3-a086-1493fd50f9ae" />
+
+<img width="1906" height="954" alt="PRHScreenshot_3" src="https://github.com/user-attachments/assets/138009a8-301b-4777-a880-321e3de28b8b" />
+
+<img width="1906" height="952" alt="PRHScreenshot_1" src="https://github.com/user-attachments/assets/9b8c04a2-3dc2-4ac0-99a4-39385f314dda" />
+
 
 ## Features
 
