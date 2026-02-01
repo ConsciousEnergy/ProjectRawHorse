@@ -13,14 +13,14 @@ A cross-platform, single-click desktop application for exploring and analyzing p
 
 ### Windows
 1. Download Project RawHorse
-2. **Double-click** `install.bat` 
-3. Wait for installation (5-10 minutes)
-4. Browser opens automatically!
+2. **Double-click** `START.bat` (guides you through everything!)
+3. Wait for installation (5-10 minutes on first run)
+4. Browser opens automatically at http://127.0.0.1:8000
 
 ### macOS/Linux
 1. Download Project RawHorse
 2. Open Terminal in the folder
-3. Run: `./install.sh`
+3. Run: `chmod +x START.sh && ./START.sh`
 4. Browser opens automatically!
 
 **See [INSTALL_GUIDE.md](INSTALL_GUIDE.md) for detailed instructions**
@@ -38,28 +38,41 @@ A cross-platform, single-click desktop application for exploring and analyzing p
 - **Local-First Architecture**: All data processing happens on your machine
 - **Comprehensive Data Browsing**: Explore entities, money flows, federal awards, and FOIA targets
 - **Interactive Analysis**: Visualize entity relationships and financial networks
+- **Intelligence Stack Filter**: Filter entities by hierarchy level (Control Group → Programs)
 - **Multiple Export Formats**: Download data in CSV, JSON, or PDF
 - **Community Contributions**: Submit new data via automated GitHub pull requests
 - **Cross-Platform**: Runs on Windows, macOS, and Linux
 - **1-Click Installation**: Simple setup for non-technical users
+- **Production-Ready**: Docker support for VPS deployment with PostgreSQL
 
 ## Technology Stack
 
-- **Backend**: FastAPI (Python) with SQLite database
-- **Frontend**: React with TypeScript
-- **Data Visualization**: D3.js, Recharts
+- **Backend**: FastAPI (Python) with SQLite/PostgreSQL database support
+- **Frontend**: React 18+ with TypeScript and Vite build system
+- **Data Visualization**: D3.js, Recharts, react-force-graph-2d
+- **NLP Processing**: spaCy for entity recognition and transcript extraction
+- **Data Enrichment**: Web scraping (BeautifulSoup), DuckDuckGo search integration
+- **Authentication**: JWT token-based auth for secure write operations
+- **Caching**: Redis support for production deployments
+- **Deployment**: Docker Compose with Caddy reverse proxy, multi-service architecture
 - **GitHub Integration**: PyGithub for automated PR creation
 - **Packaging**: PyInstaller for cross-platform executables
 
 ## Data Sources
 
-All data is sourced from official public databases:
+All data is sourced from official public databases and open research:
 
+**Government Sources:**
 - **USAspending.gov**: Federal spending and contract data
 - **SAM.gov**: Entity registrations and awards
 - **Federal FOIA Reading Rooms**: Various agencies
 - **DOE, NASA, DHS, NOAA, NIST, NSF**: Public databases
 - **Agency Procurement Forecasts**: Solicitation data
+
+**Research Attribution:**
+- **[UAPGerb](https://www.youtube.com/@uapgerb)**: Entity relationships and organizational structures derived from transcript analysis
+  - "The Hidden Wing" - US Air Force UFO Reverse Engineering Programs (2026)
+  - Previous transcripts on NRO, CIA DS&T, FFRDCs, Office of Global Access
 
 ## Documentation
 
@@ -78,23 +91,6 @@ All data is sourced from official public databases:
 - Python 3.10+
 - Node.js 18+
 - Git
-- **Git LFS** (required for large data files)
-
-**Important:** This repository uses Git LFS to manage large data files (CSV, PNG, XLSX). You must have Git LFS installed before cloning:
-
-```bash
-# Install Git LFS (if not already installed)
-# Windows (with Git for Windows):
-git lfs install
-
-# macOS (with Homebrew):
-brew install git-lfs
-git lfs install
-
-# Linux (Debian/Ubuntu):
-sudo apt-get install git-lfs
-git lfs install
-```
 
 **Quick Start:**
 
@@ -141,22 +137,41 @@ Output: `dist/RawHorse/RawHorse.exe` (or equivalent for your OS)
 ## Project Structure
 
 ```
-project-rawhorse/
-├── backend/              # FastAPI backend
-│   ├── routers/          # API endpoints
-│   ├── services/         # GitHub integration
-│   ├── models/           # Data models
-│   └── main.py           # Application entry
-├── frontend/             # React frontend
-│   ├── src/
-│   │   ├── pages/        # Main pages
-│   │   ├── components/   # UI components
-│   │   └── services/     # API client
-├── install.bat           # Windows 1-click installer
-├── install.sh            # Mac/Linux 1-click installer
-├── RUN.bat               # Windows quick launch
-├── RUN.sh                # Mac/Linux quick launch
-└── INSTALL_GUIDE.md      # Detailed user guide
+ProjectRawHorse/
+├── backend/                  # FastAPI backend
+│   ├── routers/              # API endpoints
+│   ├── services/             # GitHub integration
+│   ├── models/               # Data models
+│   ├── static/               # Built frontend (served by backend)
+│   ├── auth.py               # JWT authentication
+│   ├── database.py           # SQLite/PostgreSQL support
+│   └── main.py               # Application entry
+├── frontend/                 # React frontend
+│   └── src/
+│       ├── pages/            # Main pages (Dashboard, Analysis, etc.)
+│       ├── components/       # UI components (NetworkGraph, Sankey, etc.)
+│       └── services/         # API client
+├── data/                     # Data files
+│   ├── entities/             # Entity CSV files
+│   ├── financial/            # Money flow data
+│   ├── foia/                 # FOIA targets
+│   └── scripts/              # Data enrichment pipeline
+│       ├── entity_recognition.py
+│       ├── enrich_entity_flows.py
+│       └── combine_all_data.py
+├── docker/                   # Docker deployment
+│   ├── Caddyfile
+│   └── init-db.sql
+├── docs/                     # Documentation
+├── START.bat                 # Windows guided launcher (recommended)
+├── START.sh                  # macOS/Linux guided launcher
+├── install.bat               # Windows full installer
+├── install.sh                # macOS/Linux full installer
+├── RUN.bat                   # Windows quick launch
+├── RUN.sh                    # macOS/Linux quick launch
+├── LaunchRawHorse.vbs        # Windows launcher with icon support
+├── docker-compose.yml        # Production deployment
+└── config.yaml               # Application configuration
 ```
 
 ## Usage
@@ -172,10 +187,10 @@ Search and filter:
 - **FOIA Targets**: Suggested FOIA requests
 
 ### Analysis
-Visualize data through:
-- Network graphs of entity relationships
-- Financial flow analysis (top recipients/sources)
-- Transaction timelines
+Visualize data through dedicated full-page views:
+- **Network Graph** (`/analysis/network`): Interactive force-directed graph of entity relationships
+- **Sankey Diagram** (`/analysis/sankey`): Financial flow visualization between entities
+- **Intelligence Stack Filter**: Toggle visibility by hierarchy level (Control Group, Administrators, FFRDCs, Prime Contractors, Facilities, Programs)
 
 ### Export
 Download data in multiple formats:
@@ -285,11 +300,22 @@ A: No, except for GitHub contributions. All other features work offline.
 
 ## Roadmap
 
-- [ ] Enhanced D3.js force-directed network graphs
-- [ ] Advanced filtering and query builder UI
-- [ ] Batch data import from multiple sources
-- [ ] Automated data updates from public APIs
-- [ ] Additional export formats (Excel, GraphML)
+**Completed in v0.4.0:**
+- [x] Intelligence Stack hierarchy filter
+- [x] Separate visualization pages (network/sankey)
+- [x] Docker deployment configuration
+- [x] PostgreSQL database support
+- [x] JWT authentication system
+- [x] spaCy NLP entity extraction pipeline
+- [x] Financial/materials flow enrichment algorithms
+
+**Upcoming:**
+- [ ] **Intelligence Stack Pyramid** - Hierarchical visualization of U.S. intelligence agencies
+- [ ] VPS deployment guide with one-click setup
+- [ ] User authentication UI in frontend
+- [ ] Timeline visualization for entity relationships
+- [ ] Batch data import from CSV upload
+- [ ] Redis caching for improved performance
 - [ ] Plugin system for custom analysis
 
 ## Support
@@ -336,6 +362,19 @@ Built on publicly available data from:
 - Open source community contributions
 
 ## Version History
+
+### v0.4.0 (2026-01)
+- **Data Enrichment**: 26 new entities from UAPGerb's "The Hidden Wing" transcript (Air Force SAF hierarchy)
+- **UI/UX Improvements**: Separate visualization pages, Intelligence Stack filter
+- **Infrastructure**: Docker support, PostgreSQL database option, JWT authentication
+- **Simplified Setup**: Removed Git LFS dependency
+- See [CHANGELOG_v0.4.0.md](CHANGELOG_v0.4.0.md) for full details
+
+### v0.3.0 (2025-12)
+- Enhanced search functionality
+- FOIA quality scoring
+- Data versioning and refresh
+- See [CHANGELOG_v0.3.0.md](CHANGELOG_v0.3.0.md)
 
 ### v1.0.0 (2025-11-11)
 - Initial release

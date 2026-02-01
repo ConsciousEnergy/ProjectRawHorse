@@ -128,13 +128,33 @@ function Dashboard() {
 
       <div className="card">
         <h3>Data Sources</h3>
-        <p>All data is sourced from official public databases:</p>
-        <ul>
-          <li>USAspending.gov - Federal spending and contracts</li>
-          <li>SAM.gov - Entity registrations and awards</li>
-          <li>Federal agency FOIA reading rooms</li>
-          <li>DOE, NASA, DHS, and other public databases</li>
-        </ul>
+        <p>Data is sourced from official public databases and independent research:</p>
+        <div style={{ marginBottom: '16px' }}>
+          <h4 style={{ fontSize: '0.95rem', marginBottom: '8px', color: 'var(--text-secondary)' }}>Research Attribution</h4>
+          <ul>
+            <li>
+              <strong>
+                <a 
+                  href="https://www.youtube.com/@uapgerb" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  style={{ color: 'var(--primary-color)' }}
+                >
+                  UAPGerb
+                </a>
+              </strong> - Entity relationships, organizational structures, and FOIA targets derived from UAP legacy program research
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h4 style={{ fontSize: '0.95rem', marginBottom: '8px', color: 'var(--text-secondary)' }}>Government Databases</h4>
+          <ul>
+            <li>USAspending.gov - Federal spending and contracts</li>
+            <li>SAM.gov - Entity registrations and awards</li>
+            <li>Federal agency FOIA reading rooms</li>
+            <li>DOE, NASA, DHS, and other public databases</li>
+          </ul>
+        </div>
       </div>
 
       <div className="card support-card">

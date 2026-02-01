@@ -22,7 +22,11 @@ interface ForceGraphData {
   links: ForceGraphLink[];
 }
 
-function NetworkGraph() {
+interface NetworkGraphProps {
+  filterLevels?: number[];  // Filter by intel stack levels (1-6)
+}
+
+function NetworkGraph({ filterLevels = [] }: NetworkGraphProps) {
   const [graphData, setGraphData] = useState<ForceGraphData>({ nodes: [], links: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -32,6 +36,7 @@ function NetworkGraph() {
   const [showInferred, setShowInferred] = useState(true);
   const [minConnections, setMinConnections] = useState(0);
   const [rawGraphData, setRawGraphData] = useState<ForceGraphData>({ nodes: [], links: [] });
+  const [showLegend, setShowLegend] = useState(true);
   const fgRef = useRef<any>();
   const centerTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -196,6 +201,26 @@ function NetworkGraph() {
     }
   };
   
+  // Intel Stack Level to Entity Type mapping for fallback filtering
+  // When intel_stack_level is not set, we match by entity type
+  const INTEL_LEVEL_TYPE_MAP: Record<number, string[]> = {
+    1: ['Organization'],  // Control Group - MITRE/JASON/NSC are Organizations
+    2: ['Government Agency'],  // Administrators - IC agencies
+    3: ['Research Institution'],  // FFRDCs
+    4: ['Corporation', 'Investment Firm'],  // Prime Contractors
+    5: ['Facility'],  // Facilities
+    6: ['Program'],  // Programs
+  };
+
+  // Helper to extract ID from link source/target (can be string or node object)
+  const getLinkNodeId = (nodeRef: string | ForceGraphNode | any): string => {
+    if (typeof nodeRef === 'string') {
+      return nodeRef;
+    }
+    // It's a node object, extract the id
+    return nodeRef?.id || '';
+  };
+
   // Apply filters to raw graph data
   useEffect(() => {
     if (rawGraphData.nodes.length === 0) {
@@ -206,32 +231,111 @@ function NetworkGraph() {
     // Calculate connection counts for filtering
     const nodeConnectionCounts = new Map<string, number>();
     rawGraphData.links.forEach(link => {
-      nodeConnectionCounts.set(link.source as string, (nodeConnectionCounts.get(link.source as string) || 0) + 1);
-      nodeConnectionCounts.set(link.target as string, (nodeConnectionCounts.get(link.target as string) || 0) + 1);
+      const sourceId = getLinkNodeId(link.source);
+      const targetId = getLinkNodeId(link.target);
+      nodeConnectionCounts.set(sourceId, (nodeConnectionCounts.get(sourceId) || 0) + 1);
+      nodeConnectionCounts.set(targetId, (nodeConnectionCounts.get(targetId) || 0) + 1);
     });
     
-    // Filter nodes by minimum connections
+    // Helper function to check if node matches filter levels
+    const nodeMatchesFilter = (node: ForceGraphNode): boolean => {
+      // If node has explicit intel_stack_level, use it
+      if (node.intel_stack_level) {
+        return filterLevels.includes(node.intel_stack_level);
+      }
+      
+      // Fallback: match by entity type
+      if (node.type) {
+        for (const level of filterLevels) {
+          const matchingTypes = INTEL_LEVEL_TYPE_MAP[level] || [];
+          if (matchingTypes.includes(node.type)) {
+            return true;
+          }
+        }
+      }
+      
+      return false;
+    };
+    
+    // First pass: find primary nodes that match the intel stack filter
+    const primaryMatchIds = new Set<string>();
+    if (filterLevels.length > 0) {
+      rawGraphData.nodes.forEach(node => {
+        if (nodeMatchesFilter(node)) {
+          primaryMatchIds.add(node.id);
+        }
+      });
+    }
+    
+    // Second pass: find nodes connected to primary matches (to show relationships)
+    const connectedNodeIds = new Set<string>();
+    if (filterLevels.length > 0 && primaryMatchIds.size > 0) {
+      rawGraphData.links.forEach(link => {
+        const sourceId = getLinkNodeId(link.source);
+        const targetId = getLinkNodeId(link.target);
+        if (primaryMatchIds.has(sourceId)) {
+          connectedNodeIds.add(targetId);
+        }
+        if (primaryMatchIds.has(targetId)) {
+          connectedNodeIds.add(sourceId);
+        }
+      });
+    }
+    
+    // Filter nodes by minimum connections and intel stack level
     const filteredNodes = rawGraphData.nodes.filter(node => {
       const connections = nodeConnectionCounts.get(node.id) || 0;
-      return connections >= minConnections;
+      
+      // Check minimum connections
+      if (connections < minConnections) {
+        return false;
+      }
+      
+      // Check intel stack level filter (if any levels are selected)
+      if (filterLevels.length > 0) {
+        // Include if: matches filter, OR is connected to a matching node
+        const matchesFilter = nodeMatchesFilter(node);
+        const isConnectedToMatch = connectedNodeIds.has(node.id);
+        
+        if (!matchesFilter && !isConnectedToMatch) {
+          return false;
+        }
+      }
+      
+      return true;
     });
     
     // Filter edges to only include those connecting visible nodes
+    // IMPORTANT: Create new edge objects with string IDs to avoid mutation issues
     const visibleNodeIds = new Set(filteredNodes.map(n => n.id));
-    const filteredEdges = rawGraphData.links.filter(link => {
+    const filteredEdges: ForceGraphLink[] = [];
+    
+    rawGraphData.links.forEach(link => {
+      const sourceId = getLinkNodeId(link.source);
+      const targetId = getLinkNodeId(link.target);
+      
       // Optionally filter out inferred relationships
       if (!showInferred && link.label && 
           (link.label.includes('Co-Recipient') || link.label.includes('Same Industry') || link.label.includes('Award Recipient'))) {
-        return false;
+        return;
       }
-      return visibleNodeIds.has(link.source as string) && visibleNodeIds.has(link.target as string);
+      
+      // Only include edges where both nodes are visible
+      if (visibleNodeIds.has(sourceId) && visibleNodeIds.has(targetId)) {
+        // Create a clean edge object with string IDs
+        filteredEdges.push({
+          source: sourceId,
+          target: targetId,
+          label: link.label,
+        });
+      }
     });
     
     setGraphData({
       nodes: filteredNodes,
       links: filteredEdges,
     });
-  }, [rawGraphData, showInferred, minConnections]);
+  }, [rawGraphData, showInferred, minConnections, filterLevels]);
 
   // Color map - high contrast palette for better visual distinction
   const colorMap: Record<string, string> = {
@@ -376,14 +480,26 @@ function NetworkGraph() {
         </button>
       </div>
       
-      <div className="graph-legend">
-        <h5 style={{ margin: '0 0 10px 0', fontSize: '0.9rem', color: '#999' }}>Entity Types:</h5>
-        {uniqueTypes.map(type => (
-          <div key={type} className="legend-item">
-            <span className="legend-color" style={{ backgroundColor: colorMap[type] || '#9B9B9B' }}></span>
-            <span>{type}</span>
+      <div className={`graph-legend ${showLegend ? 'expanded' : 'collapsed'}`}>
+        <button 
+          className="legend-toggle"
+          onClick={() => setShowLegend(!showLegend)}
+          aria-expanded={showLegend}
+          aria-label={showLegend ? "Collapse legend" : "Expand legend"}
+        >
+          <span>Entity Types</span>
+          <span className="toggle-icon">{showLegend ? '▼' : '▶'}</span>
+        </button>
+        {showLegend && (
+          <div className="legend-items">
+            {uniqueTypes.map(type => (
+              <div key={type} className="legend-item">
+                <span className="legend-color" style={{ backgroundColor: colorMap[type] || '#9B9B9B' }}></span>
+                <span>{type}</span>
+              </div>
+            ))}
           </div>
-        ))}
+        )}
       </div>
 
       <ForceGraph2D

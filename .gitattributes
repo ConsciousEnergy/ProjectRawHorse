@@ -1,17 +1,51 @@
-# Git LFS Configuration for Project RawHorse
+# Git Configuration for Project RawHorse
+# Simplified to avoid Git LFS dependency for most files
 
-# Data files - track with LFS
-*.csv filter=lfs diff=lfs merge=lfs -text
-*.xlsx filter=lfs diff=lfs merge=lfs -text
-*.png filter=lfs diff=lfs merge=lfs -text
-*.jpg filter=lfs diff=lfs merge=lfs -text
-*.jpeg filter=lfs diff=lfs merge=lfs -text
+# CSV files - track as regular text for easier diff and collaboration
+# CSV files in this project are small enough to not require LFS
+*.csv text
 
-# Exclude small reference files from LFS
-data/reference/keywords_deduped.txt !filter !diff !merge text
-data/reference/keyword_weights.csv !filter !diff !merge text
+# Excel files - track as binary but not with LFS (small files)
+*.xlsx binary
 
-# Databases
-*.db filter=lfs diff=lfs merge=lfs -text
-*.sqlite filter=lfs diff=lfs merge=lfs -text
+# Images - standard git handling (PNG files in project are small)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
 
+# Databases - exclude from repo entirely (generated files)
+# These should be gitignored, not LFS tracked
+*.db -diff -merge
+*.sqlite -diff -merge
+
+# Reference files - treat as text
+data/reference/keywords_deduped.txt text
+data/reference/keyword_weights.csv text
+
+# Frontend build outputs - exclude from tracking
+frontend/dist/** -diff linguist-generated
+
+# Ensure proper line endings for shell scripts
+*.sh text eol=lf
+*.bat text eol=crlf
+
+# Python files
+*.py text diff=python
+
+# JSON and YAML configs
+*.json text
+*.yaml text
+*.yml text
+
+# Markdown documentation
+*.md text diff=markdown
+
+# TypeScript/JavaScript
+*.ts text
+*.tsx text
+*.js text
+*.jsx text
+*.css text
+*.html text
