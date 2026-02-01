@@ -5,6 +5,9 @@ import { Home, Database, BarChart3, FileDown, Upload, Info } from 'lucide-react'
 import Dashboard from './pages/Dashboard';
 import Browse from './pages/Browse';
 import Analysis from './pages/Analysis';
+import AnalysisOverview from './pages/AnalysisOverview';
+import NetworkGraphPage from './pages/NetworkGraphPage';
+import SankeyDiagramPage from './pages/SankeyDiagramPage';
 import Export from './pages/Export';
 import Contribute from './pages/Contribute';
 import About from './pages/About';
@@ -21,12 +24,12 @@ function Navigation() {
   const location = useLocation();
   
   const navItems = [
-    { path: '/', icon: Home, label: 'Dashboard' },
-    { path: '/browse', icon: Database, label: 'Browse' },
-    { path: '/analysis', icon: BarChart3, label: 'Analysis' },
-    { path: '/export', icon: FileDown, label: 'Export' },
-    { path: '/contribute', icon: Upload, label: 'Contribute' },
-    { path: '/about', icon: Info, label: 'About' },
+    { path: '/', icon: Home, label: 'Dashboard', exact: true },
+    { path: '/browse', icon: Database, label: 'Browse', exact: true },
+    { path: '/analysis', icon: BarChart3, label: 'Analysis', exact: false },
+    { path: '/export', icon: FileDown, label: 'Export', exact: true },
+    { path: '/contribute', icon: Upload, label: 'Contribute', exact: true },
+    { path: '/about', icon: Info, label: 'About', exact: true },
   ];
   
   return (
@@ -43,7 +46,10 @@ function Navigation() {
       <ul className="nav-items">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = location.pathname === item.path;
+          // For analysis, match any sub-route; for others, exact match only
+          const isActive = item.exact 
+            ? location.pathname === item.path 
+            : location.pathname.startsWith(item.path);
           return (
             <li key={item.path}>
               <Link 
@@ -95,7 +101,11 @@ function App() {
             <Routes>
               <Route path="/" element={<Dashboard />} />
               <Route path="/browse" element={<Browse />} />
-              <Route path="/analysis" element={<Analysis />} />
+              {/* Analysis with sub-routes for separate visualization pages */}
+              <Route path="/analysis" element={<AnalysisOverview />} />
+              <Route path="/analysis/network" element={<NetworkGraphPage />} />
+              <Route path="/analysis/sankey" element={<SankeyDiagramPage />} />
+              <Route path="/analysis/legacy" element={<Analysis />} />
               <Route path="/export" element={<Export />} />
               <Route path="/contribute" element={<Contribute />} />
               <Route path="/about" element={<About />} />

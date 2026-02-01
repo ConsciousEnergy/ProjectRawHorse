@@ -1,0 +1,79 @@
+entity_id,display_name,normalized_name,entity_type,intel_stack_level,notes,source
+# Key Individuals - Alleged Gatekeepers and Program Personnel
+hw_terry_phillips,Terry Phillips,terry_phillips,Individual,2,SES1 AFOSIPJ Executive Director (2016-2021); Air Force SAP Security Director; Now VP Security at Northrop Grumman (prev Leidos CSO),UAPGerb Hidden Wing 2026
+hw_lee_russ,Lee M. Russ,lee_russ,Individual,2,Special Agent; Successor to Terry Phillips at AFOSIPJ and Air Force SAPs,UAPGerb Hidden Wing 2026
+hw_russell_wiler,Russell E. Wiler,russell_wiler,Individual,2,SES2; Director SAF AAH Sensitive Activities (2009-2024); Possible SES2 gatekeeper per Mellon exchange,UAPGerb Hidden Wing 2026
+hw_william_mcclure,William E. McClure,william_mcclure,Individual,2,SES2; Director SAF AAZ Security/Special Programs (2019-2021); Air Force security enterprise leader,UAPGerb Hidden Wing 2026
+hw_randall_walden,Randall G. Walden,randall_walden,Individual,2,SES; Director and PEO for DAF Rapid Capabilities Office; B-21 Raider lead; Now at Aerospace Corp board,UAPGerb Hidden Wing 2026
+hw_donna_shipton,Lt Gen Donna D. Shipton,donna_shipton,Individual,2,Commander AFLCMC at Wright-Patterson; Former Military Deputy SAF AQ; First woman to lead AFLCMC,UAPGerb Hidden Wing 2026
+hw_dawn_dunlop,Maj Gen Dawn M. Dunlop,dawn_dunlop,Individual,2,Former SAPCO Director; Former 412th Test Wing Commander at Edwards AFB (2009-2012),UAPGerb Hidden Wing 2026
+hw_eric_wang,Dr. Eric Henry Wang,eric_wang,Individual,3,AFSWC Research Directorate chief (1949-1960); Alleged UFO reverse engineering lead; Connected to Kingman and Aztec cases,UAPGerb Hidden Wing 2026
+hw_lawrence_delaney,Lawrence J. Delaney,lawrence_delaney,Individual,2,Former SAF AQ (1999-2001); Acting SECAF 2001; Career at Aerospace Corp and SAIC and Martin Marietta,UAPGerb Hidden Wing 2026
+hw_susie_payton,Sue Payton,sue_payton,Individual,2,Former SAF AQ (2006-2009) under Bush; Former Lockheed Martin advanced technology manager,UAPGerb Hidden Wing 2026
+hw_neil_mccasland,Maj Gen Neil McCasland,neil_mccasland,Individual,2,Former AFRL Commander at Wright-Patterson (2011-2013); TTSA advisor; Discussed UFOs with Tom DeLonge and Podesta,UAPGerb Hidden Wing 2026
+hw_dylan_borland,Dylan Borland,dylan_borland,Individual,,UAP whistleblower; Air Force veteran; Witnessed triangle craft at Langley AFB (2012); Congressional testimony,UAPGerb Hidden Wing 2026
+hw_tom_delonge,Tom DeLonge,tom_delonge,Individual,,TTSA founder; Musician; Received alleged briefings from IC/DoD personnel on UFO programs,UAPGerb Hidden Wing 2026
+hw_christopher_mellon,Christopher Mellon,christopher_mellon,Individual,2,Former PDASD for Intelligence; TTSA advisor; Published redacted signal exchange re SES2 gatekeeper,UAPGerb Hidden Wing 2026
+hw_ronald_moultrie,Ronald S. Moultrie,ronald_moultrie,Individual,2,Former USD INS (2021-2024); Helped establish AARO; Dual-hatted as Director Defense Intelligence,UAPGerb Hidden Wing 2026
+hw_arthur_stansel,Arthur Stansel Jr.,arthur_stansel,Individual,,Kingman crash witness (1953); Used pseudonym Fritz Werner; Worked under Eric Wang at Wright-Patterson,UAPGerb Hidden Wing 2026
+hw_edgar_fouche,Edgar Fouche,edgar_fouche,Individual,,Alleged TR-3B whistleblower; Claims of reverse engineered propulsion from Sandia/Livermore,UAPGerb Hidden Wing 2026
+hw_andrew_kissner,J. Andrew Kissner,andrew_kissner,Individual,,Former New Mexico State Rep; Interviewed legacy program personnel (1994-1995); Worked with Rep Schiff,UAPGerb Hidden Wing 2026
+hw_william_steinman,William Steinman,william_steinman,Individual,,UFO researcher; Author UFO Crash at Aztec (1986); Investigated Eric Wang connection,UAPGerb Hidden Wing 2026
+hw_hoy_vandenberg,Gen Hoyt Vandenberg,hoyt_vandenberg,Individual,1,Air Force Chief of Staff (1948-1953); Signed order establishing AFOSI; Alleged MJ-12 member,UAPGerb Hidden Wing 2026
+hw_rick_doty,Richard Doty,richard_doty,Individual,,Former AFOSI special agent at Kirtland AFB; Ran disinformation ops against Paul Bennewitz,UAPGerb Hidden Wing 2026
+hw_terry_bullard,Brig Gen Terry Bullard,terry_bullard,Individual,2,Former AFOSI Commander; Participated in DoD IG UAP evaluation meetings with Terry Phillips,UAPGerb Hidden Wing 2026
+# Air Force Offices and Directorates
+hw_saf_aq,SAF AQ,saf_aq,Government Agency,2,Assistant Secretary of Air Force for Acquisition Technology and Logistics; $60B annual budget,UAPGerb Hidden Wing 2026
+hw_saf_aql,SAF AQL,saf_aql,Government Agency,2,Air Force Special Programs Directorate under SAF AQ; Manages highly classified SAP acquisition,UAPGerb Hidden Wing 2026
+hw_saf_aqx,SAF AQX,saf_aqx,Government Agency,2,Acquisition Integration Directorate under SAF AQ; Process improvement and fund coordination,UAPGerb Hidden Wing 2026
+hw_saf_aqr,SAF AQR,saf_aqr,Government Agency,2,Science Technology and Engineering Directorate under SAF AQ; Air Force S&T Executive,UAPGerb Hidden Wing 2026
+hw_saf_aah,SAF AAH,saf_aah,Government Agency,2,Sensitive Activities Office under SAF AA; Operates under classified USD INS directives,UAPGerb Hidden Wing 2026
+hw_saf_aaz,SAF AAZ,saf_aaz,Government Agency,2,Security/Special Programs Oversight/Info Protection; Air Force SAPCO; Nuclear info security,UAPGerb Hidden Wing 2026
+hw_aftte,AFTTE,aftte,Government Agency,2,Air Force Test and Evaluation; Senior test executive for Air Force and Space Force,UAPGerb Hidden Wing 2026
+hw_afttez,AFTTEZ,afttez,Government Agency,2,Special Programs Division under AFTTE; Foreign material programs and classified test,UAPGerb Hidden Wing 2026
+hw_afosipj,AFOSIPJ,afosipj,Government Agency,2,Air Force OSI Office of Special Projects; SAP security and counterintelligence; Guardian Angel program with FBI,UAPGerb Hidden Wing 2026
+hw_rco,Rapid Capabilities Office,rapid_capabilities_office,Government Agency,2,DAF RCO; Accelerated acquisition bypassing traditional bureaucracy; B-21 and X-37B programs,UAPGerb Hidden Wing 2026
+hw_usd_ins,USD INS,usd_ins,Government Agency,2,Under Secretary of Defense for Intelligence and Security; Oversees DIA NGA NRO NSA; NPMS parent,UAPGerb Hidden Wing 2026
+hw_npms,NPMS,npms,Government Agency,1,National Program Special Management Staff; Coordinates NSC SAPs with DoD/IC; Most cleared position in DoD,UAPGerb Hidden Wing 2026
+hw_afmc,Air Force Material Command,air_force_material_command,Government Agency,2,AFMC; Largest MAGCOM by budget ($82.9B FY25); RDT&E and acquisition at Wright-Patterson,UAPGerb Hidden Wing 2026
+hw_aftc,Air Force Test Center,air_force_test_center,Government Agency,3,AFTC at Edwards AFB; Flight test of all Air Force aircraft; Houses Test Pilot School,UAPGerb Hidden Wing 2026
+hw_aflcmc,Air Force Life Cycle Management Center,aflcmc,Government Agency,2,AFLCMC at Wright-Patterson; Total life cycle management of Air Force systems,UAPGerb Hidden Wing 2026
+hw_acc,Air Combat Command,air_combat_command,Government Agency,2,ACC MAGCOM at Langley AFB; Fighters reconnaissance battle management aircraft,UAPGerb Hidden Wing 2026
+hw_afsoc,Air Force Special Operations Command,afsoc,Government Agency,2,AFSOC MAGCOM; Provides Air Force SOF units to SOCOM,UAPGerb Hidden Wing 2026
+hw_amc_magcom,Air Mobility Command,air_mobility_command,Government Agency,2,AMC MAGCOM; Global airlift and aerial refueling; C-130 C-5 Galaxy transport,UAPGerb Hidden Wing 2026
+hw_jsoc,Joint Special Operations Command,jsoc,Government Agency,2,JSOC under SOCOM; Tier 1 units including Delta DEVGRU ISA; Alleged crash retrieval direct action,UAPGerb Hidden Wing 2026
+hw_160th_soar,160th SOAR,160th_soar,Government Agency,2,160th Special Operations Aviation Regiment (Nightstalkers); Helicopter transport for tier 1 ops,UAPGerb Hidden Wing 2026
+hw_24th_sts,24th STS,24th_sts,Government Agency,2,24th Special Tactics Squadron; Air Force component of JSOC; Para rescue combat controllers,UAPGerb Hidden Wing 2026
+hw_412th_test_wing,412th Test Wing,412th_test_wing,Government Agency,3,Edwards AFB MRTFB; Flight test of all Air Force aircraft; Also operates Area 51 sites,UAPGerb Hidden Wing 2026
+hw_tps,Air Force Test Pilot School,test_pilot_school,Government Agency,3,TPS at Edwards AFB under AFTC; Source of ARV pilots per whistleblower testimony,UAPGerb Hidden Wing 2026
+hw_aphotech,Aphotech,aphotech,Government Agency,3,Air Force Operational Test and Evaluation Center at Kirtland AFB; Independent test agency,UAPGerb Hidden Wing 2026
+hw_afswc,Air Force Special Weapons Center,air_force_special_weapons_center,Government Agency,3,AFSWC (1949-1976) at Kirtland; Atomic/nuclear weapons; Became AFNWC; Eric Wang connection,UAPGerb Hidden Wing 2026
+hw_nasc,National Air and Space Intelligence Center,nasc,Government Agency,2,NASIC at Wright-Patterson; Air and space threat analysis; Alleged legacy program involvement,UAPGerb Hidden Wing 2026
+# Facilities
+hw_plant_42,Air Force Plant 42,air_force_plant_42,Facility,4,GOCO facility at Palmdale CA; Boeing Lockheed Northrop operations; Skunk Works Phantom Works,UAPGerb Hidden Wing 2026
+hw_crystal_city,Crystal City,crystal_city,Facility,4,Arlington VA; 8 of 10 top defense contractors; FFRDCs including DARPA ONR AFOSR,UAPGerb Hidden Wing 2026
+hw_langley_afb,Langley Air Force Base,langley_afb,Facility,3,ACC HQ in Virginia; Dylan Borland triangle craft sighting (2012),UAPGerb Hidden Wing 2026
+hw_hill_afb,Hill Air Force Base,hill_afb,Facility,3,Utah; AFMC Ogden Air Logistics Complex; Primary airfield for Utah Test and Training Range,UAPGerb Hidden Wing 2026
+hw_nsf_dahlgren,NSF Dahlgren,nsf_dahlgren,Facility,4,Naval Support Facility Dahlgren VA; NSWC Dahlgren; AFOSIPJ presence for space surveillance,UAPGerb Hidden Wing 2026
+hw_nswc_crane,NSWC Crane,nswc_crane,Facility,4,Naval Surface Warfare Center Crane IN; Alleged Off-World Technologies Division per SAIC connection,UAPGerb Hidden Wing 2026
+hw_utr,Utah Test and Training Range,utah_test_training_range,Facility,5,UTR MRTFB; Shares Dugway with Army; 388th Range Squadron; MS disc witness testimony,UAPGerb Hidden Wing 2026
+# Corporations
+hw_leidos,Leidos,leidos,Corporation,4,Defense IT services provider; Spun from SAIC 2013; Terry Phillips now CSO,UAPGerb Hidden Wing 2026
+hw_saic,SAIC,saic,Corporation,4,Science Applications International Corp; NSA West; Off-world technologies division allegations,UAPGerb Hidden Wing 2026
+hw_bdm,BDM International,bdm_international,Corporation,4,Braddock Dunn and McDonald; Acquired by Northrop Grumman; UFO program allegations,UAPGerb Hidden Wing 2026
+hw_martin_marietta,Martin Marietta,martin_marietta,Corporation,4,Defense contractor merged with Lockheed (1995); Eric Wang Kingman connection; Delaney career,UAPGerb Hidden Wing 2026
+hw_trw,TRW Inc,trw,Corporation,4,Defense aerospace contractor; Acquired by Northrop Grumman (2002); Space systems,UAPGerb Hidden Wing 2026
+hw_ltv_aerospace,LTV Aerospace,ltv_aerospace,Corporation,4,Former contractor became CIA shell E Systems; EMP weapons designed to shoot down UFOs allegations,UAPGerb Hidden Wing 2026
+hw_e_systems,E Systems,e_systems,Corporation,4,CIA shell company from LTV Aerospace; Later acquired by Raytheon,UAPGerb Hidden Wing 2026
+# Programs
+hw_guardian_angel,Guardian Angel Program,guardian_angel_program,Program,2,AFOSIPJ/FBI joint program; FBI agents embedded in Air Force SAPs; LA and DC locations,UAPGerb Hidden Wing 2026
+hw_yankee_black,Yankee Black,yankee_black,Program,2,Alleged SAP access code for UFO programs per Rick Doty testimony; Yankee White is White House access,UAPGerb Hidden Wing 2026
+hw_hidden_wing,Hidden Wing,hidden_wing,Program,5,Alleged TUO T&E program across Western Ranges; ARV and derivative vehicle testing; Edwards NTR UTR,UAPGerb Hidden Wing 2026
+hw_b21_raider,B-21 Raider,b21_raider,Program,4,Next-gen stealth bomber under RCO; Successor to B-2 Spirit,UAPGerb Hidden Wing 2026
+hw_x37b,X-37B Orbital Test Vehicle,x37b,Program,4,Reusable unmanned spacecraft under RCO; Extended orbital missions,UAPGerb Hidden Wing 2026
+hw_tr3b,TR-3B,tr3b,Program,5,Alleged triangular ARV per Edgar Fouche; Magnetic field disruptor propulsion; Sandia Livermore R&D,UAPGerb Hidden Wing 2026
+hw_project_blue_book,Project Blue Book,project_blue_book,Program,,Air Force UFO investigation program (1952-1969); AFOSI involvement in witness silencing,UAPGerb Hidden Wing 2026
+# Historical MAGCOMs and Units
+hw_air_material_command,Air Material Command,air_material_command,Government Agency,2,AMC (1946-1961) at Wright-Patterson; Predecessor to AFLC/AFMC; Received Roswell wreckage,UAPGerb Hidden Wing 2026
+hw_ardc,Air Research and Development Command,ardc,Government Agency,2,ARDC (1950-1961); Predecessor to AFSC; R&D from AMC including Edwards,UAPGerb Hidden Wing 2026
+hw_afsc,Air Force Systems Command,afsc,Government Agency,2,AFSC (1961-1992); Merged with AFLC to form AFMC; Kissner testimony re legacy programs,UAPGerb Hidden Wing 2026

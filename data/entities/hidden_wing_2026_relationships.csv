@@ -1,0 +1,99 @@
+source,target,relationship_type,description,source_citation
+# Terry Phillips connections
+Terry Phillips,AFOSIPJ,led,Executive Director of Office of Special Projects (2016-2021),UAPGerb Hidden Wing
+Terry Phillips,Northrop Grumman,works_for,VP Security and Chief Security Officer (current),UAPGerb Hidden Wing
+Terry Phillips,Leidos,previously_worked_for,Senior VP and CSO (2022),UAPGerb Hidden Wing
+Terry Phillips,Lee M. Russ,predecessor_to,Phillips was succeeded by Russ at PJ and Air Force SAPs,UAPGerb Hidden Wing
+Terry Phillips,Brig Gen Terry Bullard,worked_with,Participated in DoD IG UAP meetings together,UAPGerb Hidden Wing
+# Lee Russ connections
+Lee M. Russ,AFOSIPJ,leads,Current Executive Director of Office of Special Projects,UAPGerb Hidden Wing
+Lee M. Russ,Terry Phillips,succeeded,Replaced Phillips at PJ and Air Force SAPs,UAPGerb Hidden Wing
+# Russell Wiler connections
+Russell E. Wiler,SAF AAH,led,Director of Sensitive Activities (2009-2024),UAPGerb Hidden Wing
+Russell E. Wiler,USD INS,reports_to,SAF AAH operates under USD INS classified directives,UAPGerb Hidden Wing
+# William McClure connections
+William E. McClure,SAF AAZ,led,Director Security/Special Programs Oversight (2019-2021),UAPGerb Hidden Wing
+William E. McClure,SAPCO,manages,Air Force Special Access Program Central Office authority,UAPGerb Hidden Wing
+# Randall Walden connections
+Randall G. Walden,Rapid Capabilities Office,led,Director and PEO for DAF RCO,UAPGerb Hidden Wing
+Randall G. Walden,B-21 Raider,managed,Program lead for B-21 development,UAPGerb Hidden Wing
+Randall G. Walden,X-37B Orbital Test Vehicle,managed,Program lead for X-37B under RCO,UAPGerb Hidden Wing
+Randall G. Walden,Aerospace Corporation,board_member,Elected to Board of Trustees 2023,UAPGerb Hidden Wing
+Randall G. Walden,Edwards Air Force Base,worked_at,Flight test engineer in early career,UAPGerb Hidden Wing
+Randall G. Walden,AFTTE,led,Former Director of Air Force Test and Evaluation,UAPGerb Hidden Wing
+# Donna Shipton connections
+Lt Gen Donna D. Shipton,Air Force Life Cycle Management Center,commands,Commander of AFLCMC at Wright-Patterson (2024-present),UAPGerb Hidden Wing
+Lt Gen Donna D. Shipton,SAF AQ,previously_worked_at,Military Deputy SAF AQ (2022-2023),UAPGerb Hidden Wing
+Lt Gen Donna D. Shipton,Air Force Material Command,reports_to,AFLCMC is under AFMC,UAPGerb Hidden Wing
+# Dawn Dunlop connections
+Maj Gen Dawn M. Dunlop,412th Test Wing,commanded,Commander of Edwards 412th Test Wing (2009-2012),UAPGerb Hidden Wing
+Maj Gen Dawn M. Dunlop,SAPCO,led,Former Director of Special Access Program Central Office,UAPGerb Hidden Wing
+Maj Gen Dawn M. Dunlop,Edwards Air Force Base,stationed_at,Vice commander and commander at Edwards,UAPGerb Hidden Wing
+# Eric Wang connections
+Dr. Eric Henry Wang,Air Force Special Weapons Center,worked_for,Research Directorate chief (1949-1960),UAPGerb Hidden Wing
+Dr. Eric Henry Wang,Wright-Patterson Air Force Base,worked_at,Special Studies Office chief (1949-1956),UAPGerb Hidden Wing
+Dr. Eric Henry Wang,Kirtland Air Force Base,transferred_to,Moved to Sandia Lab Complex (1956-1960),UAPGerb Hidden Wing
+Dr. Eric Henry Wang,Arthur Stansel Jr.,supervised,Stansel worked under Wang on Operation Upshot Knothole,UAPGerb Hidden Wing
+# Lawrence Delaney connections
+Lawrence J. Delaney,SAF AQ,led,Assistant Secretary of Air Force for Acquisition (1999-2001),UAPGerb Hidden Wing
+Lawrence J. Delaney,SAIC,worked_for,Deputy sector manager Military Sciences (1981-1989),UAPGerb Hidden Wing
+Lawrence J. Delaney,Aerospace Corporation,worked_for,Director of Propulsion Technology (1963-1968),UAPGerb Hidden Wing
+Lawrence J. Delaney,Martin Marietta,worked_for,Director of advanced programs,UAPGerb Hidden Wing
+Lawrence J. Delaney,Institute for Defense Analyses,worked_for,Early career at IDA FFRDC (1961-1962),UAPGerb Hidden Wing
+# Neil McCasland connections
+Maj Gen Neil McCasland,Air Force Research Lab,commanded,Commander AFRL at Wright-Patterson (2011-2013),UAPGerb Hidden Wing
+Maj Gen Neil McCasland,Tom DeLonge,advised,TTSA advisor on UFO disclosure efforts,UAPGerb Hidden Wing
+Maj Gen Neil McCasland,Lockheed Martin,briefed_with,Google Hangout meeting with Skunk Works VP per WikiLeaks,UAPGerb Hidden Wing
+# Dylan Borland connections
+Dylan Borland,Langley Air Force Base,witnessed_at,Triangle craft sighting in 2012,UAPGerb Hidden Wing
+Dylan Borland,Air Combat Command,served_in,Air Force veteran stationed at Langley,UAPGerb Hidden Wing
+# Christopher Mellon connections
+Christopher Mellon,Russell E. Wiler,referenced,Signal exchange mentioned SES2 gatekeeper possibly Wiler,UAPGerb Hidden Wing
+Christopher Mellon,William E. McClure,referenced,Signal exchange SES2 gatekeeper could also be McClure,UAPGerb Hidden Wing
+# Ronald Moultrie connections
+Ronald S. Moultrie,USD INS,led,Under Secretary of Defense for Intelligence and Security (2021-2024),UAPGerb Hidden Wing
+Ronald S. Moultrie,All-domain Anomaly Resolution Office,established,Helped create AARO and appointed Kirkpatrick,UAPGerb Hidden Wing
+Ronald S. Moultrie,Sean Kirkpatrick,appointed,Installed Kirkpatrick as AARO Director,UAPGerb Hidden Wing
+Ronald S. Moultrie,Battelle Memorial Institute,worked_for,Advisory board member (erased from CV),UAPGerb Hidden Wing
+# Organizational hierarchy
+SAF AQL,SAF AQ,subordinate_to,Special Programs Directorate under SAF AQ,UAPGerb Hidden Wing
+SAF AQX,SAF AQ,subordinate_to,Acquisition Integration under SAF AQ,UAPGerb Hidden Wing
+SAF AQR,SAF AQ,subordinate_to,Science Technology Engineering under SAF AQ,UAPGerb Hidden Wing
+SAF AAH,USD INS,operates_under,Sensitive Activities governed by USD INS directives,UAPGerb Hidden Wing
+SAF AAZ,SAPCO,manages,Air Force SAPCO authority,UAPGerb Hidden Wing
+Rapid Capabilities Office,SAF AQ,part_of,RCO resides within Air Force Acquisition,UAPGerb Hidden Wing
+AFTTE,412th Test Wing,oversees,Test and Evaluation authority over MRTFBs,UAPGerb Hidden Wing
+AFTTEZ,AFTTE,subordinate_to,Special Programs Division under AFTTE,UAPGerb Hidden Wing
+AFOSIPJ,AFOSI,part_of,Office of Special Projects within Air Force OSI,UAPGerb Hidden Wing
+NPMS,USD INS,part_of,National Program Special Management Staff under USD INS,UAPGerb Hidden Wing
+Air Force Material Command,Air Force Research Lab,oversees,AFRL is under AFMC,UAPGerb Hidden Wing
+Air Force Material Command,Air Force Test Center,oversees,AFTC is under AFMC,UAPGerb Hidden Wing
+Air Force Test Center,412th Test Wing,commands,Edwards 412th under AFTC,UAPGerb Hidden Wing
+Air Force Test Center,Air Force Test Pilot School,houses,TPS at Edwards under AFTC,UAPGerb Hidden Wing
+412th Test Wing,Edwards Air Force Base,based_at,Primary test wing at Edwards,UAPGerb Hidden Wing
+412th Test Wing,Area 51,operates,412th also operates Area 51 sites,UAPGerb Hidden Wing
+412th Test Wing,Nevada Test and Training Range,operates_in,Western Ranges flight test operations,UAPGerb Hidden Wing
+412th Test Wing,Utah Test and Training Range,operates_in,Western Ranges flight test operations,UAPGerb Hidden Wing
+# Program connections
+Hidden Wing,412th Test Wing,operated_by,Alleged TUO T&E program under 412th Test Wing,UAPGerb Hidden Wing
+Hidden Wing,Air Force Test Pilot School,pilots_from,ARV pilots allegedly from TPS,UAPGerb Hidden Wing
+Hidden Wing,Nevada Test and Training Range,tested_at,Western Ranges T&E location,UAPGerb Hidden Wing
+Hidden Wing,Utah Test and Training Range,tested_at,Western Ranges T&E location,UAPGerb Hidden Wing
+Guardian Angel Program,AFOSIPJ,operated_by,FBI personnel embedded in Air Force SAPs,UAPGerb Hidden Wing
+Guardian Angel Program,FBI,joint_with,Small cadre of FBI agents at LA and DC,UAPGerb Hidden Wing
+TR-3B,Sandia National Laboratories,allegedly_developed_at,Magnetic field disruptor R&D per Fouche,UAPGerb Hidden Wing
+TR-3B,Lawrence Livermore National Laboratory,allegedly_developed_at,Propulsion reverse engineering per Fouche,UAPGerb Hidden Wing
+# Facility connections
+Air Force Plant 42,Lockheed Martin,houses,Skunk Works operations at Palmdale,UAPGerb Hidden Wing
+Air Force Plant 42,Northrop Grumman,houses,Advanced Technology Development Center,UAPGerb Hidden Wing
+Air Force Plant 42,Boeing,houses,Phantom Works operations,UAPGerb Hidden Wing
+Air Force Plant 42,Edwards Air Force Base,adjacent_to,Close coordination with Edwards flight test,UAPGerb Hidden Wing
+Crystal City,Lockheed Martin,houses,Primary corporate offices,UAPGerb Hidden Wing
+Crystal City,Northrop Grumman,houses,Corporate offices,UAPGerb Hidden Wing
+Crystal City,DARPA,located_near,Defense research agencies,UAPGerb Hidden Wing
+NSWC Crane,SAIC,allegedly_houses,Off-World Technologies Division per allegations,UAPGerb Hidden Wing
+# Historical MAGCOM evolution
+Air Material Command,Air Force Material Command,predecessor_to,AMC (1946-1961) evolved to AFMC,UAPGerb Hidden Wing
+Air Research and Development Command,Air Force Systems Command,predecessor_to,ARDC became AFSC in 1961,UAPGerb Hidden Wing
+Air Force Systems Command,Air Force Material Command,merged_into,AFSC merged with AFLC to form AFMC (1992),UAPGerb Hidden Wing
+Air Force Special Weapons Center,Air Force Research Lab,evolved_into,AFSWC OPR transferred to AFWL then AFRL,UAPGerb Hidden Wing
