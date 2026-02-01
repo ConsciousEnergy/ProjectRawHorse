@@ -1,0 +1,52 @@
+# Docker Compose configuration for local development
+# Uses SQLite and simpler setup without production features
+
+version: '3.8'
+
+services:
+  # Backend API with hot reload
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: prh-dev-backend
+    environment:
+      - SQLITE_PATH=/app/data/prh.db
+      - ENVIRONMENT=development
+      - DEBUG=true
+    volumes:
+      - ./backend:/app
+      - ./data:/app/data/csv
+      - dev_data:/app/data
+    ports:
+      - "8000:8000"
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    networks:
+      - prh-dev-network
+
+  # Frontend with hot reload
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: prh-dev-frontend
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    command: ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+    depends_on:
+      - backend
+    networks:
+      - prh-dev-network
+
+volumes:
+  dev_data:
+    name: prh-dev-data
+
+networks:
+  prh-dev-network:
+    name: prh-dev-network

@@ -1,0 +1,125 @@
+# Docker Compose configuration for Project RawHorse
+# Production-ready deployment with PostgreSQL, Redis, and Caddy
+
+version: '3.8'
+
+services:
+  # Backend API service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: prh-backend
+    environment:
+      - DATABASE_URL=${DATABASE_URL:-postgresql://prh:${DB_PASSWORD:-changeme}@db:5432/rawhorse}
+      - REDIS_URL=${REDIS_URL:-redis://cache:6379/0}
+      - SECRET_KEY=${SECRET_KEY:-please-change-this-in-production}
+      - ENVIRONMENT=${ENVIRONMENT:-production}
+      - DEBUG=${DEBUG:-false}
+      # SQLite fallback for development
+      - SQLITE_PATH=/app/data/prh.db
+    volumes:
+      - backend_data:/app/data
+      - ./data:/app/data/csv:ro  # Mount CSV data as read-only
+    depends_on:
+      db:
+        condition: service_healthy
+      cache:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/data/stats"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    networks:
+      - prh-network
+    expose:
+      - "8000"
+
+  # Frontend static files served by Caddy
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: prh-frontend
+    volumes:
+      - frontend_dist:/usr/share/caddy
+    restart: "no"  # One-shot build only
+    networks:
+      - prh-network
+
+  # PostgreSQL database
+  db:
+    image: postgres:16-alpine
+    container_name: prh-db
+    environment:
+      - POSTGRES_USER=prh
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-changeme}
+      - POSTGRES_DB=rawhorse
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/init-db.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U prh -d rawhorse"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - prh-network
+
+  # Redis cache
+  cache:
+    image: redis:7-alpine
+    container_name: prh-cache
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - prh-network
+
+  # Caddy reverse proxy with automatic HTTPS
+  caddy:
+    image: caddy:2-alpine
+    container_name: prh-caddy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/Caddyfile:/etc/caddy/Caddyfile:ro
+      - frontend_dist:/srv/frontend:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - backend
+      - frontend
+    restart: unless-stopped
+    networks:
+      - prh-network
+
+volumes:
+  postgres_data:
+    name: prh-postgres-data
+  redis_data:
+    name: prh-redis-data
+  backend_data:
+    name: prh-backend-data
+  frontend_dist:
+    name: prh-frontend-dist
+  caddy_data:
+    name: prh-caddy-data
+  caddy_config:
+    name: prh-caddy-config
+
+networks:
+  prh-network:
+    name: prh-network
+    driver: bridge

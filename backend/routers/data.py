@@ -24,7 +24,9 @@ router = APIRouter()
 async def get_entities(
     search: str = Query(None),
     entity_type: str = Query(None),
-    skip: int = Query(0, ge=0),
+    intel_stack_level: int = Query(None),
+    offset: int = Query(0, ge=0),
+    skip: int = Query(None, ge=0),  # Alias for offset
     limit: int = Query(100, le=1000),
     db: Session = Depends(get_db)
 ):
@@ -32,17 +34,25 @@ async def get_entities(
     query = db.query(Entity)
     
     if search:
+        search_term = f"%{search}%"
         query = query.filter(
             or_(
-                Entity.display_name.ilike(f"%{search}%"),
-                Entity.normalized_name.ilike(f"%{search}%")
+                Entity.display_name.ilike(search_term),
+                Entity.normalized_name.ilike(search_term),
+                Entity.entity_id.ilike(search_term)
             )
         )
     
     if entity_type:
         query = query.filter(Entity.entity_type == entity_type)
     
-    return query.offset(skip).limit(limit).all()
+    if intel_stack_level is not None:
+        query = query.filter(Entity.intel_stack_level == intel_stack_level)
+    
+    # Use skip if offset not provided (backwards compatibility)
+    actual_offset = offset if offset > 0 else (skip or 0)
+    
+    return query.order_by(Entity.display_name).offset(actual_offset).limit(limit).all()
 
 
 @router.get("/entities/{entity_id}", response_model=EntityResponse)
@@ -56,19 +66,26 @@ async def get_money_flows(
     search: str = Query(None),
     min_amount: float = Query(None),
     max_amount: float = Query(None),
-    skip: int = Query(0, ge=0),
+    start_date: str = Query(None),
+    end_date: str = Query(None),
+    offset: int = Query(0, ge=0),
+    skip: int = Query(None, ge=0),  # Alias for offset
     limit: int = Query(100, le=1000),
     db: Session = Depends(get_db)
 ):
     """Get money flows with optional filtering"""
+    from datetime import datetime
+    
     query = db.query(MoneyFlow)
     
     if search:
+        search_term = f"%{search}%"
         query = query.filter(
             or_(
-                MoneyFlow.source.ilike(f"%{search}%"),
-                MoneyFlow.target.ilike(f"%{search}%"),
-                MoneyFlow.relationship.ilike(f"%{search}%")
+                MoneyFlow.source.ilike(search_term),
+                MoneyFlow.target.ilike(search_term),
+                MoneyFlow.relationship.ilike(search_term),
+                MoneyFlow.source_citation.ilike(search_term)
             )
         )
     
@@ -78,7 +95,25 @@ async def get_money_flows(
     if max_amount is not None:
         query = query.filter(MoneyFlow.amount_usd <= max_amount)
     
-    return query.offset(skip).limit(limit).all()
+    # Date range filtering
+    if start_date:
+        try:
+            start = datetime.strptime(start_date, "%Y-%m-%d").date()
+            query = query.filter(MoneyFlow.start_date >= start)
+        except ValueError:
+            pass  # Invalid date format, skip filter
+    
+    if end_date:
+        try:
+            end = datetime.strptime(end_date, "%Y-%m-%d").date()
+            query = query.filter(MoneyFlow.start_date <= end)
+        except ValueError:
+            pass  # Invalid date format, skip filter
+    
+    # Use skip if offset not provided (backwards compatibility)
+    actual_offset = offset if offset > 0 else (skip or 0)
+    
+    return query.order_by(MoneyFlow.amount_usd.desc().nullslast()).offset(actual_offset).limit(limit).all()
 
 
 @router.get("/awards", response_model=List[AwardResponse])
@@ -87,27 +122,36 @@ async def get_awards(
     agency: str = Query(None),
     min_amount: float = Query(None),
     max_amount: float = Query(None),
+    start_date: str = Query(None),
+    end_date: str = Query(None),
     naics_code: str = Query(None),
-    skip: int = Query(0, ge=0),
+    offset: int = Query(0, ge=0),
+    skip: int = Query(None, ge=0),  # Alias for offset
     limit: int = Query(100, le=1000),
     db: Session = Depends(get_db)
 ):
     """Get awards with optional filtering"""
+    from datetime import datetime
+    
     query = db.query(Award)
     
     if search:
+        search_term = f"%{search}%"
         query = query.filter(
             or_(
-                Award.recipient_name.ilike(f"%{search}%"),
-                Award.description.ilike(f"%{search}%")
+                Award.recipient_name.ilike(search_term),
+                Award.description.ilike(search_term),
+                Award.piid.ilike(search_term),
+                Award.awarding_agency.ilike(search_term)
             )
         )
     
     if agency:
+        agency_term = f"%{agency}%"
         query = query.filter(
             or_(
-                Award.awarding_agency.ilike(f"%{agency}%"),
-                Award.funding_agency.ilike(f"%{agency}%")
+                Award.awarding_agency.ilike(agency_term),
+                Award.funding_agency.ilike(agency_term)
             )
         )
     
@@ -117,17 +161,36 @@ async def get_awards(
     if max_amount is not None:
         query = query.filter(Award.award_amount <= max_amount)
     
+    # Date range filtering
+    if start_date:
+        try:
+            start = datetime.strptime(start_date, "%Y-%m-%d").date()
+            query = query.filter(Award.action_date >= start)
+        except ValueError:
+            pass  # Invalid date format, skip filter
+    
+    if end_date:
+        try:
+            end = datetime.strptime(end_date, "%Y-%m-%d").date()
+            query = query.filter(Award.action_date <= end)
+        except ValueError:
+            pass  # Invalid date format, skip filter
+    
     if naics_code:
         query = query.filter(Award.naics_code == naics_code)
     
-    return query.offset(skip).limit(limit).all()
+    # Use skip if offset not provided (backwards compatibility)
+    actual_offset = offset if offset > 0 else (skip or 0)
+    
+    return query.order_by(Award.award_amount.desc().nullslast()).offset(actual_offset).limit(limit).all()
 
 
 @router.get("/foia-targets", response_model=List[FOIATargetResponse])
 async def get_foia_targets(
     search: str = Query(None),
     agency: str = Query(None),
-    skip: int = Query(0, ge=0),
+    offset: int = Query(0, ge=0),
+    skip: int = Query(None, ge=0),  # Alias for offset
     limit: int = Query(100, le=1000),
     db: Session = Depends(get_db)
 ):
@@ -135,17 +198,23 @@ async def get_foia_targets(
     query = db.query(FOIATarget)
     
     if search:
+        search_term = f"%{search}%"
         query = query.filter(
             or_(
-                FOIATarget.record_request.ilike(f"%{search}%"),
-                FOIATarget.notes.ilike(f"%{search}%")
+                FOIATarget.record_request.ilike(search_term),
+                FOIATarget.notes.ilike(search_term),
+                FOIATarget.agency.ilike(search_term),
+                FOIATarget.timeframe.ilike(search_term)
             )
         )
     
     if agency:
         query = query.filter(FOIATarget.agency.ilike(f"%{agency}%"))
     
-    return query.offset(skip).limit(limit).all()
+    # Use skip if offset not provided (backwards compatibility)
+    actual_offset = offset if offset > 0 else (skip or 0)
+    
+    return query.order_by(FOIATarget.priority_score.desc().nullslast()).offset(actual_offset).limit(limit).all()
 
 
 @router.get("/stats", response_model=StatsResponse)

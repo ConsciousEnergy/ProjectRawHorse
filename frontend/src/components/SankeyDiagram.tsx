@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import * as d3 from 'd3';
 import { getSankeyData } from '../services/api';
 import type { SankeyData } from '../types';
@@ -8,6 +8,7 @@ interface SankeyProps {
   minAmount?: number;
   includeRelationships?: boolean;
   onNodeClick?: (nodeName: string) => void;
+  filterLevels?: number[];  // Filter by intel stack levels (1-6)
 }
 
 // Color map matching NetworkGraph
@@ -25,7 +26,18 @@ const colorMap: Record<string, string> = {
   'default': '#BDBDBD'
 };
 
-function SankeyDiagram({ minAmount = 0, includeRelationships = true, onNodeClick }: SankeyProps) {
+// Intel Stack Level to Entity Category mapping for filtering
+// Maps intel stack levels to entity types/categories
+const INTEL_LEVEL_CATEGORY_MAP: Record<number, string[]> = {
+  1: ['Organization'],  // Control Group - MITRE/JASON/NSC are Organizations
+  2: ['Government Agency'],  // Administrators - IC agencies
+  3: ['Research Institution'],  // FFRDCs
+  4: ['Corporation', 'Investment Firm'],  // Prime Contractors
+  5: ['Facility'],  // Facilities
+  6: ['Program'],  // Programs
+};
+
+function SankeyDiagram({ minAmount = 0, includeRelationships = true, onNodeClick, filterLevels = [] }: SankeyProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [data, setData] = useState<SankeyData | null>(null);
@@ -40,10 +52,25 @@ function SankeyDiagram({ minAmount = 0, includeRelationships = true, onNodeClick
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [minAmountFilter, setMinAmountFilter] = useState(minAmount);
   const [viewType, setViewType] = useState<'money' | 'relationships' | 'combined'>('combined');
+  const [showLegend, setShowLegend] = useState(true);
 
   useEffect(() => {
     loadData();
   }, [minAmountFilter, includeRelationships, viewType]);
+  
+  // Helper to check if node matches intel stack filter by category type
+  const matchesIntelFilter = useCallback((node: { name: string; category: string }): boolean => {
+    if (filterLevels.length === 0) return true;
+    
+    // Check if node category matches any selected level
+    for (const level of filterLevels) {
+      const matchingCategories = INTEL_LEVEL_CATEGORY_MAP[level] || [];
+      if (matchingCategories.includes(node.category)) {
+        return true;
+      }
+    }
+    return false;
+  }, [filterLevels]);
 
   const loadData = async () => {
     try {
@@ -67,7 +94,14 @@ function SankeyDiagram({ minAmount = 0, includeRelationships = true, onNodeClick
     if (data && svgRef.current && containerRef.current) {
       renderSankey();
     }
-  }, [data, selectedNode, hoveredLink, zoom, pan, viewType]);
+  }, [data, selectedNode, hoveredLink, zoom, pan, viewType, filterLevels]);
+  
+  // Get unique categories from actual data for legend
+  const uniqueCategories = useMemo(() => {
+    if (!data) return [];
+    const categories = new Set(data.nodes.map(n => n.category).filter(Boolean));
+    return Array.from(categories).sort();
+  }, [data]);
 
   const renderSankey = () => {
     if (!data || !svgRef.current || !containerRef.current) return;
@@ -97,7 +131,16 @@ function SankeyDiagram({ minAmount = 0, includeRelationships = true, onNodeClick
       nodeNames.add(link.target);
     });
 
-    const filteredNodes = data.nodes.filter(n => nodeNames.has(n.name));
+    // Apply intel stack filter if active
+    let filteredNodes = data.nodes.filter(n => nodeNames.has(n.name));
+    if (filterLevels.length > 0) {
+      filteredNodes = filteredNodes.filter(n => matchesIntelFilter(n));
+      // Re-filter links to only include those connecting filtered nodes
+      const filteredNodeNames = new Set(filteredNodes.map(n => n.name));
+      filteredLinks = filteredLinks.filter(l => 
+        filteredNodeNames.has(l.source) && filteredNodeNames.has(l.target)
+      );
+    }
 
     if (filteredNodes.length === 0 || filteredLinks.length === 0) {
       svg.append('text')
@@ -358,7 +401,33 @@ function SankeyDiagram({ minAmount = 0, includeRelationships = true, onNodeClick
             Clear Selection
           </button>
         )}
+        <button 
+          onClick={() => setShowLegend(!showLegend)} 
+          className={`btn btn-secondary ${showLegend ? 'active' : ''}`}
+          title="Toggle Legend"
+        >
+          Legend {showLegend ? '▼' : '▲'}
+        </button>
       </div>
+      
+      {/* Legend */}
+      {showLegend && uniqueCategories.length > 0 && (
+        <div className="sankey-legend">
+          <h5>Entity Types</h5>
+          <div className="legend-items">
+            {uniqueCategories.map(category => (
+              <div key={category} className="legend-item">
+                <span 
+                  className="legend-color" 
+                  style={{ backgroundColor: colorMap[category] || colorMap['default'] }}
+                />
+                <span className="legend-label">{category}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      
       <svg
         ref={svgRef}
         className="sankey-svg"
@@ -368,13 +437,23 @@ function SankeyDiagram({ minAmount = 0, includeRelationships = true, onNodeClick
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
       />
+      
+      {/* Stats bar */}
+      <div className="sankey-stats">
+        <span>{data?.nodes.length || 0} entities</span>
+        <span>{data?.links.length || 0} flows</span>
+        {filterLevels.length > 0 && (
+          <span className="filter-badge">Filtered</span>
+        )}
+      </div>
+      
       {tooltip && (
         <div
           className="sankey-tooltip"
           style={{ left: tooltip.x + 10, top: tooltip.y + 10 }}
         >
-          {tooltip.content.split('\n').map((line) => (
-            <div key={line}>{line}</div>
+          {tooltip.content.split('\n').map((line, idx) => (
+            <div key={idx}>{line}</div>
           ))}
         </div>
       )}

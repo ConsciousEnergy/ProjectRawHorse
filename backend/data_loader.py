@@ -5,13 +5,121 @@ import os
 import csv
 import logging
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Dict
 from pathlib import Path
 from sqlalchemy.orm import Session
 from database import Entity, MoneyFlow, Award, FOIATarget, Relationship, SearchLog, DataVersion
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Valid entity types for validation
+VALID_ENTITY_TYPES = [
+    'Corporation', 'Government Agency', 'Individual', 
+    'Research Institution', 'Facility', 'Program',
+    'Investment Firm', 'Organization', 'Unknown'
+]
+
+# Entity type overrides - loaded from CSV file
+# Key: display_name, Value: entity_type
+ENTITY_TYPE_OVERRIDES: Dict[str, str] = {}
+
+
+def load_entity_type_overrides(csv_path: str = None) -> int:
+    """Load explicit entity type assignments from CSV file.
+    
+    The CSV should have columns: display_name, entity_type, source, notes
+    Lines starting with # are treated as comments.
+    
+    Returns:
+        Number of overrides loaded
+    """
+    global ENTITY_TYPE_OVERRIDES
+    
+    if csv_path is None:
+        # Default path relative to backend directory
+        csv_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'entities', 'entity_type_overrides.csv')
+    
+    if not os.path.exists(csv_path):
+        logger.warning(f"Entity type overrides file not found: {csv_path}")
+        return 0
+    
+    count = 0
+    with open(csv_path, 'r', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            try:
+                display_name = row.get('display_name')
+                entity_type = row.get('entity_type')
+                
+                # Skip rows with missing fields
+                if display_name is None or entity_type is None:
+                    continue
+                
+                display_name = display_name.strip()
+                entity_type = entity_type.strip()
+                
+                # Skip comments and empty rows
+                if not display_name or display_name.startswith('#'):
+                    continue
+                
+                if not entity_type:
+                    continue
+                
+                # Validate entity type
+                if entity_type not in VALID_ENTITY_TYPES:
+                    logger.warning(f"Invalid entity type '{entity_type}' for {display_name}")
+                    continue
+                
+                ENTITY_TYPE_OVERRIDES[display_name] = entity_type
+                count += 1
+            except Exception as e:
+                logger.error(f"Error loading override: {e}")
+                continue
+    
+    logger.info(f"Loaded {count} entity type overrides")
+    return count
+
+
+def get_entity_type(name: str) -> str:
+    """Get entity type - check overrides first, then infer from name.
+    
+    Args:
+        name: Entity display name
+        
+    Returns:
+        Entity type string
+    """
+    if not name:
+        return "Unknown"
+    
+    # Check overrides first
+    name_stripped = name.strip()
+    if name_stripped in ENTITY_TYPE_OVERRIDES:
+        return ENTITY_TYPE_OVERRIDES[name_stripped]
+    
+    # Fall back to inference
+    return infer_entity_type(name)
+
+
+def validate_entity_type(entity_type: str, entity_name: str) -> str:
+    """Validate and normalize entity type.
+    
+    If the entity type is invalid, falls back to inference.
+    
+    Args:
+        entity_type: The entity type to validate
+        entity_name: Entity name (for logging and fallback inference)
+        
+    Returns:
+        Valid entity type string
+    """
+    if not entity_type or entity_type not in VALID_ENTITY_TYPES:
+        if entity_type:
+            logger.warning(f"Unknown entity type '{entity_type}' for {entity_name}, inferring...")
+        return get_entity_type(entity_name)
+    return entity_type
+
 
 # Government agency acronym expansion map
 AGENCY_ACRONYMS = {
@@ -67,40 +175,104 @@ def infer_entity_type(name: str) -> str:
     name_lower = name.lower()
     name_stripped = name.strip()
     
-    # Check if it's a person's name (typically First Last format, no business terms)
-    # Simple heuristic: if it's 2-3 words, no business terms, and looks like a name
-    words = name_stripped.split()
-    if 2 <= len(words) <= 3:
-        # Check if it doesn't contain business/organization terms
-        business_terms = ['inc', 'llc', 'corp', 'corporation', 'company', 'ltd', 'limited', 
-                         'agency', 'office', 'department', 'dept', 'program', 'project',
-                         'laboratory', 'lab', 'institute', 'university', 'college',
-                         'foundation', 'organization', 'association', 'society', 'group']
-        if not any(term in name_lower for term in business_terms):
-            # Check if it looks like a person's name (capitalized words)
-            if all(word[0].isupper() if word else False for word in words):
-                return "Individual"
-    
-    # Exact match for government acronyms (to avoid false positives like "Singa Corporation")
+    # Exact match for government acronyms (check first to avoid misclassification)
     gov_acronyms = ['NGA', 'DOD', 'NASA', 'DARPA', 'DIA', 'NSA', 'CIA', 'FBI', 
-                     'DCSA', 'TSA', 'DHS', 'AARO', 'NRO', 'USSF', 'USAF']
+                     'DCSA', 'TSA', 'DHS', 'AARO', 'NRO', 'USSF', 'USAF', 'DOE',
+                     'AFRL', 'AFMC', 'OSD', 'SAF-AQ', 'ONR', 'ODNI', 'OUSD']
     if name_stripped.upper() in gov_acronyms:
         return "Government Agency"
     
-    # General government entity patterns (using word boundaries)
-    if any(term in name_lower for term in ['government', 'dept', 'department', 'agency', 'administration']):
+    # General government entity patterns
+    if any(term in name_lower for term in ['government', 'dept', 'department', 'agency', 'administration',
+                                            'air force', 'army', 'navy', 'pentagon', 'secretary',
+                                            'command', 'directorate']):
         return "Government Agency"
     
-    # Investment/Capital firms
-    if any(term in name_lower for term in ['capital', 'partners', 'ventures', 'investment', 'equity']):
+    # Facilities - check BEFORE research institutions to catch Y12 Complex, etc.
+    facility_terms = [
+        'base', 'afb', 'facility', 'range', 'site', 'complex', 'plant',
+        'area 51', 'groom lake', 'tonopah', 'dugway', 'edwards', 'nellis',
+        'white sands', 'test range', 'proving ground', 'y12', 'y-12'
+    ]
+    if any(term in name_lower for term in facility_terms):
+        return "Facility"
+    
+    # Known space/tech companies (explicit list for common misclassifications)
+    # These are commercial companies that might have "lab" or other confusing terms
+    known_corporations = [
+        'planet labs', 'planet', 'umbra', 'blacksky', 'maxar', 'digitalglobe',
+        'capella', 'iceye', 'hawkeye', 'spire', 'kleos', 'turion',
+        'rocket lab', 'relativity', 'astra', 'firefly', 'virgin orbit',
+        'spacex', 'blue origin', 'sierra nevada', 'axiom', 'voyager',
+        'redwire', 'terran orbital', 'ast spacemobile', 'momentus'
+    ]
+    if any(corp in name_lower for corp in known_corporations):
+        return "Corporation"
+    
+    # Investment/Capital firms (check before corporations)
+    if any(term in name_lower for term in ['capital', 'partners', 'ventures', 'investment', 'equity', 'fund']):
         return "Investment Firm"
     
-    # Research institutions
-    if any(term in name_lower for term in ['laboratories', 'research', 'institute', 'university', 'lab']):
+    # Research institutions - be more specific to avoid catching commercial "labs"
+    research_terms = [
+        'national laboratory', 'national laboratories', 'research institute',
+        'university', 'college', 'sandia national', 'los alamos national',
+        'oak ridge national', 'lawrence livermore', 'argonne national',
+        'brookhaven national', 'pacific northwest national', 'idaho national',
+        'battelle memorial', 'mitre corporation', 'jason advisory',
+        'rand corporation', 'aerospace corporation', 'ida ', 'ffrdc'
+    ]
+    if any(term in name_lower for term in research_terms):
         return "Research Institution"
     
-    # Corporations (default for business entities)
-    if any(term in name_lower for term in ['inc.', 'inc', 'llc', 'corp', 'corporation', 'company', 'technologies', 'systems', 'solutions', 'services', 'group']):
+    # Corporations - expanded list to catch space/tech companies
+    corporation_terms = [
+        # Explicit business suffixes
+        'inc.', 'inc', 'llc', 'corp', 'corporation', 'company', 'ltd', 'limited', 'co.',
+        # Tech/Industry terms that indicate a company
+        'technologies', 'systems', 'solutions', 'services', 'group', 'dynamics',
+        'aerospace', 'defense', 'industries', 'international', 'global', 'holdings',
+        # Space industry specific
+        'space', 'satellite', 'orbital', 'launch', 'rocket',
+        # Defense contractors
+        'lockheed', 'northrop', 'raytheon', 'boeing', 'grumman', 'general dynamics',
+        'bae', 'leidos', 'saic', 'peraton', 'booz allen', 'parsons', 'l3harris',
+        # Other industry terms
+        'analytics', 'insight', 'imaging', 'sensing', 'geospatial', 'intelligence',
+        # Commercial "lab" companies (space imagery, etc.)
+        'labs'
+    ]
+    if any(term in name_lower for term in corporation_terms):
+        return "Corporation"
+    
+    # Programs
+    if any(term in name_lower for term in ['program', 'project', 'initiative', 'operation']):
+        return "Program"
+    
+    # Check if it's a person's name (typically First Last format, no business terms)
+    # This check comes AFTER all the business checks to avoid false positives
+    words = name_stripped.split()
+    if 2 <= len(words) <= 3:
+        # Extended list of terms that indicate it's NOT a person
+        not_person_terms = [
+            'inc', 'llc', 'corp', 'corporation', 'company', 'ltd', 'limited',
+            'agency', 'office', 'department', 'dept', 'program', 'project',
+            'laboratory', 'lab', 'labs', 'institute', 'university', 'college',
+            'foundation', 'organization', 'association', 'society', 'group',
+            'space', 'aerospace', 'systems', 'technologies', 'solutions',
+            'defense', 'security', 'intelligence', 'analytics', 'satellite',
+            'command', 'wing', 'force', 'base', 'center', 'facility', 'complex'
+        ]
+        if not any(term in name_lower for term in not_person_terms):
+            # Check if all words are capitalized (names typically are)
+            if all(word[0].isupper() if word else False for word in words):
+                # Check it's not a known company pattern (single word + Space/Tech/etc)
+                if len(words) == 2 and words[1].lower() in ['space', 'tech', 'labs', 'ai', 'systems', 'lab']:
+                    return "Corporation"
+                return "Individual"
+    
+    # Single word entities - likely companies or organizations, not individuals
+    if len(words) == 1:
         return "Corporation"
     
     return "Organization"
@@ -138,9 +310,12 @@ def load_entities(db: Session, csv_path: str) -> int:
                     skipped += 1
                     continue  # Skip duplicates
                 
-                # If type is empty, infer from name
+                # If type is empty, get from overrides or infer from name
                 if not entity_type or entity_type.strip() == '':
-                    entity_type = infer_entity_type(name)
+                    entity_type = get_entity_type(name)
+                else:
+                    # Validate the provided type
+                    entity_type = validate_entity_type(entity_type, name)
                 
                 entity = Entity(
                     entity_id=entity_id,
@@ -298,10 +473,17 @@ def load_nro_seeds_as_entities(db: Session, csv_path: str) -> int:
     
     Extracts unique entity names from the NRO seeds file and adds them as entities.
     Also ensures NRO itself exists as an entity.
+    
+    If the CSV has an 'entity_type' column, that value is used (with validation).
+    Otherwise, the type is determined from overrides or inference.
     """
     if not os.path.exists(csv_path):
         logger.warning(f"NRO seeds file not found: {csv_path}")
         return 0
+    
+    # Load entity type overrides if not already loaded
+    if not ENTITY_TYPE_OVERRIDES:
+        load_entity_type_overrides()
     
     # First, ensure NRO exists as an entity
     nro_entity = db.query(Entity).filter(Entity.display_name == "NRO").first()
@@ -320,6 +502,7 @@ def load_nro_seeds_as_entities(db: Session, csv_path: str) -> int:
     entities_seen = set()
     entities_seen.add("NRO")  # Don't duplicate NRO
     count = 0
+    updated = 0
     
     with open(csv_path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
@@ -331,16 +514,28 @@ def load_nro_seeds_as_entities(db: Session, csv_path: str) -> int:
                 
                 entities_seen.add(entity_name)
                 
+                # Determine entity type:
+                # 1. Use entity_type from CSV if present
+                # 2. Otherwise check overrides
+                # 3. Otherwise infer from name
+                csv_type = row.get('entity_type', '').strip()
+                if csv_type and csv_type in VALID_ENTITY_TYPES:
+                    entity_type = csv_type
+                else:
+                    entity_type = get_entity_type(entity_name)
+                
                 # Check if entity already exists
                 existing = db.query(Entity).filter(
                     Entity.display_name == entity_name
                 ).first()
                 
                 if existing:
-                    continue  # Skip if already exists
-                
-                # Infer entity type from name
-                entity_type = infer_entity_type(entity_name)
+                    # Update type if it's different and we have a better one
+                    if existing.entity_type != entity_type:
+                        logger.info(f"Updating {entity_name}: {existing.entity_type} -> {entity_type}")
+                        existing.entity_type = entity_type
+                        updated += 1
+                    continue
                 
                 # Create normalized name for entity_id
                 normalized = entity_name.lower().replace(' ', '_').replace(',', '').replace('.', '').replace('&', 'and')
@@ -359,14 +554,15 @@ def load_nro_seeds_as_entities(db: Session, csv_path: str) -> int:
                 continue
     
     db.commit()
-    logger.info(f"Loaded {count} entities from NRO seeds")
-    return count
+    logger.info(f"Loaded {count} new entities from NRO seeds, updated {updated} existing")
+    return count + updated
 
 
 def load_transcript_entities(db: Session, csv_path: str) -> int:
     """Load entities from UAPGerb transcript CSV file
     
     Loads entities extracted from transcript with deduplication against existing entities.
+    Supports intel_stack_level field for intelligence hierarchy categorization.
     """
     if not os.path.exists(csv_path):
         logger.warning(f"Transcript entities file not found: {csv_path}")
@@ -383,6 +579,12 @@ def load_transcript_entities(db: Session, csv_path: str) -> int:
                 normalized_name = row.get('normalized_name', '').strip()
                 entity_type = row.get('entity_type', '').strip()
                 
+                # Parse intel_stack_level if present
+                intel_stack_level_str = row.get('intel_stack_level', '').strip()
+                intel_stack_level = None
+                if intel_stack_level_str and intel_stack_level_str.isdigit():
+                    intel_stack_level = int(intel_stack_level_str)
+                
                 if not display_name:
                     continue
                 
@@ -393,12 +595,17 @@ def load_transcript_entities(db: Session, csv_path: str) -> int:
                 ).first()
                 
                 if existing:
+                    # Update intel_stack_level if not set and we have a value
+                    if intel_stack_level is not None and existing.intel_stack_level is None:
+                        existing.intel_stack_level = intel_stack_level
                     skipped += 1
                     continue  # Skip duplicates
                 
-                # Use provided entity_type or infer
+                # Use provided entity_type (with validation) or get from overrides/inference
                 if not entity_type:
-                    entity_type = infer_entity_type(display_name)
+                    entity_type = get_entity_type(display_name)
+                else:
+                    entity_type = validate_entity_type(entity_type, display_name)
                 
                 # Ensure normalized_name exists
                 if not normalized_name:
@@ -408,7 +615,8 @@ def load_transcript_entities(db: Session, csv_path: str) -> int:
                     entity_id=entity_id,
                     display_name=display_name,
                     normalized_name=normalized_name,
-                    entity_type=entity_type
+                    entity_type=entity_type,
+                    intel_stack_level=intel_stack_level
                 )
                 db.add(entity)
                 count += 1
@@ -475,6 +683,14 @@ def load_all_data(db: Session, config: dict, project_root: str = "."):
     """
     logger.info("Loading data from refactored structure")
     
+    # Load entity type overrides first (used by all entity loading functions)
+    overrides_path = os.path.join(project_root, config['data_sources']['entities_dir'], "entity_type_overrides.csv")
+    if os.path.exists(overrides_path):
+        load_entity_type_overrides(overrides_path)
+    else:
+        # Try default path
+        load_entity_type_overrides()
+    
     # Load entities
     entities_path = os.path.join(project_root, config['data_sources']['entities_dir'], "entities_master.csv")
     load_entities(db, entities_path)
@@ -523,6 +739,42 @@ def load_all_data(db: Session, config: dict, project_root: str = "."):
     if os.path.exists(transcript_foia_path):
         logger.info("Loading UAPGerb transcript FOIA targets")
         load_foia_targets(db, transcript_foia_path)
+    
+    # Load Hidden Wing transcript entities (US Air Force UFO Programs - 2026)
+    hidden_wing_entities_path = os.path.join(project_root, config['data_sources']['entities_dir'], "hidden_wing_entities.csv")
+    if os.path.exists(hidden_wing_entities_path):
+        logger.info("Loading Hidden Wing transcript entities (Air Force SAF hierarchy)")
+        load_transcript_entities(db, hidden_wing_entities_path)
+    
+    # Load Hidden Wing transcript relationships
+    hidden_wing_relationships_path = os.path.join(project_root, config['data_sources']['entities_dir'], "hidden_wing_relationships.csv")
+    if os.path.exists(hidden_wing_relationships_path):
+        logger.info("Loading Hidden Wing transcript relationships")
+        load_relationships(db, hidden_wing_relationships_path)
+    
+    # Load Hidden Wing 2026 expanded entities (additional entities from full transcript analysis)
+    hidden_wing_2026_entities_path = os.path.join(project_root, config['data_sources']['entities_dir'], "hidden_wing_2026_entities.csv")
+    if os.path.exists(hidden_wing_2026_entities_path):
+        logger.info("Loading Hidden Wing 2026 expanded entities (individuals, offices, programs)")
+        load_transcript_entities(db, hidden_wing_2026_entities_path)
+    
+    # Load Hidden Wing 2026 expanded relationships
+    hidden_wing_2026_relationships_path = os.path.join(project_root, config['data_sources']['entities_dir'], "hidden_wing_2026_relationships.csv")
+    if os.path.exists(hidden_wing_2026_relationships_path):
+        logger.info("Loading Hidden Wing 2026 expanded relationships")
+        load_relationships(db, hidden_wing_2026_relationships_path)
+    
+    # Load Hidden Wing FOIA targets
+    hidden_wing_foia_path = os.path.join(project_root, config['data_sources']['foia_dir'], "hidden_wing_foia_targets.csv")
+    if os.path.exists(hidden_wing_foia_path):
+        logger.info("Loading Hidden Wing FOIA targets")
+        load_foia_targets(db, hidden_wing_foia_path)
+    
+    # Load 2026 researched money flows (federal contracts)
+    money_flows_2026_path = os.path.join(project_root, config['data_sources']['financial_dir'], "money_flows_2026_research.csv")
+    if os.path.exists(money_flows_2026_path):
+        logger.info("Loading 2026 researched federal contract money flows")
+        load_money_flows(db, money_flows_2026_path)
     
     # Increment data version after loading
     increment_data_version(db, "data_loader")

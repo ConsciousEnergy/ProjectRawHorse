@@ -3,7 +3,18 @@ export interface Entity {
   display_name: string;
   normalized_name: string;
   entity_type?: string;
+  intel_stack_level?: number; // 1-6 hierarchy level
 }
+
+// Intelligence Stack Levels for filtering
+export const INTEL_STACK_LEVELS = {
+  1: 'Control Group',      // MITRE/JASON, NSC, Executive Branch
+  2: 'Administrators',     // NRO, NGA, CIA DS&T, DIA, NSA, OUSD
+  3: 'FFRDCs',            // MITRE, Battelle, Sandia, LANL, LLNL, Oak Ridge
+  4: 'Prime Contractors', // Lockheed Martin, Northrop Grumman, Raytheon
+  5: 'Facilities',        // Area 51, S4, Edwards AFB, Tonopah, Dugway
+  6: 'Programs',          // Immaculate Constellation, Kona Blue, etc.
+} as const;
 
 export interface MoneyFlow {
   id: number;
@@ -56,6 +67,7 @@ export interface GraphNode {
   type: string;
   value?: number;
   full_name?: string;  // Expanded name for acronyms
+  intel_stack_level?: number;  // Intelligence stack hierarchy level (1-6)
 }
 
 export interface GraphEdge {
