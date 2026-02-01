@@ -1,38 +1,134 @@
-import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { getEntities, getMoneyFlows, getAwards, getFOIATargets } from '../services/api';
 import type { Entity, MoneyFlow, Award, FOIATarget } from '../types';
 import SkeletonLoader from '../components/SkeletonLoader';
 import { useDataContext } from '../contexts/DataContext';
+import './Browse.css';
 
 type TabType = 'entities' | 'money-flows' | 'awards' | 'foia';
+type SortDirection = 'asc' | 'desc';
+
+interface SortConfig {
+  key: string;
+  direction: SortDirection;
+}
+
+// Debounce hook
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedValue(value), delay);
+    return () => clearTimeout(timer);
+  }, [value, delay]);
+
+  return debouncedValue;
+}
+
+// Highlight matching text
+function HighlightText({ text, highlight }: { text: string; highlight: string }) {
+  if (!highlight.trim() || !text) {
+    return <>{text}</>;
+  }
+  
+  const regex = new RegExp(`(${highlight.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+  const parts = text.split(regex);
+  
+  return (
+    <>
+      {parts.map((part, i) => 
+        regex.test(part) ? (
+          <mark key={i} className="search-highlight">{part}</mark>
+        ) : (
+          <span key={i}>{part}</span>
+        )
+      )}
+    </>
+  );
+}
 
 function Browse() {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const { dataVersion } = useDataContext();
   const [activeTab, setActiveTab] = useState<TabType>('entities');
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
   
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(25);
+  
+  // Sorting
+  const [sortConfig, setSortConfig] = useState<SortConfig>({ key: '', direction: 'asc' });
+  
   // Advanced filter states
-  const [entityTypeFilter, setEntityTypeFilter] = useState('');
+  const [entityTypeFilter, setEntityTypeFilter] = useState<string[]>([]);
+  const [intelStackFilter, setIntelStackFilter] = useState<number[]>([]);
   const [minAmount, setMinAmount] = useState('');
   const [maxAmount, setMaxAmount] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [agencyFilter, setAgencyFilter] = useState('');
   const [showFilters, setShowFilters] = useState(false);
+  
+  // Quick search suggestions
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
   
   // Data states
   const [entities, setEntities] = useState<Entity[]>([]);
   const [moneyFlows, setMoneyFlows] = useState<MoneyFlow[]>([]);
   const [awards, setAwards] = useState<Award[]>([]);
   const [foiaTargets, setFOIATargets] = useState<FOIATarget[]>([]);
+  
+  // Debounced search for auto-search
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
+
+  // Entity type options with counts
+  const entityTypes = [
+    'Corporation',
+    'Government Agency', 
+    'Individual',
+    'Research Institution',
+    'Facility',
+    'Program',
+    'Organization',
+    'Investment Firm'
+  ];
+
+  // Intel stack levels
+  const intelLevels = [
+    { value: 1, label: 'Control Group' },
+    { value: 2, label: 'Administrators' },
+    { value: 3, label: 'FFRDCs' },
+    { value: 4, label: 'Prime Contractors' },
+    { value: 5, label: 'Facilities' },
+    { value: 6, label: 'Programs' }
+  ];
+
+  // Load recent searches from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('recentSearches');
+    if (saved) {
+      setRecentSearches(JSON.parse(saved));
+    }
+  }, []);
+
+  // Save search to recent
+  const saveSearch = useCallback((term: string) => {
+    if (!term.trim()) return;
+    const updated = [term, ...recentSearches.filter(s => s !== term)].slice(0, 5);
+    setRecentSearches(updated);
+    localStorage.setItem('recentSearches', JSON.stringify(updated));
+  }, [recentSearches]);
 
   // Initialize from URL parameters
   useEffect(() => {
     const tab = searchParams.get('tab') as TabType;
     const search = searchParams.get('search');
-    const highlight = searchParams.get('highlight');
+    const type = searchParams.get('type');
+    const page = searchParams.get('page');
     
     if (tab && ['entities', 'money-flows', 'awards', 'foia'].includes(tab)) {
       setActiveTab(tab);
@@ -42,25 +138,44 @@ function Browse() {
       setSearchTerm(search);
     }
     
-    // Store highlight ID for later use (could add visual highlighting)
-    if (highlight) {
-      sessionStorage.setItem('highlightId', highlight);
+    if (type) {
+      setEntityTypeFilter([type]);
+    }
+    
+    if (page) {
+      setCurrentPage(parseInt(page));
     }
   }, [searchParams]);
 
+  // Auto-search on debounced term change
   useEffect(() => {
     loadData();
-  }, [activeTab, searchTerm, dataVersion]);
+    // Update URL with search term
+    if (debouncedSearchTerm) {
+      setSearchParams(prev => {
+        prev.set('search', debouncedSearchTerm);
+        return prev;
+      });
+    }
+  }, [debouncedSearchTerm, activeTab, entityTypeFilter, intelStackFilter, minAmount, maxAmount, startDate, endDate, agencyFilter, currentPage, dataVersion]);
 
   const buildParams = () => {
-    const params: any = { limit: 100 };
+    const params: any = { 
+      limit: itemsPerPage,
+      offset: (currentPage - 1) * itemsPerPage 
+    };
     
-    if (searchTerm.trim()) {
-      params.search = searchTerm;
+    if (debouncedSearchTerm.trim()) {
+      params.search = debouncedSearchTerm;
     }
     
-    if (activeTab === 'entities' && entityTypeFilter) {
-      params.entity_type = entityTypeFilter;
+    if (activeTab === 'entities') {
+      if (entityTypeFilter.length === 1) {
+        params.entity_type = entityTypeFilter[0];
+      }
+      if (intelStackFilter.length > 0) {
+        params.intel_stack_level = intelStackFilter[0];
+      }
     }
     
     if ((activeTab === 'money-flows' || activeTab === 'awards') && minAmount) {
@@ -77,6 +192,10 @@ function Browse() {
     
     if ((activeTab === 'money-flows' || activeTab === 'awards') && endDate) {
       params.end_date = endDate;
+    }
+    
+    if ((activeTab === 'awards' || activeTab === 'foia') && agencyFilter) {
+      params.agency = agencyFilter;
     }
     
     return params;
@@ -105,6 +224,10 @@ function Browse() {
           setFOIATargets(foiaData);
           break;
       }
+      
+      if (debouncedSearchTerm.trim()) {
+        saveSearch(debouncedSearchTerm);
+      }
     } catch (error) {
       console.error('Error loading data:', error);
     } finally {
@@ -112,18 +235,111 @@ function Browse() {
     }
   };
 
-  const handleSearch = () => {
-    loadData();
+  const handleSort = (key: string) => {
+    setSortConfig(prev => ({
+      key,
+      direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
+    }));
   };
+
+  // Sort data client-side
+  const sortedData = useMemo(() => {
+    if (!sortConfig.key) return { entities, moneyFlows, awards, foiaTargets };
+    
+    const sortFn = (a: any, b: any) => {
+      const aVal = a[sortConfig.key];
+      const bVal = b[sortConfig.key];
+      
+      if (aVal === null || aVal === undefined) return 1;
+      if (bVal === null || bVal === undefined) return -1;
+      
+      if (typeof aVal === 'number' && typeof bVal === 'number') {
+        return sortConfig.direction === 'asc' ? aVal - bVal : bVal - aVal;
+      }
+      
+      const aStr = String(aVal).toLowerCase();
+      const bStr = String(bVal).toLowerCase();
+      
+      if (sortConfig.direction === 'asc') {
+        return aStr.localeCompare(bStr);
+      }
+      return bStr.localeCompare(aStr);
+    };
+    
+    return {
+      entities: [...entities].sort(sortFn),
+      moneyFlows: [...moneyFlows].sort(sortFn),
+      awards: [...awards].sort(sortFn),
+      foiaTargets: [...foiaTargets].sort(sortFn)
+    };
+  }, [entities, moneyFlows, awards, foiaTargets, sortConfig]);
 
   const handleClearFilters = () => {
     setSearchTerm('');
-    setEntityTypeFilter('');
+    setEntityTypeFilter([]);
+    setIntelStackFilter([]);
     setMinAmount('');
     setMaxAmount('');
     setStartDate('');
     setEndDate('');
-    loadData();
+    setAgencyFilter('');
+    setCurrentPage(1);
+    setSearchParams({});
+  };
+
+  const handleTabChange = (tab: TabType) => {
+    setActiveTab(tab);
+    setCurrentPage(1);
+    setSortConfig({ key: '', direction: 'asc' });
+    setSearchParams(prev => {
+      prev.set('tab', tab);
+      return prev;
+    });
+  };
+
+  const toggleEntityType = (type: string) => {
+    setEntityTypeFilter(prev => 
+      prev.includes(type) 
+        ? prev.filter(t => t !== type)
+        : [...prev, type]
+    );
+    setCurrentPage(1);
+  };
+
+  const toggleIntelLevel = (level: number) => {
+    setIntelStackFilter(prev =>
+      prev.includes(level)
+        ? prev.filter(l => l !== level)
+        : [...prev, level]
+    );
+    setCurrentPage(1);
+  };
+
+  const removeFilter = (type: string, value: string | number) => {
+    switch (type) {
+      case 'entityType':
+        setEntityTypeFilter(prev => prev.filter(t => t !== value));
+        break;
+      case 'intelLevel':
+        setIntelStackFilter(prev => prev.filter(l => l !== value));
+        break;
+      case 'minAmount':
+        setMinAmount('');
+        break;
+      case 'maxAmount':
+        setMaxAmount('');
+        break;
+      case 'startDate':
+        setStartDate('');
+        break;
+      case 'endDate':
+        setEndDate('');
+        break;
+      case 'agency':
+        setAgencyFilter('');
+        break;
+    }
+    setCurrentPage(1);
   };
 
   const formatCurrency = (amount?: number) => {
@@ -135,91 +351,239 @@ function Browse() {
     }).format(amount);
   };
 
+  const SortableHeader = ({ column, label }: { column: string; label: string }) => {
+    const getAriaSort = (): 'ascending' | 'descending' | 'none' => {
+      if (sortConfig.key !== column) return 'none';
+      return sortConfig.direction === 'asc' ? 'ascending' : 'descending';
+    };
+    
+    return (
+      <th 
+        onClick={() => handleSort(column)} 
+        className="sortable-header"
+        role="columnheader"
+        aria-sort={getAriaSort()}
+      >
+        {label}
+        <span className="sort-indicator">
+          {sortConfig.key === column ? (sortConfig.direction === 'asc' ? ' ▲' : ' ▼') : ' ⇅'}
+        </span>
+      </th>
+    );
+  };
+
+  // Active filters display
+  const activeFilters = useMemo(() => {
+    const filters: { type: string; value: string | number; label: string }[] = [];
+    
+    entityTypeFilter.forEach(type => {
+      filters.push({ type: 'entityType', value: type, label: `Type: ${type}` });
+    });
+    
+    intelStackFilter.forEach(level => {
+      const levelInfo = intelLevels.find(l => l.value === level);
+      filters.push({ type: 'intelLevel', value: level, label: `Intel: ${levelInfo?.label || level}` });
+    });
+    
+    if (minAmount) filters.push({ type: 'minAmount', value: minAmount, label: `Min: $${parseInt(minAmount).toLocaleString()}` });
+    if (maxAmount) filters.push({ type: 'maxAmount', value: maxAmount, label: `Max: $${parseInt(maxAmount).toLocaleString()}` });
+    if (startDate) filters.push({ type: 'startDate', value: startDate, label: `From: ${startDate}` });
+    if (endDate) filters.push({ type: 'endDate', value: endDate, label: `To: ${endDate}` });
+    if (agencyFilter) filters.push({ type: 'agency', value: agencyFilter, label: `Agency: ${agencyFilter}` });
+    
+    return filters;
+  }, [entityTypeFilter, intelStackFilter, minAmount, maxAmount, startDate, endDate, agencyFilter]);
+
+  const getCurrentDataLength = () => {
+    switch (activeTab) {
+      case 'entities': return sortedData.entities.length;
+      case 'money-flows': return sortedData.moneyFlows.length;
+      case 'awards': return sortedData.awards.length;
+      case 'foia': return sortedData.foiaTargets.length;
+      default: return 0;
+    }
+  };
+
   return (
     <div className="browse" role="main" aria-label="Browse page">
       <div className="page-header">
         <h1>Browse Data</h1>
-        <p>Explore entities, money flows, awards, and FOIA targets</p>
+        <p>Search and explore entities, money flows, awards, and FOIA targets</p>
       </div>
 
+      {/* Enhanced Search Bar */}
+      <div className="search-section">
+        <div className="search-input-wrapper">
+          <span className="search-icon">🔍</span>
+          <input
+            type="text"
+            placeholder="Search by name, keyword, or ID... (auto-search enabled)"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-input-enhanced"
+            aria-label="Search database"
+          />
+          {searchTerm && (
+            <button 
+              className="clear-search-btn"
+              onClick={() => setSearchTerm('')}
+              aria-label="Clear search"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+        
+        <div className="search-actions">
+          <button 
+            onClick={() => setShowFilters(!showFilters)} 
+            className={`btn btn-secondary ${showFilters ? 'active' : ''}`}
+          >
+            {showFilters ? '▼ Filters' : '▶ Filters'}
+          </button>
+          {(searchTerm || activeFilters.length > 0) && (
+            <button onClick={handleClearFilters} className="btn btn-outline">
+              Clear All
+            </button>
+          )}
+        </div>
+
+        {/* Recent Searches */}
+        {!searchTerm && recentSearches.length > 0 && (
+          <div className="recent-searches">
+            <span className="recent-label">Recent:</span>
+            {recentSearches.map((term, idx) => (
+              <button 
+                key={idx} 
+                className="recent-search-chip"
+                onClick={() => setSearchTerm(term)}
+              >
+                {term}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Quick Search Suggestions */}
+        {!searchTerm && (
+          <div className="quick-searches">
+            <span className="quick-label">Quick:</span>
+            <button className="quick-chip" onClick={() => { setActiveTab('entities'); setEntityTypeFilter(['Corporation']); }}>
+              Corporations
+            </button>
+            <button className="quick-chip" onClick={() => { setActiveTab('entities'); setEntityTypeFilter(['Government Agency']); }}>
+              Gov Agencies
+            </button>
+            <button className="quick-chip" onClick={() => { setActiveTab('entities'); setEntityTypeFilter(['Individual']); }}>
+              Individuals
+            </button>
+            <button className="quick-chip" onClick={() => { setActiveTab('money-flows'); setMinAmount('1000000'); }}>
+              Flows &gt; $1M
+            </button>
+            <button className="quick-chip" onClick={() => { setActiveTab('foia'); }}>
+              FOIA Targets
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Active Filters Chips */}
+      {activeFilters.length > 0 && (
+        <div className="active-filters">
+          {activeFilters.map((filter, idx) => (
+            <span key={idx} className="filter-chip">
+              {filter.label}
+              <button 
+                className="remove-filter"
+                onClick={() => removeFilter(filter.type, filter.value)}
+                aria-label={`Remove ${filter.label} filter`}
+              >
+                ✕
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* Tabs */}
       <div className="tabs" role="tablist" aria-label="Data type tabs">
         <button 
           className={activeTab === 'entities' ? 'active' : ''} 
-          onClick={() => setActiveTab('entities')}
+          onClick={() => handleTabChange('entities')}
           role="tab"
           aria-selected={activeTab === 'entities'}
-          aria-controls="entities-panel"
-          id="entities-tab"
         >
           Entities
+          <span className="tab-count">{activeTab === 'entities' ? getCurrentDataLength() : ''}</span>
         </button>
         <button 
           className={activeTab === 'money-flows' ? 'active' : ''} 
-          onClick={() => setActiveTab('money-flows')}
+          onClick={() => handleTabChange('money-flows')}
           role="tab"
           aria-selected={activeTab === 'money-flows'}
-          aria-controls="money-flows-panel"
-          id="money-flows-tab"
         >
           Money Flows
+          <span className="tab-count">{activeTab === 'money-flows' ? getCurrentDataLength() : ''}</span>
         </button>
         <button 
           className={activeTab === 'awards' ? 'active' : ''} 
-          onClick={() => setActiveTab('awards')}
+          onClick={() => handleTabChange('awards')}
           role="tab"
           aria-selected={activeTab === 'awards'}
-          aria-controls="awards-panel"
-          id="awards-tab"
         >
           Awards
+          <span className="tab-count">{activeTab === 'awards' ? getCurrentDataLength() : ''}</span>
         </button>
         <button 
           className={activeTab === 'foia' ? 'active' : ''} 
-          onClick={() => setActiveTab('foia')}
+          onClick={() => handleTabChange('foia')}
           role="tab"
           aria-selected={activeTab === 'foia'}
-          aria-controls="foia-panel"
-          id="foia-tab"
         >
           FOIA Targets
+          <span className="tab-count">{activeTab === 'foia' ? getCurrentDataLength() : ''}</span>
         </button>
       </div>
 
-      <div className="search-bar">
-        <input
-          type="text"
-          placeholder="Search..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-        />
-        <button onClick={handleSearch} className="btn btn-primary">Search</button>
-        <button onClick={() => setShowFilters(!showFilters)} className="btn btn-secondary">
-          {showFilters ? 'Hide Filters' : 'Show Filters'}
-        </button>
-        <button onClick={handleClearFilters} className="btn btn-secondary">Clear All</button>
-      </div>
-
+      {/* Advanced Filters Panel */}
       {showFilters && (
         <div className="filters-panel">
           <h4>Advanced Filters</h4>
           
           {activeTab === 'entities' && (
-            <div className="filter-group">
-              <label>Entity Type:</label>
-              <select value={entityTypeFilter} onChange={(e) => setEntityTypeFilter(e.target.value)}>
-                <option value="">All Types</option>
-                <option value="Corporation">Corporation</option>
-                <option value="Government Agency">Government Agency</option>
-                <option value="Individual">Individual</option>
-                <option value="Non-Profit">Non-Profit</option>
-                <option value="Research Institution">Research Institution</option>
-                <option value="Facility">Facility</option>
-                <option value="Program">Program</option>
-                <option value="Organization">Organization</option>
-                <option value="Investment Firm">Investment Firm</option>
-              </select>
-            </div>
+            <>
+              <div className="filter-group">
+                <label>Entity Types:</label>
+                <div className="filter-checkboxes">
+                  {entityTypes.map(type => (
+                    <label key={type} className="checkbox-label">
+                      <input
+                        type="checkbox"
+                        checked={entityTypeFilter.includes(type)}
+                        onChange={() => toggleEntityType(type)}
+                      />
+                      {type}
+                    </label>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="filter-group">
+                <label>Intel Stack Level:</label>
+                <div className="filter-checkboxes">
+                  {intelLevels.map(level => (
+                    <label key={level.value} className="checkbox-label">
+                      <input
+                        type="checkbox"
+                        checked={intelStackFilter.includes(level.value)}
+                        onChange={() => toggleIntelLevel(level.value)}
+                      />
+                      {level.value}. {level.label}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </>
           )}
           
           {(activeTab === 'money-flows' || activeTab === 'awards') && (
@@ -231,14 +595,14 @@ function Browse() {
                     type="number"
                     placeholder="Min ($)"
                     value={minAmount}
-                    onChange={(e) => setMinAmount(e.target.value)}
+                    onChange={(e) => { setMinAmount(e.target.value); setCurrentPage(1); }}
                   />
                   <span>to</span>
                   <input
                     type="number"
                     placeholder="Max ($)"
                     value={maxAmount}
-                    onChange={(e) => setMaxAmount(e.target.value)}
+                    onChange={(e) => { setMaxAmount(e.target.value); setCurrentPage(1); }}
                   />
                 </div>
               </div>
@@ -249,86 +613,181 @@ function Browse() {
                   <input
                     type="date"
                     value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
+                    onChange={(e) => { setStartDate(e.target.value); setCurrentPage(1); }}
                   />
                   <span>to</span>
                   <input
                     type="date"
                     value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
+                    onChange={(e) => { setEndDate(e.target.value); setCurrentPage(1); }}
                   />
                 </div>
               </div>
             </>
           )}
           
-          <button onClick={handleSearch} className="btn btn-primary">Apply Filters</button>
+          {(activeTab === 'awards' || activeTab === 'foia') && (
+            <div className="filter-group">
+              <label>Agency:</label>
+              <input
+                type="text"
+                placeholder="Filter by agency name..."
+                value={agencyFilter}
+                onChange={(e) => { setAgencyFilter(e.target.value); setCurrentPage(1); }}
+              />
+            </div>
+          )}
         </div>
       )}
 
+      {/* Results Info Bar */}
+      <div className="results-bar">
+        <div className="results-count">
+          {loading ? (
+            <span>Loading...</span>
+          ) : (
+            <span>
+              Showing {getCurrentDataLength()} result{getCurrentDataLength() !== 1 ? 's' : ''}
+              {debouncedSearchTerm && ` for "${debouncedSearchTerm}"`}
+            </span>
+          )}
+        </div>
+        <div className="results-controls">
+          <label>
+            Show:
+            <select 
+              value={itemsPerPage} 
+              onChange={(e) => { setItemsPerPage(parseInt(e.target.value)); setCurrentPage(1); }}
+            >
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+            </select>
+          </label>
+          <div className="pagination">
+            <button 
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage(p => p - 1)}
+              className="btn btn-sm"
+            >
+              ← Prev
+            </button>
+            <span className="page-info">Page {currentPage}</span>
+            <button 
+              disabled={getCurrentDataLength() < itemsPerPage}
+              onClick={() => setCurrentPage(p => p + 1)}
+              className="btn btn-sm"
+            >
+              Next →
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Data Tables */}
       <div className="card">
         {loading ? (
           <SkeletonLoader type="table" />
         ) : (
-          <div className="fade-in" role="tabpanel" aria-labelledby={`${activeTab}-tab`} id={`${activeTab}-panel`}>
-          {activeTab === 'entities' && (
-            <>
-              {entities.length === 0 ? (
-                <div className="empty-state">
-                  <p>No entities found. Try adjusting your search or filters.</p>
-                </div>
-              ) : (
-                <div className="data-table-wrapper">
-                  <table className="data-table" role="table" aria-label="Entities table">
-                    <thead>
-                      <tr>
-                        <th>Entity ID</th>
-                        <th>Display Name</th>
-                        <th>Normalized Name</th>
-                        <th>Type</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {entities.map((entity) => (
-                        <tr key={entity.entity_id}>
-                          <td>{entity.entity_id}</td>
-                          <td>{entity.display_name}</td>
-                          <td>{entity.normalized_name}</td>
-                          <td>{entity.entity_type || 'N/A'}</td>
+          <div className="fade-in" role="tabpanel">
+            {activeTab === 'entities' && (
+              <>
+                {sortedData.entities.length === 0 ? (
+                  <div className="empty-state">
+                    <div className="empty-icon">🔍</div>
+                    <h3>No entities found</h3>
+                    <p>Try adjusting your search or filters, or browse all entities.</p>
+                    <button className="btn btn-primary" onClick={handleClearFilters}>
+                      Clear Filters
+                    </button>
+                  </div>
+                ) : (
+                  <div className="data-table-wrapper">
+                    <table className="data-table" role="table" aria-label="Entities table">
+                      <thead>
+                        <tr>
+                          <SortableHeader column="display_name" label="Display Name" />
+                          <SortableHeader column="entity_type" label="Type" />
+                          <SortableHeader column="intel_stack_level" label="Intel Level" />
+                          <th>Actions</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </>
-          )}
+                      </thead>
+                      <tbody>
+                        {sortedData.entities.map((entity) => (
+                          <tr key={entity.entity_id} className="clickable-row">
+                            <td>
+                              <HighlightText text={entity.display_name} highlight={debouncedSearchTerm} />
+                            </td>
+                            <td>
+                              <span className={`type-badge type-${entity.entity_type?.toLowerCase().replace(/\s+/g, '-')}`}>
+                                {entity.entity_type || 'Unknown'}
+                              </span>
+                            </td>
+                            <td>
+                              {entity.intel_stack_level ? (
+                                <span className={`intel-badge level-${entity.intel_stack_level}`}>
+                                  L{entity.intel_stack_level}
+                                </span>
+                              ) : '-'}
+                            </td>
+                            <td>
+                              <button 
+                                className="btn btn-sm btn-outline"
+                                onClick={() => navigate(`/analysis/network?highlight=${entity.entity_id}`)}
+                              >
+                                View Network
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </>
+            )}
 
             {activeTab === 'money-flows' && (
               <>
-                {moneyFlows.length === 0 ? (
+                {sortedData.moneyFlows.length === 0 ? (
                   <div className="empty-state">
-                    <p>No money flows found. Try adjusting your search or filters.</p>
+                    <div className="empty-icon">💰</div>
+                    <h3>No money flows found</h3>
+                    <p>Try adjusting your search or amount filters.</p>
+                    <button className="btn btn-primary" onClick={handleClearFilters}>
+                      Clear Filters
+                    </button>
                   </div>
                 ) : (
                   <div className="data-table-wrapper">
                     <table className="data-table" role="table" aria-label="Money flows table">
                       <thead>
                         <tr>
-                          <th>Source</th>
-                          <th>Target</th>
-                          <th>Relationship</th>
-                          <th>Amount</th>
-                          <th>Date</th>
+                          <SortableHeader column="source" label="Source" />
+                          <SortableHeader column="target" label="Target" />
+                          <SortableHeader column="relationship" label="Relationship" />
+                          <SortableHeader column="amount_usd" label="Amount" />
+                          <SortableHeader column="start_date" label="Date" />
                         </tr>
                       </thead>
                       <tbody>
-                        {moneyFlows.map((flow) => (
+                        {sortedData.moneyFlows.map((flow) => (
                           <tr key={flow.id}>
-                            <td>{flow.source}</td>
-                            <td>{flow.target}</td>
-                            <td>{flow.relationship || 'N/A'}</td>
-                            <td>{formatCurrency(flow.amount_usd)}</td>
+                            <td>
+                              <HighlightText text={flow.source} highlight={debouncedSearchTerm} />
+                            </td>
+                            <td>
+                              <HighlightText text={flow.target} highlight={debouncedSearchTerm} />
+                            </td>
+                            <td>
+                              <span className="relationship-badge">
+                                {flow.relationship || 'N/A'}
+                              </span>
+                            </td>
+                            <td className="amount-cell">
+                              {formatCurrency(flow.amount_usd)}
+                            </td>
                             <td>{flow.start_date || 'N/A'}</td>
                           </tr>
                         ))}
@@ -341,29 +800,40 @@ function Browse() {
 
             {activeTab === 'awards' && (
               <>
-                {awards.length === 0 ? (
+                {sortedData.awards.length === 0 ? (
                   <div className="empty-state">
-                    <p>No awards found. Try adjusting your search or filters.</p>
+                    <div className="empty-icon">🏆</div>
+                    <h3>No awards found</h3>
+                    <p>Try adjusting your search, agency, or amount filters.</p>
+                    <button className="btn btn-primary" onClick={handleClearFilters}>
+                      Clear Filters
+                    </button>
                   </div>
                 ) : (
                   <div className="data-table-wrapper">
                     <table className="data-table" role="table" aria-label="Awards table">
                       <thead>
                         <tr>
-                          <th>PIID</th>
-                          <th>Recipient</th>
-                          <th>Agency</th>
-                          <th>Amount</th>
-                          <th>Date</th>
+                          <SortableHeader column="piid" label="PIID" />
+                          <SortableHeader column="recipient_name" label="Recipient" />
+                          <SortableHeader column="awarding_agency" label="Agency" />
+                          <SortableHeader column="award_amount" label="Amount" />
+                          <SortableHeader column="action_date" label="Date" />
                         </tr>
                       </thead>
                       <tbody>
-                        {awards.map((award) => (
+                        {sortedData.awards.map((award) => (
                           <tr key={award.id}>
-                            <td>{award.piid || 'N/A'}</td>
-                            <td>{award.recipient_name || 'N/A'}</td>
-                            <td>{award.awarding_agency || 'N/A'}</td>
-                            <td>{formatCurrency(award.award_amount)}</td>
+                            <td className="piid-cell">{award.piid || 'N/A'}</td>
+                            <td>
+                              <HighlightText text={award.recipient_name || ''} highlight={debouncedSearchTerm} />
+                            </td>
+                            <td>
+                              <HighlightText text={award.awarding_agency || ''} highlight={debouncedSearchTerm} />
+                            </td>
+                            <td className="amount-cell">
+                              {formatCurrency(award.award_amount)}
+                            </td>
                             <td>{award.action_date || 'N/A'}</td>
                           </tr>
                         ))}
@@ -376,28 +846,37 @@ function Browse() {
 
             {activeTab === 'foia' && (
               <>
-                {foiaTargets.length === 0 ? (
+                {sortedData.foiaTargets.length === 0 ? (
                   <div className="empty-state">
-                    <p>No FOIA targets found. Try adjusting your search or filters.</p>
+                    <div className="empty-icon">📋</div>
+                    <h3>No FOIA targets found</h3>
+                    <p>Try adjusting your search or agency filter.</p>
+                    <button className="btn btn-primary" onClick={handleClearFilters}>
+                      Clear Filters
+                    </button>
                   </div>
                 ) : (
                   <div className="data-table-wrapper">
                     <table className="data-table" role="table" aria-label="FOIA targets table">
                       <thead>
                         <tr>
-                          <th>Agency</th>
-                          <th>Record Request</th>
-                          <th>Timeframe</th>
-                          <th>Priority</th>
-                          <th>Specificity</th>
-                          <th>Likelihood</th>
+                          <SortableHeader column="agency" label="Agency" />
+                          <SortableHeader column="record_request" label="Record Request" />
+                          <SortableHeader column="timeframe" label="Timeframe" />
+                          <SortableHeader column="priority_score" label="Priority" />
+                          <SortableHeader column="specificity_score" label="Specificity" />
+                          <SortableHeader column="likelihood_score" label="Likelihood" />
                         </tr>
                       </thead>
                       <tbody>
-                        {foiaTargets.map((foia) => (
+                        {sortedData.foiaTargets.map((foia) => (
                           <tr key={foia.id}>
-                            <td>{foia.agency}</td>
-                            <td>{foia.record_request}</td>
+                            <td>
+                              <HighlightText text={foia.agency} highlight={debouncedSearchTerm} />
+                            </td>
+                            <td className="record-request-cell">
+                              <HighlightText text={foia.record_request} highlight={debouncedSearchTerm} />
+                            </td>
                             <td>{foia.timeframe || 'N/A'}</td>
                             <td>
                               {foia.priority_score !== null && foia.priority_score !== undefined ? (

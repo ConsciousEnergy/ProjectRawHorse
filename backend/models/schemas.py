@@ -152,6 +152,7 @@ class GraphNode(BaseModel):
     type: str
     value: Optional[float] = None
     full_name: Optional[str] = None  # Expanded name for acronyms
+    intel_stack_level: Optional[int] = None  # Intelligence stack hierarchy level (1-6)
 
 
 class GraphEdge(BaseModel):

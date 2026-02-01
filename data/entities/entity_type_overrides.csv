@@ -1,0 +1,92 @@
+display_name,entity_type,source,notes
+# NRO Commercial Space Partners - All are Corporations
+BlackSky Technology Inc.,Corporation,NRO EOCL,Commercial satellite imagery provider
+Maxar Technologies,Corporation,NRO EOCL,Commercial satellite imagery provider
+Planet Labs PBC,Corporation,NRO EOCL,Commercial satellite imagery provider
+Airbus U.S. Space & Defense Inc.,Corporation,NRO SCE,Defense and space contractor
+Capella Space,Corporation,NRO SCE,SAR satellite company
+ICEYE US Inc.,Corporation,NRO SCE,SAR satellite company
+PredaSAR (Terran Orbital),Corporation,NRO SCE,SAR satellite company
+Umbra Lab Inc.,Corporation,NRO SCE,SAR satellite company
+Aurora Insight,Corporation,NRO SCE,RF satellite company
+HawkEye 360 Inc.,Corporation,NRO SCE,RF geolocation company
+Kleos Space Inc.,Corporation,NRO SCE,RF reconnaissance company
+Spire Global Inc.,Corporation,NRO SCE,RF data analytics company
+HyperSat,Corporation,NRO SCE,Hyperspectral imaging company
+Orbital Sidekick,Corporation,NRO SCE,Hyperspectral imaging company
+Pixxel,Corporation,NRO SCE,Hyperspectral imaging company
+Xplore Inc.,Corporation,NRO SCE,Space exploration company
+Hydrosat,Corporation,NRO SCE,Thermal IR satellite company
+Albedo Space,Corporation,NRO SCE,Very high resolution imaging
+Muon Space,Corporation,NRO SCE,Weather and climate satellites
+Turion Space,Corporation,NRO SCE,Space logistics company
+# Defense Contractors
+Lockheed Martin,Corporation,Defense,Prime defense contractor
+Lockheed Martin EIG,Corporation,Defense,Lockheed Martin subsidiary
+Northrop Grumman,Corporation,Defense,Prime defense contractor
+Northrop Grumman Federal IT/MSS,Corporation,Defense,Northrop Grumman subsidiary
+Raytheon,Corporation,Defense,Prime defense contractor
+Boeing,Corporation,Defense,Prime defense contractor
+General Dynamics,Corporation,Defense,Prime defense contractor
+BAE Systems,Corporation,Defense,Defense contractor
+Leidos,Corporation,Defense,Defense IT contractor
+SAIC,Corporation,Defense,Defense IT contractor
+Peraton,Corporation,Defense,Defense IT contractor
+Booz Allen Hamilton,Corporation,Defense,Defense consulting
+L3Harris,Corporation,Defense,Defense electronics
+Parsons Corporation,Corporation,Defense,Defense engineering
+The SI Organization,Corporation,Defense,Defense contractor (acquired)
+QinetiQ North America SSG,Corporation,Defense,Defense contractor
+Vencore,Corporation,Defense,Defense IT (merged into Perspecta)
+Perspecta,Corporation,Defense,Defense IT (acquired by Peraton)
+Arcfield,Corporation,Defense,Defense contractor
+# Research Institutions / FFRDCs
+MITRE Corporation,Research Institution,FFRDC,Federally funded R&D center
+MITRE,Research Institution,FFRDC,Federally funded R&D center
+Battelle Memorial Institute,Research Institution,FFRDC,Research institution
+Sandia National Laboratories,Research Institution,FFRDC,DOE national lab
+Los Alamos National Laboratory,Research Institution,FFRDC,DOE national lab
+Oak Ridge National Laboratory,Research Institution,FFRDC,DOE national lab
+Lawrence Livermore National Laboratory,Research Institution,FFRDC,DOE national lab
+Aerospace Corporation,Research Institution,FFRDC,Space systems FFRDC
+RAND Corporation,Research Institution,FFRDC,Policy research FFRDC
+JASON Advisory Panel,Research Institution,FFRDC,Scientific advisory group
+Air Force Research Laboratory,Research Institution,Government,Military research lab
+AFRL,Research Institution,Government,Military research lab
+# Government Agencies
+NRO,Government Agency,IC,National Reconnaissance Office
+National Reconnaissance Office,Government Agency,IC,National Reconnaissance Office
+CIA,Government Agency,IC,Central Intelligence Agency
+CIA DS&T,Government Agency,IC,CIA Directorate of Science and Technology
+DIA,Government Agency,IC,Defense Intelligence Agency
+NSA,Government Agency,IC,National Security Agency
+NGA,Government Agency,IC,National Geospatial-Intelligence Agency
+AARO,Government Agency,DOD,All-domain Anomaly Resolution Office
+DCSA,Government Agency,DOD,Defense Counterintelligence and Security Agency
+DOE,Government Agency,Executive,Department of Energy
+NNSA,Government Agency,Executive,National Nuclear Security Administration
+NASA,Government Agency,Executive,National Aeronautics and Space Administration
+DARPA,Government Agency,DOD,Defense Advanced Research Projects Agency
+# Facilities
+Y12 Complex,Facility,DOE,Oak Ridge Y-12 National Security Complex
+Area 51,Facility,DOD,Nevada Test and Training Range
+Groom Lake,Facility,DOD,Area 51 location
+Pine Gap,Facility,IC,Joint Defence Facility Pine Gap
+Edwards Air Force Base,Facility,USAF,Flight test center
+Edwards AFB,Facility,USAF,Flight test center
+Tonopah Test Range,Facility,DOE,Nevada test range
+Dugway Proving Ground,Facility,Army,Chemical/biological test facility
+White Sands Missile Range,Facility,Army,Missile test range
+# Investment Firms
+Veritas Capital,Investment Firm,Private Equity,Defense-focused PE firm
+# Programs
+Immaculate Constellation,Program,UAP,Alleged UAP program
+Kona Blue,Program,UAP,DHS UAP program proposal
+(Program) NRO CSPO Commercial Foundation,Program,NRO,Commercial space program
+# Individuals - Actual people
+Robert Cardillo,Individual,Former Official,Former NGA Director
+David Grusch,Individual,Whistleblower,UAP whistleblower
+Dick Cheney,Individual,Former Official,Former VP and SecDef
+Hal Puthoff,Individual,Researcher,Physicist and researcher
+Doug Wolfe,Individual,Researcher,Researcher
+Ed (Air Force Acquisition Witness),Individual,Witness,Air Force acquisition witness

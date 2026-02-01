@@ -13,6 +13,9 @@ from collections import defaultdict
 # Import database dependency
 from dependencies import get_db
 
+# Import entity type inference at module level to ensure latest version on restart
+from data_loader import infer_entity_type, AGENCY_ACRONYMS
+
 router = APIRouter()
 
 
@@ -189,12 +192,13 @@ async def get_entity_graph(
             entity_type = entity.entity_type
         else:
             # Infer from name if not in database
-            from data_loader import infer_entity_type
             entity_type = infer_entity_type(entity_name)
         
         # Get full name for acronyms
-        from data_loader import AGENCY_ACRONYMS
         full_name = AGENCY_ACRONYMS.get(entity_name.strip().upper())
+        
+        # Get intel stack level if available
+        intel_stack_level = entity.intel_stack_level if entity else None
         
         nodes.append(
             GraphNode(
@@ -202,7 +206,8 @@ async def get_entity_graph(
                 name=entity_name,
                 type=entity_type,
                 value=node_value,
-                full_name=full_name
+                full_name=full_name,
+                intel_stack_level=intel_stack_level
             )
         )
     
@@ -490,7 +495,6 @@ async def get_sankey_data(
         if entity and entity.entity_type:
             category = entity.entity_type
         else:
-            from data_loader import infer_entity_type
             category = infer_entity_type(entity_name)
         
         # Calculate total flow value (sum of incoming and outgoing)

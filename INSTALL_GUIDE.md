@@ -28,15 +28,25 @@ Before running the installer, you need:
    - Download the ZIP file
    - Extract it to a folder (e.g., `C:\RawHorse`)
 
-2. **Run the Installer**
-   - Find the file named `install.bat`
-   - **Double-click** `install.bat`
-   - Wait for installation to complete (5-10 minutes)
+2. **Run the Application** (Easiest Method)
+   - Find the file named `START.bat`
+   - **Double-click** `START.bat`
+   - If not installed, it will guide you through installation automatically
+   - Wait 5-10 minutes for first-time setup
    - Your browser will open automatically
 
-3. **Running Project RawHorse Later**
-   - **Double-click** `RUN.bat` to start the application
-   - Your browser opens automatically to the application
+3. **Alternative: Full Installation First**
+   - **Double-click** `install.bat` for full installation
+   - Then use `START.bat` or `RUN.bat` to launch
+
+4. **Running Project RawHorse Later**
+   - **Double-click** `START.bat` (recommended) or `RUN.bat`
+   - Your browser opens automatically to http://127.0.0.1:8000
+
+5. **Create a Desktop Shortcut** (Optional)
+   - Right-click `LaunchRawHorse.vbs` → Create Shortcut
+   - Move shortcut to Desktop
+   - Right-click shortcut → Properties → Change Icon → Browse to `PRHLogo.png`
 
 ### Troubleshooting Windows
 
@@ -81,22 +91,27 @@ Before running the installer, you need:
      ```
    - Make scripts executable:
      ```bash
-     chmod +x install.sh RUN.sh
+     chmod +x START.sh install.sh RUN.sh
      ```
 
-3. **Run the Installer**
+3. **Run the Application** (Easiest Method)
    - In Terminal, run:
      ```bash
-     ./install.sh
+     ./START.sh
      ```
+   - If not installed, it will guide you through installation automatically
    - Wait for installation (5-10 minutes)
    - Browser opens automatically
 
-4. **Running Project RawHorse Later**
+4. **Alternative: Full Installation First**
+   - Run: `./install.sh` for full installation
+   - Then use `./START.sh` or `./RUN.sh` to launch
+
+5. **Running Project RawHorse Later**
    - In Terminal:
      ```bash
      cd ~/RawHorse
-     ./RUN.sh
+     ./START.sh
      ```
 
 ### Troubleshooting macOS
@@ -142,18 +157,19 @@ sudo pacman -S python python-pip nodejs npm
 2. **Make Scripts Executable**
    ```bash
    cd ~/RawHorse
-   chmod +x install.sh RUN.sh
+   chmod +x START.sh install.sh RUN.sh
    ```
 
-3. **Run the Installer**
+3. **Run the Application** (Easiest Method)
    ```bash
-   ./install.sh
+   ./START.sh
    ```
+   - Guides you through installation if needed
 
 4. **Running Project RawHorse Later**
    ```bash
    cd ~/RawHorse
-   ./RUN.sh
+   ./START.sh
    ```
 
 ---
@@ -198,14 +214,33 @@ sudo pacman -S python python-pip nodejs npm
 ## Quick Reference
 
 ### Windows
-- Install: Double-click `install.bat`
-- Run: Double-click `RUN.bat`
-- Stop: Press Ctrl+C
+| Action | How |
+|--------|-----|
+| **First Run** | Double-click `START.bat` (handles installation automatically) |
+| **Install Only** | Double-click `install.bat` |
+| **Run** | Double-click `START.bat` or `RUN.bat` |
+| **With Icon** | Double-click `LaunchRawHorse.vbs` |
+| **Stop** | Press Ctrl+C in command window |
 
 ### macOS/Linux
-- Install: `./install.sh`
-- Run: `./RUN.sh`
-- Stop: Press Ctrl+C
+| Action | How |
+|--------|-----|
+| **First Run** | `./START.sh` (handles installation automatically) |
+| **Install Only** | `./install.sh` |
+| **Run** | `./START.sh` or `./RUN.sh` |
+| **Stop** | Press Ctrl+C |
+
+### Available Launch Scripts
+
+| Script | Platform | Description |
+|--------|----------|-------------|
+| `START.bat` | Windows | Guided launcher with auto-install |
+| `START.sh` | macOS/Linux | Guided launcher with auto-install |
+| `install.bat` | Windows | Full installation only |
+| `install.sh` | macOS/Linux | Full installation only |
+| `RUN.bat` | Windows | Quick launch (requires prior install) |
+| `RUN.sh` | macOS/Linux | Quick launch (requires prior install) |
+| `LaunchRawHorse.vbs` | Windows | Launch with custom icon support |
 
 ---
 

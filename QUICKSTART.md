@@ -1,36 +1,74 @@
-# UAP Data Explorer - Quick Start Guide
+# Project RawHorse - Quick Start Guide
 
-## For End Users
+## One-Click Installation (Recommended)
 
-### Option 1: Download Pre-built Executable (Recommended)
+### Windows Users
 
-1. Go to the [Releases page](https://github.com/YOUR_ORG/uap-data-explorer/releases)
-2. Download the latest release for your platform:
-   - **Windows**: `UAP-Data-Explorer-Windows.zip`
-   - **macOS**: `UAP-Data-Explorer-macOS.zip`
-   - **Linux**: `UAP-Data-Explorer-Linux.tar.gz`
-3. Extract the archive
-4. Run the executable:
-   - Windows: Double-click `UAP-Data-Explorer.exe`
-   - macOS: Double-click `UAP-Data-Explorer.app`
-   - Linux: `./UAP-Data-Explorer`
-5. Accept the legal disclaimer
-6. Start exploring!
+**Option 1: Double-click START.bat** (Easiest)
+1. Download and extract Project RawHorse
+2. Double-click `START.bat`
+3. If not installed, it will guide you through installation
+4. Browser opens automatically at http://127.0.0.1:8000
+
+**Option 2: Double-click LaunchRawHorse.vbs** (Supports custom icon)
+1. Double-click `LaunchRawHorse.vbs`
+2. Same as START.bat but allows creating shortcuts with custom icons
+3. To create desktop shortcut: Right-click → Create Shortcut → move to Desktop
+
+**Option 3: Full Installation**
+1. Double-click `install.bat`
+2. Wait 5-10 minutes for installation
+3. Browser opens automatically when complete
+
+### macOS/Linux Users
+
+**Option 1: Run START.sh** (Easiest)
+```bash
+chmod +x START.sh
+./START.sh
+```
+
+**Option 2: Full Installation**
+```bash
+chmod +x install.sh
+./install.sh
+```
+
+---
+
+## Prerequisites
+
+Before installation, you need:
+
+### Windows
+- **Python 3.10+**: Download from https://www.python.org/downloads/
+  - ⚠️ **IMPORTANT**: Check "Add Python to PATH" during installation!
+- **Node.js 18+**: Download from https://nodejs.org/
+
+### macOS
+```bash
+# Using Homebrew
+brew install python3 node
+```
+
+### Linux (Ubuntu/Debian)
+```bash
+sudo apt update
+sudo apt install python3 python3-pip python3-venv
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt install nodejs
+```
+
+---
 
 ## For Developers
 
-### Prerequisites
-
-- Python 3.10+
-- Node.js 18+
-- Git
-
-### Development Setup
+### Manual Development Setup
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/consciousenergy/ProjectRawHorse.git
-cd project_rawhorse
+git clone https://github.com/ConsciousEnergy/ProjectRawHorse.git
+cd ProjectRawHorse
 ```
 
 2. **Set up backend**
@@ -51,131 +89,185 @@ pip install -r requirements.txt
 
 3. **Set up frontend**
 ```bash
-# In a new terminal
 cd frontend
 npm install
+npm run build
 ```
 
-4. **Run development servers**
+4. **Copy frontend to backend**
+```bash
+# Windows:
+xcopy /E /I /Y frontend\dist backend\static
 
-Terminal 1 (Backend):
+# macOS/Linux:
+cp -r frontend/dist backend/static
+```
+
+5. **Run the application**
 ```bash
 cd backend
 python main.py
 ```
 
-Terminal 2 (Frontend):
+### Development Mode (Hot Reload)
+
+Run backend and frontend separately for development:
+
+**Terminal 1 (Backend):**
+```bash
+cd backend
+python main.py
+```
+
+**Terminal 2 (Frontend):**
 ```bash
 cd frontend
 npm run dev
 ```
 
-5. **Access the application**
-- Frontend dev server: http://localhost:3000
+Access:
+- Frontend dev server: http://localhost:5173
 - Backend API: http://localhost:8000
 - API docs: http://localhost:8000/docs
 
-### Building an Executable
-
-```bash
-# Install build dependencies
-pip install -r build_requirements.txt
-
-# Run build script
-python build_executable.py
-```
-
-The executable will be created in `dist/project_rawhorse/`
+---
 
 ## Project Structure
 
 ```
-project_rawhorse/
+ProjectRawHorse/
 ├── backend/                # FastAPI backend
 │   ├── routers/            # API endpoints
 │   ├── services/           # GitHub integration
 │   ├── models/             # Data models
+│   ├── static/             # Built frontend (served by backend)
 │   ├── database.py         # Database setup
+│   ├── auth.py             # JWT authentication
 │   └── main.py             # App entry point
 ├── frontend/               # React frontend
 │   ├── src/
 │   │   ├── pages/          # Main pages
 │   │   ├── components/     # UI components
 │   │   └── services/       # API client
-├── .github/workflows/      # CI/CD
+├── data/                   # Data files
+│   ├── entities/           # Entity CSV files
+│   ├── financial/          # Money flow data
+│   ├── foia/               # FOIA targets
+│   └── scripts/            # Data enrichment scripts
+├── docker/                 # Docker deployment files
+├── START.bat               # Windows one-click launcher
+├── START.sh                # macOS/Linux one-click launcher
+├── install.bat             # Windows installer
+├── install.sh              # macOS/Linux installer
+├── RUN.bat                 # Windows quick launch
+├── RUN.sh                  # macOS/Linux quick launch
+├── LaunchRawHorse.vbs      # Windows launcher with icon support
 ├── config.yaml             # Configuration
-├── startup.py              # Executable entry
-└── build_executable.py     # Build script
+└── docker-compose.yml      # Docker deployment
 ```
+
+---
+
+## Using the Application
+
+### Dashboard
+Overview statistics and quick access to features.
+
+### Browse
+Search and filter:
+- **Entities**: Organizations, agencies, contractors
+- **Money Flows**: Financial transactions and relationships
+- **Awards**: Federal contracts and grants
+- **FOIA Targets**: Suggested FOIA requests with quality scores
+
+### Analysis
+Interactive visualizations:
+- **Network Graph**: Force-directed entity relationship graph
+- **Sankey Diagram**: Financial flow visualization
+- **Intelligence Stack Filter**: Filter by hierarchy level
+
+### Export
+Download data in CSV, JSON, or PDF formats.
+
+### Contribute
+Submit new data via automated GitHub pull requests.
+
+---
+
+## Troubleshooting
+
+### Installation Issues
+
+**"Python is not installed"**
+- Install Python from https://www.python.org/downloads/
+- Make sure to check "Add Python to PATH"
+- Restart your terminal/command prompt after installation
+
+**"Node.js is not installed"**
+- Install Node.js from https://nodejs.org/
+- Choose the LTS version
+
+**"Failed to create virtual environment"**
+```bash
+python -m pip install --upgrade pip virtualenv
+```
+
+### Runtime Issues
+
+**Backend won't start**
+- Check Python version: `python --version` (need 3.10+)
+- Check port 8000 is not in use
+- Try: `pip install -r backend/requirements.txt`
+
+**Frontend build fails**
+- Check Node version: `node --version` (need 18+)
+- Delete node_modules and reinstall:
+  ```bash
+  cd frontend
+  rm -rf node_modules
+  npm install
+  ```
+
+**Database errors**
+- Delete `data/prh.db` to force rebuild
+- Application will recreate database on next start
+
+**Browser doesn't open automatically**
+- Manually navigate to http://127.0.0.1:8000
+
+---
 
 ## Configuration
 
 Edit `config.yaml` to customize:
 - Server host and port
 - Database location
-- Data source directory
+- Data source directories
 - GitHub repository URL
 
-## Data Management
-
-The application loads data from CSV files in:
-```
-../data/
-```
-
-On first run, data is loaded into a SQLite database at:
-```
-data/project_rawhorse.db
-```
-
-## Contributing Data
-
-1. Navigate to the "Contribute" page
-2. Generate a GitHub token: https://github.com/settings/tokens
-   - Required scope: `repo`
-3. Validate your token
-4. Fill out the contribution form
-5. Submit - an automated PR will be created!
-
-## Troubleshooting
-
-### Backend won't start
-- Check Python version: `python --version` (need 3.10+)
-- Verify all dependencies installed: `pip install -r backend/requirements.txt`
-- Check port 8000 is not in use
-
-### Frontend won't build
-- Check Node version: `node --version` (need 18+)
-- Delete `node_modules` and reinstall: `rm -rf node_modules && npm install`
-- Clear build cache: `rm -rf dist`
-
-### Database errors
-- Delete `data/project_rawhorse.db` to force rebuild
-- Ensure CSV files exist in data source directory
-- Check file permissions
-
-### GitHub contributions not working
-- Verify token has `repo` scope
-- Check repository URL in `config.yaml`
-- Ensure you have write access (will fork automatically)
+---
 
 ## Getting Help
 
-- **Issues**: https://github.com/consciousenergy/projectrawhorse/issues
-- **Discussions**: https://github.com/consciousenergy/projectrawhorse/discussions
-- **Documentation**: See README.md and CONTRIBUTING.md
+- **Issues**: https://github.com/ConsciousEnergy/ProjectRawHorse/issues
+- **Discussions**: https://github.com/ConsciousEnergy/ProjectRawHorse/discussions
+- **Documentation**: See README.md
+
+---
 
 ## License
 
 GNU AGPL v3 - See LICENSE file
 
-## Security
+---
 
-- All processing is local
+## Security & Privacy
+
+- All processing is local - no external servers
 - No telemetry or tracking
-- GitHub token stored encrypted
-- Open source for transparency
+- GitHub tokens stored encrypted
+- Open source for full transparency
 
 ---
 
-**Ready to explore UAP data? Get started now!**
+**Ready to explore? Double-click START.bat (Windows) or run ./START.sh (macOS/Linux)!**

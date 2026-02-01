@@ -80,3 +80,100 @@
   padding: 6px 12px;
   font-size: 14px;
 }
+
+.sankey-container .btn.active {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+/* Legend */
+.sankey-legend {
+  position: absolute;
+  top: 70px;
+  left: 16px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 12px;
+  z-index: 50;
+  max-width: 200px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.sankey-legend h5 {
+  margin: 0 0 10px 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 6px;
+}
+
+.sankey-legend .legend-items {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sankey-legend .legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+}
+
+.sankey-legend .legend-color {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.sankey-legend .legend-label {
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Stats bar */
+.sankey-stats {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 8px 12px;
+  display: flex;
+  gap: 16px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  z-index: 50;
+}
+
+.sankey-stats .filter-badge {
+  background: var(--primary-color);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .sankey-legend {
+    top: auto;
+    bottom: 60px;
+    left: 8px;
+    max-width: 160px;
+  }
+  
+  .sankey-stats {
+    bottom: 8px;
+    right: 8px;
+    padding: 6px 10px;
+    gap: 10px;
+    font-size: 0.75rem;
+  }
+}

@@ -130,32 +130,75 @@
   bottom: 50px;
   left: 10px;
   z-index: 10;
-  background: rgba(255, 255, 255, 0.9);
-  padding: 15px;
+  background: rgba(255, 255, 255, 0.95);
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: all 0.2s ease;
 }
 
 [data-theme="dark"] .graph-legend {
-  background: rgba(45, 45, 45, 0.9);
+  background: rgba(45, 45, 45, 0.95);
+}
+
+.graph-legend.collapsed {
+  width: auto;
+}
+
+.graph-legend .legend-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 14px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  transition: background 0.2s ease;
+}
+
+.graph-legend .legend-toggle:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="dark"] .graph-legend .legend-toggle:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.graph-legend .toggle-icon {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  transition: transform 0.2s ease;
+}
+
+.graph-legend .legend-items {
+  padding: 0 14px 12px 14px;
+  border-top: 1px solid var(--border-color);
+  margin-top: 0;
 }
 
 .graph-legend .legend-item {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 8px;
+  padding: 6px 0;
+  font-size: 0.8rem;
 }
 
-.graph-legend .legend-item:last-child {
-  margin-bottom: 0;
+.graph-legend .legend-item:first-child {
+  padding-top: 10px;
 }
 
 .graph-legend .legend-color {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   border: 1px solid var(--border);
+  flex-shrink: 0;
 }
 
 .graph-stats {
@@ -233,9 +276,27 @@
 
   .graph-legend {
     font-size: 11px;
-    padding: 10px;
     bottom: 45px;
     max-width: calc(100% - 20px);
+  }
+  
+  .graph-legend .legend-toggle {
+    padding: 8px 10px;
+    font-size: 0.8rem;
+  }
+  
+  .graph-legend .legend-items {
+    padding: 0 10px 10px 10px;
+  }
+  
+  .graph-legend .legend-item {
+    font-size: 0.75rem;
+    padding: 4px 0;
+  }
+  
+  .graph-legend .legend-color {
+    width: 12px;
+    height: 12px;
   }
 
   .graph-stats {
