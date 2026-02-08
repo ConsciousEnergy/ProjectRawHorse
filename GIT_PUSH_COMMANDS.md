@@ -26,6 +26,14 @@ git commit -m "feat: Intelligence Stack Pyramid overhaul, layout, L6 programs, f
 git push -u origin PRH_v0.3.2Beta
 ```
 
+**Follow-up commit (search + RUN.bat):**
+```bash
+git add backend/requirements.txt backend/routers/search.py data/entities/entity_aliases.csv RUN.bat CHANGELOG_v0.3.2Beta.md GIT_PUSH_COMMANDS.md docs/development/SEARCH_UX_ENHANCEMENTS_4_6_PLAN.md test_search_enhancements.py
+git status
+git commit -m "feat(search): alias expansion, amount-aware search, rapidfuzz fuzzy; RUN.bat ensures deps (v0.3.2 Beta)"
+git push origin PRH_v0.3.2Beta
+```
+
 Then on GitHub: **New Pull Request** → Base: `main`, Compare: `PRH_v0.3.2Beta`. Use `CHANGELOG_v0.3.2Beta.md` for the PR description.
 
 ---

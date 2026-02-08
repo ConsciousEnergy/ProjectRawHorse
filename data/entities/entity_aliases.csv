@@ -1,0 +1,69 @@
+canonical,alias
+# From AGENCY_ACRONYMS (data_loader.py)
+NGA,National Geospatial-Intelligence Agency
+National Geospatial-Intelligence Agency,NGA
+NRO,National Reconnaissance Office
+National Reconnaissance Office,NRO
+DOD,Department of Defense
+Department of Defense,DOD
+NASA,National Aeronautics and Space Administration
+National Aeronautics and Space Administration,NASA
+DARPA,Defense Advanced Research Projects Agency
+Defense Advanced Research Projects Agency,DARPA
+DIA,Defense Intelligence Agency
+Defense Intelligence Agency,DIA
+NSA,National Security Agency
+National Security Agency,NSA
+CIA,Central Intelligence Agency
+Central Intelligence Agency,CIA
+FBI,Federal Bureau of Investigation
+Federal Bureau of Investigation,FBI
+DCSA,Defense Counterintelligence and Security Agency
+Defense Counterintelligence and Security Agency,DCSA
+TSA,Transportation Security Administration
+Transportation Security Administration,TSA
+DHS,Department of Homeland Security
+Department of Homeland Security,DHS
+AARO,All-domain Anomaly Resolution Office
+All-domain Anomaly Resolution Office,AARO
+USSF,United States Space Force
+United States Space Force,USSF
+USAF,United States Air Force
+United States Air Force,USAF
+# Research / FFRDC (entity_type_overrides)
+MITRE,MITRE Corporation
+MITRE Corporation,MITRE
+AFRL,Air Force Research Laboratory
+Air Force Research Laboratory,AFRL
+# Facilities
+Edwards AFB,Edwards Air Force Base
+Edwards Air Force Base,Edwards AFB
+# Hidden Wing / SAF hierarchy
+SAF AQ,Air Force Acquisition (SAF-AQ)
+Air Force Acquisition (SAF-AQ),SAF AQ
+SAF-AQ,Air Force Acquisition (SAF-AQ)
+SAF-AQL,Air Force Special Programs (SAF-AQL)
+Air Force Special Programs (SAF-AQL),SAF-AQL
+RCO,Rapid Capabilities Office
+Rapid Capabilities Office,RCO
+Air Force Rapid Capabilities Office,RCO
+SAF-AA,Administrative Assistant to Secretary of Air Force
+SAF-AAH,Air Force Sensitive Activities (SAF-AAH)
+SAF-AAZ,Air Force Security/Special Programs Oversight (SAF-AAZ)
+AFTE,Air Force Test and Evaluation
+Air Force Test and Evaluation,AFTE
+AFMC,Air Force Materiel Command
+Air Force Materiel Command,AFMC
+412th Test Wing,Edwards Test Wing
+USD-ANS,Under Secretary of Defense for Acquisition and Sustainment
+OSD,Office of Secretary of Defense
+Office of Secretary of Defense,OSD
+NSC,National Security Council
+National Security Council,NSC
+JASON,JASON Advisory Panel
+JASON Advisory Panel,JASON
+# DOE / NNSA
+DOE,Department of Energy
+NNSA,National Nuclear Security Administration
+# CIA variant
+CIA DS&T,CIA Directorate of Science and Technology
