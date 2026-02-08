@@ -1,9 +1,15 @@
 """
 Authentication API routes
 """
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, HTTPException, status, Depends, Request
 from pydantic import BaseModel
 from typing import Optional
+
+try:
+    from limiter import limiter
+    AUTH_LIMITER = limiter
+except ImportError:
+    AUTH_LIMITER = None
 
 from auth import (
     create_access_token,
@@ -37,9 +43,16 @@ class RefreshRequest(BaseModel):
     refresh_token: str
 
 
+def _auth_limit(f):
+    if AUTH_LIMITER:
+        return AUTH_LIMITER.limit("10/minute")(f)
+    return f
+
+
 @router.post("/login", response_model=LoginResponse)
-async def login(request: LoginRequest):
-    """Login and get access + refresh tokens"""
+@_auth_limit
+async def login(req: Request, request: LoginRequest):
+    """Login and get access + refresh tokens (rate limited: 10/min)."""
     if not config.AUTH_ENABLED:
         # Auth disabled - return demo tokens
         return LoginResponse(
@@ -79,8 +92,9 @@ async def login(request: LoginRequest):
 
 
 @router.post("/refresh", response_model=Token)
-async def refresh_token(request: RefreshRequest):
-    """Refresh an access token using a refresh token"""
+@_auth_limit
+async def refresh_token(req: Request, request: RefreshRequest):
+    """Refresh an access token using a refresh token (rate limited: 10/min)."""
     if not config.AUTH_ENABLED:
         return Token(
             access_token="auth-disabled",

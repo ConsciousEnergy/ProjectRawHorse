@@ -1,0 +1,66 @@
+.pyramid-tooltip {
+  position: fixed;
+  z-index: 1000;
+  max-width: 320px;
+  padding: 10px 12px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+  animation: pyramid-tooltip-fade 0.15s ease-out;
+}
+
+@keyframes pyramid-tooltip-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.pyramid-tooltip-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+}
+
+.pyramid-tooltip-meta {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.pyramid-tooltip-desc {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin: 6px 0;
+  line-height: 1.35;
+}
+
+.pyramid-tooltip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.pyramid-tooltip-label {
+  width: 100%;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.pyramid-tooltip-item {
+  white-space: nowrap;
+}
+
+.pyramid-tooltip-item::after {
+  content: ', ';
+}
+
+.pyramid-tooltip-item:last-child::after {
+  content: '';
+}

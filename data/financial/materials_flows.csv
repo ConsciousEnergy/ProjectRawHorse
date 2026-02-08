@@ -1,0 +1,9 @@
+source,target,material_type,relationship,description,start_date,end_date,source_citation,edge_id
+DOE,Lockheed Martin,technology,Technology Transfer,National lab technology transfer to contractor,,,,DOE FFRDC documentation,mf_doe_lockheed_tech
+Sandia National Laboratories,DOE,technology,Technology Integration,FFRDC technology integration,,,,Sandia contract,mf_sandia_doe
+MITRE,Air Force,technology,Technology Integration,MITRE FFRDC support to Air Force programs,,,,MITRE contract,mf_mitre_af
+Battelle,Oak Ridge National Laboratory,technology,Operates,Management contract for ORNL,,,,Battelle ORNL,mf_battelle_ornl
+Lockheed Martin Skunk Works,Air Force Plant 42,equipment,Material Supply,Defense contractor IP and test article integration,,,,Plant 42 GOCO,mf_skunkworks_plant42
+Northrop Grumman,Air Force,equipment,Technology Transfer,Test article transfers between MRTFBs,,,,Edwards AFB,mf_ng_af
+Aerospace Corporation,Space Force,technology,Technology Integration,FFRDC systems engineering for Space Force,,,,Aerospace Corp,mf_aero_spaceforce
+RAND Corporation,DoD,technology,Technology Transfer,RAND FFRDC research and analysis,,,,RAND contract,mf_rand_dod

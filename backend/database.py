@@ -126,15 +126,27 @@ class FOIATarget(Base):
 
 
 class Relationship(Base):
+    """Entity-to-entity relationship with optional enrichment.
+
+    Core: source, target, label. Optional: description, relationship_type
+    (e.g. affiliation, leadership, funding, technology_transfer, operates_at),
+    source_citation, start_date, end_date. CSV loader supports these when present.
+    """
     __tablename__ = "relationships"
     
     id = Column(Integer, primary_key=True, index=True)
     source = Column(String, index=True, nullable=False)
     target = Column(String, index=True, nullable=False)
     label = Column(String, nullable=False)
+    description = Column(Text)
+    relationship_type = Column(String, index=True)  # affiliation, leadership, funding, technology_transfer, operates_at
+    source_citation = Column(Text)
+    start_date = Column(Date)
+    end_date = Column(Date)
     
     __table_args__ = (
         Index('idx_relationship_source_target', 'source', 'target'),
+        Index('idx_relationship_type', 'relationship_type'),
     )
 
 
@@ -227,8 +239,35 @@ def init_database(db_path: str = "data/prh.db"):
     # Create all tables
     Base.metadata.create_all(bind=engine)
     logger.info("Database tables created/verified")
-    
+
+    # SQLite: add new Relationship columns if missing (no-op for new DBs)
+    if db_type == "sqlite":
+        _migrate_relationship_columns(engine)
+
     return engine
+
+
+def _migrate_relationship_columns(engine):
+    """Add description, relationship_type, source_citation, start_date, end_date to relationships if missing."""
+    from sqlalchemy import text
+    col_types = {
+        "description": "TEXT",
+        "relationship_type": "TEXT",
+        "source_citation": "TEXT",
+        "start_date": "DATE",
+        "end_date": "DATE",
+    }
+    try:
+        with engine.connect() as conn:
+            r = conn.execute(text("PRAGMA table_info(relationships)"))
+            cols = {row[1] for row in r}
+            for col, ctype in col_types.items():
+                if col not in cols:
+                    conn.execute(text(f"ALTER TABLE relationships ADD COLUMN {col} {ctype}"))
+                    conn.commit()
+                    logger.info(f"Added column relationships.{col}")
+    except Exception as e:
+        logger.warning(f"Migration of relationships table skipped: {e}")
 
 
 def get_session_maker(engine):

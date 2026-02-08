@@ -4,6 +4,8 @@ import { getEntities, getMoneyFlows, getAwards, getFOIATargets } from '../servic
 import type { Entity, MoneyFlow, Award, FOIATarget } from '../types';
 import SkeletonLoader from '../components/SkeletonLoader';
 import { useDataContext } from '../contexts/DataContext';
+import { Link } from 'react-router-dom';
+import { Triangle } from 'lucide-react';
 import './Browse.css';
 
 type TabType = 'entities' | 'money-flows' | 'awards' | 'foia';
@@ -738,6 +740,16 @@ function Browse() {
                               >
                                 View Network
                               </button>
+                              {entity.intel_stack_level != null && (
+                                <Link
+                                  to={`/analysis/pyramid?entity_id=${encodeURIComponent(entity.entity_id)}`}
+                                  className="browse-pyramid-link"
+                                  title="View on Pyramid"
+                                  aria-label={`View ${entity.display_name} on Intelligence Stack Pyramid`}
+                                >
+                                  <Triangle size={18} />
+                                </Link>
+                              )}
                             </td>
                           </tr>
                         ))}
