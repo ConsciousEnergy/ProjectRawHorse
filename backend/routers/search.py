@@ -238,9 +238,9 @@ def search_foia_targets(db: Session, query: str, limit: int = 20) -> List[Dict[s
 
 @router.get("/search")
 async def global_search(
-    q: str = Query(..., min_length=2, description="Search query (minimum 2 characters)"),
+    q: str = Query(..., min_length=2, max_length=200, description="Search query (2-200 characters)"),
     types: Optional[List[str]] = Query(None, description="Filter by data types: entities, awards, money_flows, foia_targets"),
-    limit: int = Query(20, le=100, description="Maximum number of results"),
+    limit: int = Query(20, ge=1, le=100, description="Maximum number of results"),
     db: Session = Depends(get_db)
 ):
     """

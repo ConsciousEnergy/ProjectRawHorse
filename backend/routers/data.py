@@ -1,17 +1,36 @@
 """
-Data API routes for entities, awards, money flows, and FOIA targets
+Data API routes for entities, awards, money flows, materials flows, and FOIA targets.
+
+Endpoints:
+- /entities, /entities/{entity_id}: List and get entities (with intel_stack_level filter).
+- /money-flows: List money flows with search, amount, and date filters.
+- /awards: List awards with search, agency, amount, date, NAICS filters.
+- /materials-flows: List materials/technology flows (search, material_type, date range).
+- /connections: Unified view of relationships + money flows + materials flows for one entity (by entity_id or entity_name).
+- /foia-targets: List FOIA targets.
+- /stats, /version, /refresh: Aggregate stats, data version, and data refresh.
 """
 from typing import List
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, func
 
-from database import Entity, MoneyFlow, Award, FOIATarget, DataVersion
+from database import Entity, MoneyFlow, Award, FOIATarget, DataVersion, Relationship, MaterialsFlow
 from models.schemas import (
     EntityResponse, EntityQueryParams,
     MoneyFlowResponse, MoneyFlowQueryParams,
     AwardResponse, AwardQueryParams,
-    FOIATargetResponse, StatsResponse
+    FOIATargetResponse, StatsResponse,
+    MaterialsFlowResponse,
+)
+from validation import (
+    sanitize_search,
+    validate_entity_id,
+    validate_date,
+    validate_amount,
+    MAX_SEARCH_LENGTH,
+    AMOUNT_MIN,
+    AMOUNT_MAX,
 )
 
 # Import database dependency
@@ -22,15 +41,16 @@ router = APIRouter()
 
 @router.get("/entities", response_model=List[EntityResponse])
 async def get_entities(
-    search: str = Query(None),
-    entity_type: str = Query(None),
-    intel_stack_level: int = Query(None),
+    search: str = Query(None, max_length=MAX_SEARCH_LENGTH),
+    entity_type: str = Query(None, max_length=100),
+    intel_stack_level: int = Query(None, ge=1, le=6),
     offset: int = Query(0, ge=0),
     skip: int = Query(None, ge=0),  # Alias for offset
-    limit: int = Query(100, le=1000),
+    limit: int = Query(100, ge=1, le=1000),
     db: Session = Depends(get_db)
 ):
     """Get entities with optional filtering"""
+    search = sanitize_search(search)
     query = db.query(Entity)
     
     if search:
@@ -58,23 +78,40 @@ async def get_entities(
 @router.get("/entities/{entity_id}", response_model=EntityResponse)
 async def get_entity(entity_id: str, db: Session = Depends(get_db)):
     """Get a single entity by ID"""
+    ok, err = validate_entity_id(entity_id)
+    if not ok:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=err)
     return db.query(Entity).filter(Entity.entity_id == entity_id).first()
 
 
 @router.get("/money-flows", response_model=List[MoneyFlowResponse])
 async def get_money_flows(
-    search: str = Query(None),
-    min_amount: float = Query(None),
-    max_amount: float = Query(None),
-    start_date: str = Query(None),
-    end_date: str = Query(None),
+    search: str = Query(None, max_length=MAX_SEARCH_LENGTH),
+    min_amount: float = Query(None, ge=AMOUNT_MIN, le=AMOUNT_MAX),
+    max_amount: float = Query(None, ge=AMOUNT_MIN, le=AMOUNT_MAX),
+    start_date: str = Query(None, max_length=10),
+    end_date: str = Query(None, max_length=10),
     offset: int = Query(0, ge=0),
     skip: int = Query(None, ge=0),  # Alias for offset
-    limit: int = Query(100, le=1000),
+    limit: int = Query(100, ge=1, le=1000),
     db: Session = Depends(get_db)
 ):
     """Get money flows with optional filtering"""
     from datetime import datetime
+    
+    search = sanitize_search(search)
+    ok, err = validate_date(start_date)
+    if not ok:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=err)
+    ok, err = validate_date(end_date)
+    if not ok:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=err)
+    ok, err = validate_amount(min_amount)
+    if not ok:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=err)
+    ok, err = validate_amount(max_amount)
+    if not ok:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=err)
     
     query = db.query(MoneyFlow)
     
@@ -97,18 +134,12 @@ async def get_money_flows(
     
     # Date range filtering
     if start_date:
-        try:
-            start = datetime.strptime(start_date, "%Y-%m-%d").date()
-            query = query.filter(MoneyFlow.start_date >= start)
-        except ValueError:
-            pass  # Invalid date format, skip filter
+        start = datetime.strptime(start_date.strip(), "%Y-%m-%d").date()
+        query = query.filter(MoneyFlow.start_date >= start)
     
     if end_date:
-        try:
-            end = datetime.strptime(end_date, "%Y-%m-%d").date()
-            query = query.filter(MoneyFlow.start_date <= end)
-        except ValueError:
-            pass  # Invalid date format, skip filter
+        end = datetime.strptime(end_date.strip(), "%Y-%m-%d").date()
+        query = query.filter(MoneyFlow.start_date <= end)
     
     # Use skip if offset not provided (backwards compatibility)
     actual_offset = offset if offset > 0 else (skip or 0)
@@ -118,20 +149,29 @@ async def get_money_flows(
 
 @router.get("/awards", response_model=List[AwardResponse])
 async def get_awards(
-    search: str = Query(None),
-    agency: str = Query(None),
-    min_amount: float = Query(None),
-    max_amount: float = Query(None),
-    start_date: str = Query(None),
-    end_date: str = Query(None),
-    naics_code: str = Query(None),
+    search: str = Query(None, max_length=MAX_SEARCH_LENGTH),
+    agency: str = Query(None, max_length=MAX_SEARCH_LENGTH),
+    min_amount: float = Query(None, ge=AMOUNT_MIN, le=AMOUNT_MAX),
+    max_amount: float = Query(None, ge=AMOUNT_MIN, le=AMOUNT_MAX),
+    start_date: str = Query(None, max_length=10),
+    end_date: str = Query(None, max_length=10),
+    naics_code: str = Query(None, max_length=20),
     offset: int = Query(0, ge=0),
     skip: int = Query(None, ge=0),  # Alias for offset
-    limit: int = Query(100, le=1000),
+    limit: int = Query(100, ge=1, le=1000),
     db: Session = Depends(get_db)
 ):
     """Get awards with optional filtering"""
     from datetime import datetime
+    
+    search = sanitize_search(search)
+    agency = sanitize_search(agency)
+    ok, err = validate_date(start_date)
+    if not ok:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=err)
+    ok, err = validate_date(end_date)
+    if not ok:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=err)
     
     query = db.query(Award)
     
@@ -163,18 +203,12 @@ async def get_awards(
     
     # Date range filtering
     if start_date:
-        try:
-            start = datetime.strptime(start_date, "%Y-%m-%d").date()
-            query = query.filter(Award.action_date >= start)
-        except ValueError:
-            pass  # Invalid date format, skip filter
+        start = datetime.strptime(start_date.strip(), "%Y-%m-%d").date()
+        query = query.filter(Award.action_date >= start)
     
     if end_date:
-        try:
-            end = datetime.strptime(end_date, "%Y-%m-%d").date()
-            query = query.filter(Award.action_date <= end)
-        except ValueError:
-            pass  # Invalid date format, skip filter
+        end = datetime.strptime(end_date.strip(), "%Y-%m-%d").date()
+        query = query.filter(Award.action_date <= end)
     
     if naics_code:
         query = query.filter(Award.naics_code == naics_code)
@@ -187,14 +221,16 @@ async def get_awards(
 
 @router.get("/foia-targets", response_model=List[FOIATargetResponse])
 async def get_foia_targets(
-    search: str = Query(None),
-    agency: str = Query(None),
+    search: str = Query(None, max_length=MAX_SEARCH_LENGTH),
+    agency: str = Query(None, max_length=MAX_SEARCH_LENGTH),
     offset: int = Query(0, ge=0),
     skip: int = Query(None, ge=0),  # Alias for offset
-    limit: int = Query(100, le=1000),
+    limit: int = Query(100, ge=1, le=1000),
     db: Session = Depends(get_db)
 ):
     """Get FOIA targets with optional filtering"""
+    search = sanitize_search(search)
+    agency = sanitize_search(agency)
     query = db.query(FOIATarget)
     
     if search:
@@ -266,6 +302,115 @@ async def get_stats(db: Session = Depends(get_db)):
         date_range_start=min_date,
         date_range_end=max_date
     )
+
+
+@router.get("/materials-flows", response_model=List[MaterialsFlowResponse])
+async def get_materials_flows(
+    search: str = Query(None, max_length=MAX_SEARCH_LENGTH),
+    material_type: str = Query(None, max_length=100),
+    start_date: str = Query(None, max_length=10),
+    end_date: str = Query(None, max_length=10),
+    offset: int = Query(0, ge=0),
+    limit: int = Query(100, ge=1, le=1000),
+    db: Session = Depends(get_db)
+):
+    """Get materials/technology flows. Filter by search (source/target/description/relationship), material_type, and date range."""
+    from datetime import datetime
+    search = sanitize_search(search)
+    ok, err = validate_date(start_date)
+    if not ok:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=err)
+    ok, err = validate_date(end_date)
+    if not ok:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=err)
+    query = db.query(MaterialsFlow)
+    if search:
+        search_term = f"%{search}%"
+        query = query.filter(
+            or_(
+                MaterialsFlow.source.ilike(search_term),
+                MaterialsFlow.target.ilike(search_term),
+                MaterialsFlow.description.ilike(search_term),
+                MaterialsFlow.relationship.ilike(search_term),
+            )
+        )
+    if material_type:
+        query = query.filter(MaterialsFlow.material_type.ilike(f"%{material_type}%"))
+    if start_date:
+        start = datetime.strptime(start_date.strip(), "%Y-%m-%d").date()
+        query = query.filter(MaterialsFlow.start_date >= start)
+    if end_date:
+        end = datetime.strptime(end_date.strip(), "%Y-%m-%d").date()
+        query = query.filter(MaterialsFlow.start_date <= end)
+    return query.order_by(MaterialsFlow.start_date.desc().nullslast()).offset(offset).limit(limit).all()
+
+
+@router.get("/connections")
+async def get_connections(
+    entity_id: str = Query(None, max_length=MAX_SEARCH_LENGTH),
+    entity_name: str = Query(None, max_length=MAX_SEARCH_LENGTH),
+    db: Session = Depends(get_db)
+):
+    """Unified view of relationships, money flows, and materials flows for one entity.
+    Provide entity_id or entity_name (display_name); name is matched case-insensitive partial."""
+    if not entity_id and not entity_name:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Provide entity_id or entity_name"
+        )
+    entity_id = sanitize_search(entity_id)
+    entity_name = sanitize_search(entity_name)
+    name_term = f"%{entity_name}%" if entity_name else None
+    entity = None
+    if entity_id:
+        ok, err = validate_entity_id(entity_id)
+        if not ok:
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=err)
+        entity = db.query(Entity).filter(Entity.entity_id == entity_id).first()
+        if entity:
+            search_name = entity.display_name
+        else:
+            search_name = entity_id
+    else:
+        search_name = entity_name
+        entity = db.query(Entity).filter(Entity.display_name.ilike(f"%{entity_name}%")).first()
+        if entity:
+            search_name = entity.display_name
+    relationships = db.query(Relationship).filter(
+        (Relationship.source.ilike(f"%{search_name}%")) |
+        (Relationship.target.ilike(f"%{search_name}%"))
+    ).all()
+    money_flows = db.query(MoneyFlow).filter(
+        (MoneyFlow.source.ilike(f"%{search_name}%")) |
+        (MoneyFlow.target.ilike(f"%{search_name}%"))
+    ).all()
+    materials_flows = db.query(MaterialsFlow).filter(
+        (MaterialsFlow.source.ilike(f"%{search_name}%")) |
+        (MaterialsFlow.target.ilike(f"%{search_name}%"))
+    ).all()
+    entity_data = None
+    if entity:
+        entity_data = {
+            "entity_id": entity.entity_id,
+            "display_name": entity.display_name,
+            "entity_type": entity.entity_type,
+            "intel_stack_level": entity.intel_stack_level,
+        }
+    return {
+        "entity": entity_data,
+        "relationships": [
+            {"source": r.source, "target": r.target, "label": r.label, "description": getattr(r, "description", None), "relationship_type": getattr(r, "relationship_type", None)}
+            for r in relationships
+        ],
+        "money_flows": [
+            {"source": m.source, "target": m.target, "amount_usd": m.amount_usd, "relationship": m.relationship}
+            for m in money_flows
+        ],
+        "materials_flows": [
+            {"source": m.source, "target": m.target, "material_type": m.material_type, "relationship": m.relationship}
+            for m in materials_flows
+        ],
+    }
 
 
 @router.get("/version")

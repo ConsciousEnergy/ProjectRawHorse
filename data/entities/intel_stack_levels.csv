@@ -1,0 +1,258 @@
+display_name,intel_stack_level
+# Level 1 - Control Group
+JASON Advisory Panel,1
+National Security Council,1
+NSC,1
+JASON,1
+NPMS,1
+Dick Cheney,1
+Gen Hoyt Vandenberg,1
+# Level 2 - Administrators
+NRO,2
+NGA,2
+CIA,2
+DIA,2
+NSA,2
+SAF-AQ,2
+AFTTE,2
+Office of Secretary of Defense,2
+OSD,2
+Department of the Air Force,2
+Air Force Acquisition (SAF-AQ),2
+Air Force Rapid Capabilities Office,2
+Rapid Capabilities Office,2
+USD INS,2
+Terry Phillips,2
+Lee M. Russ,2
+Russell E. Wiler,2
+William E. McClure,2
+Randall G. Walden,2
+Lt Gen Donna D. Shipton,2
+Maj Gen Dawn M. Dunlop,2
+Lawrence J. Delaney,2
+Sue Payton,2
+Maj Gen Neil McCasland,2
+Christopher Mellon,2
+Ronald S. Moultrie,2
+Brig Gen Terry Bullard,2
+SAF AQ,2
+SAF AQL,2
+SAF AQX,2
+SAF AQR,2
+SAF AAH,2
+SAF AAZ,2
+AFTTE,2
+AFTTEZ,2
+AFOSIPJ,2
+Air Force Material Command,2
+Air Force Life Cycle Management Center,2
+Air Combat Command,2
+Air Force Special Operations Command,2
+Air Mobility Command,2
+Joint Special Operations Command,2
+160th SOAR,2
+24th STS,2
+National Air and Space Intelligence Center,2
+Guardian Angel Program,2
+Yankee Black,2
+Department of the Air Force,2
+Headquarters Air Force,2
+Air Force Sensitive Activities (SAF-AAH),2
+Air Force Security/Special Programs Oversight (SAF-AAZ),2
+Air Force T&E Policy and Programs (AFTEP),2
+Air Force T&E Resource Integration (AFTER),2
+Air Force T&E Special Programs (AFTEZ),2
+Under Secretary of Defense for Acquisition and Sustainment,2
+Air Material Command,2
+Air Research and Development Command,2
+Air Force Systems Command,2
+National Reconnaissance Office,2
+National Geospatial-Intelligence Agency,2
+CIA Directorate of Science and Technology,2
+Department of Energy,2
+DOE Office of Intelligence and Counter Intelligence,2
+DOE Nuclear Emergency Support Team,2
+DARPA Security and Intelligence Directorate,2
+Office of Global Access,2
+Deputy Director for National Intelligence for Acquisition Technology and Facilities,2
+Office of Under Secretary of Defense for Acquisition and Sustainment,2
+All-domain Anomaly Resolution Office,2
+OGA,2
+DDNI ATNF,2
+OUSD,2
+AARO,2
+DCSA,2
+DOE,2
+DOE OICI,2
+DOE NEST,2
+DARPA SID,2
+NNSA,2
+NASA,2
+DARPA,2
+# Level 3 - FFRDCs
+MITRE,3
+Battelle,3
+Sandia National Laboratories,3
+LANL,3
+Los Alamos National Laboratory,3
+Aerospace Corporation,3
+RAND Corporation,3
+Institute for Defense Analyses,3
+IDA,3
+AFRL,3
+Air Force Research Laboratory,3
+Dr. Eric Henry Wang,3
+Air Force Test Center,3
+Air Force Test Pilot School,3
+Aphotech,3
+Air Force Special Weapons Center,3
+Langley Air Force Base,3
+Hill Air Force Base,3
+MITER Corporation,3
+Battel Memorial Institute,3
+Lawrence Livermore National Laboratory,3
+Oak Ridge National Laboratory,3
+Y12 National Security Complex,3
+MITRE Corporation,3
+Pacific Northwest National Laboratory,3
+Idaho National Laboratory,3
+Argonne National Laboratory,3
+Brookhaven National Laboratory,3
+National Renewable Energy Laboratory,3
+The Aerospace Corporation,3
+Institute for Defense Analyses (IDA),3
+Center for Naval Analyses (CNA),3
+Jet Propulsion Laboratory (JPL),3
+Johns Hopkins Applied Physics Laboratory (APL),3
+Software Engineering Institute (SEI),3
+RAND FFRDCs (NDRI/PAF/Arroyo),3
+NCAR (NSF),3
+National Cybersecurity FFRDC (NCF),3
+Frederick National Laboratory for Cancer Research (FNLCR),3
+Lawrence Livermore,3
+Los Alamos,3
+Oak Ridge,3
+MITER,3
+Battel,3
+Sandia,3
+# Level 4 - Prime Contractors
+Lockheed Martin,4
+Northrop Grumman,4
+Boeing,4
+Raytheon,4
+Leidos,4
+SAIC,4
+Peraton,4
+The SI Organization,4
+Lockheed Martin EIG,4
+BDM International,4
+Martin Marietta,4
+TRW Inc,4
+LTV Aerospace,4
+E Systems,4
+NSF Dahlgren,4
+NSWC Crane,4
+Robert Cardillo,4
+Veritas Capital,4
+QinetiQ North America SSG,4
+Vencore,4
+Perspecta,4
+Northrop Grumman Federal IT/MSS,4
+Arcfield,4
+BlackSky Technology Inc.,4
+Maxar Technologies,4
+Planet Labs PBC,4
+Airbus U.S. Space & Defense Inc.,4
+Capella Space,4
+ICEYE US Inc.,4
+PredaSAR (Terran Orbital),4
+Umbra Lab Inc.,4
+Aurora Insight,4
+HawkEye 360 Inc.,4
+Kleos Space Inc.,4
+Spire Global Inc.,4
+HyperSat,4
+Orbital Sidekick,4
+Pixxel,4
+Xplore Inc.,4
+Hydrosat,4
+Albedo Space,4
+Muon Space,4
+Turion Space,4
+Airbus U.S. Space & Defense, Inc.,4
+ICEYE US, Inc.,4
+Spire Global, Inc.,4
+Lockheed Martin (Skunk Works),4
+Boeing (Phantom Works),4
+Raytheon (RTX),4
+BAE Systems,4
+Booz Allen Hamilton,4
+L3Harris,4
+Parsons Corporation,4
+Peraton Enterprise Solutions,4
+Peraton Labs,4
+Peraton Technology Services,4
+PAR Government,4
+Anduril,4
+Palantir,4
+General Atomics,4
+Sierra Nevada Corporation (SNC),4
+Kratos Defense & Security,4
+EG&G,4
+Bigelow Aerospace Advanced Space Studies,4
+BAASS,4
+General Dynamics,4
+Advanced Ceramic Fibers, L.L.C.,4
+Aegis Technologies Group, LLC (The),4
+HYPRES, Inc.,4
+Intrinsic Semiconductor Corp.,4
+Plasmonics Inc.,4
+SEEQC, Inc.,4
+Sivananthan Laboratories, Inc.,4
+UES Inc.,4
+UES Services, Inc.,4
+# Level 5 - Facilities
+Area 51,5
+Edwards AFB,5
+Edwards Air Force Base,5
+Air Force Plant 42,5
+Plant 42,5
+Dugway,5
+Wright-Patterson,5
+Wright-Patterson AFB,5
+Nellis AFB,5
+Tonopah,5
+Utah Test and Training Range,5
+412th Test Wing,5
+Hidden Wing,5
+TR-3B,5
+Utah Test and Training Range,5
+Nevada Test and Training Range,5
+Tonopah Test Range,5
+S4,5
+Groom Lake,5
+Dugway Proving Ground,5
+Wright-Patterson Air Force Base,5
+Pine Gap,5
+Fort Detrick,5
+NTR,5
+TTR,5
+Y12 Complex,5
+White Sands Missile Range,5
+# Level 6 - Programs
+Immaculate Constellation,6
+Hidden Wing,6
+TR-3B,6
+Kona Blue,6
+B-21 Raider,6
+X-37B,6
+X-37B Orbital Test Vehicle,6
+Guardian Angel Program,6
+Yankee Black,6
+Project Preserve Destiny,6
+Project Looking Glass,6
+Project Twinkle,6
+Advanced Theoretical Physics Working Group,6
+DODI S-5210.36 Sensitive Support Directive,6
+Project Blue Book,6
+(Program) NRO CSPO Commercial Foundation,6

@@ -57,18 +57,41 @@ else
     esac
 fi
 
+# Pre-flight: Python version
+if ! command -v python3 &> /dev/null && ! command -v python &> /dev/null; then
+    echo -e "${RED}[ERROR] Python not found. Run ./install.sh or add Python to PATH.${NC}"
+    exit 1
+fi
+
 # Check if backend exists
 if [ ! -f "$SCRIPT_DIR/backend/main.py" ]; then
     echo -e "${RED}[ERROR] Backend not found at: $SCRIPT_DIR/backend${NC}"
-    echo ""
     echo "Please ensure you're running this from the Project RawHorse directory."
     exit 1
 fi
 
 echo -e "${GREEN}[OK] Backend found${NC}"
 
-# Check if static files exist (frontend build)
+# Database directory
+[ ! -d "$SCRIPT_DIR/data" ] && mkdir -p "$SCRIPT_DIR/data" && echo -e "${GREEN}[OK] Data directory created${NC}"
+
+# Auto-rebuild frontend if static is missing or stale (source newer than static)
+REBUILD=0
 if [ ! -f "$SCRIPT_DIR/backend/static/index.html" ]; then
+    REBUILD=1
+elif [ -d "$SCRIPT_DIR/frontend/src" ] && [ -d "$SCRIPT_DIR/backend/static" ]; then
+    SRC_NEWEST=$(find "$SCRIPT_DIR/frontend/src" -type f -exec stat -c %Y {} \; 2>/dev/null | sort -n | tail -1)
+    STAT_TIME=$(stat -c %Y "$SCRIPT_DIR/backend/static/index.html" 2>/dev/null)
+    [ -n "$SRC_NEWEST" ] && [ -n "$STAT_TIME" ] && [ "$SRC_NEWEST" -gt "$STAT_TIME" ] && REBUILD=1
+fi
+# macOS stat uses -f %m
+if [ $REBUILD -eq 0 ] && [ -d "$SCRIPT_DIR/frontend/src" ] && [ -f "$SCRIPT_DIR/backend/static/index.html" ]; then
+    SRC_NEWEST=$(find "$SCRIPT_DIR/frontend/src" -type f -exec stat -f %m {} \; 2>/dev/null | sort -n | tail -1)
+    STAT_TIME=$(stat -f %m "$SCRIPT_DIR/backend/static/index.html" 2>/dev/null)
+    [ -n "$SRC_NEWEST" ] && [ -n "$STAT_TIME" ] && [ "$SRC_NEWEST" -gt "$STAT_TIME" ] && REBUILD=1
+fi
+
+if [ $REBUILD -eq 1 ]; then
     echo -e "${YELLOW}[!] Frontend not built - building now...${NC}"
     echo ""
     if [ -f "$SCRIPT_DIR/frontend/package.json" ]; then
@@ -93,16 +116,19 @@ echo "Starting server at http://127.0.0.1:8000"
 echo "Your browser will open automatically."
 echo ""
 echo "Press Ctrl+C to stop the server when done."
+echo "Use ./START.sh --dev for development mode with hot reload."
 echo "================================================================"
 echo ""
 
 # Activate virtual environment and start backend
 source "$VENV_PATH/bin/activate"
 cd "$SCRIPT_DIR/backend"
+PYTHON_CMD=python3
+command -v python3 &> /dev/null || PYTHON_CMD=python
 
-# Use python3 if available, otherwise python
-if command -v python3 &> /dev/null; then
-    python3 main.py
+if [ "$1" = "--dev" ]; then
+    echo -e "${GREEN}[DEV] Starting with hot reload...${NC}"
+    $PYTHON_CMD -m uvicorn main:app --reload --host 127.0.0.1 --port 8000
 else
-    python main.py
+    $PYTHON_CMD main.py
 fi

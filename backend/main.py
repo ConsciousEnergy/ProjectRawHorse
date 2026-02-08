@@ -3,12 +3,21 @@ Project RawHorse - FastAPI Backend
 Main application entry point
 """
 import os
+import time
 import webbrowser
 import yaml
-from fastapi import FastAPI
+
+# Load .env from project root (parent of backend/)
+_PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_env_path = os.path.join(_PROJECT_ROOT, ".env")
+if os.path.isfile(_env_path):
+    from dotenv import load_dotenv
+    load_dotenv(_env_path)
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
+from starlette.middleware.base import BaseHTTPMiddleware
 from contextlib import asynccontextmanager
 import logging
 
@@ -17,8 +26,98 @@ from data_loader import load_all_data, is_database_populated
 from dependencies import set_session_local, get_db
 from routers import data, analysis, export_router, contribute, search, auth_router
 
+# Rate limiting: global API 100/min; auth 10/min (applied in auth_router via slowapi)
+def _rate_limit_per_minute() -> int:
+    return int(os.environ.get("RATE_LIMIT_PER_MINUTE", "100"))
+
+
+try:
+    from limiter import limiter as LIMITER, SLOWAPI_AVAILABLE
+    if SLOWAPI_AVAILABLE:
+        from slowapi import _rate_limit_exceeded_handler
+        from slowapi.errors import RateLimitExceeded
+except ImportError:
+    LIMITER = None
+    SLOWAPI_AVAILABLE = False
+    RateLimitExceeded = None
+    _rate_limit_exceeded_handler = None
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Security: max request body size (10MB)
+MAX_REQUEST_BODY_BYTES = 10 * 1024 * 1024
+
+# Trusted Hosts (empty = allow any; set via TRUSTED_HOSTS env for production)
+def _trusted_hosts():
+    raw = os.environ.get("TRUSTED_HOSTS", "").strip()
+    if not raw:
+        return None  # allow any
+    return [h.strip() for h in raw.split(",") if h.strip()]
+
+
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    """Add security-related HTTP headers to all responses."""
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["X-XSS-Protection"] = "1; mode=block"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
+        return response
+
+
+class RequestSizeLimitMiddleware(BaseHTTPMiddleware):
+    """Reject requests with body larger than MAX_REQUEST_BODY_BYTES."""
+    async def dispatch(self, request: Request, call_next):
+        content_length = request.headers.get("content-length")
+        if content_length and int(content_length) > MAX_REQUEST_BODY_BYTES:
+            return JSONResponse(
+                status_code=413,
+                content={"detail": "Request body too large (max 10MB)"},
+            )
+        return await call_next(request)
+
+
+class TrustedHostMiddleware(BaseHTTPMiddleware):
+    """Reject requests whose Host header is not in the allowed list (if configured)."""
+    async def dispatch(self, request: Request, call_next):
+        allowed = _trusted_hosts()
+        if not allowed:
+            return await call_next(request)
+        host = request.headers.get("host", "").split(":")[0]
+        if host not in allowed:
+            return JSONResponse(status_code=400, content={"detail": "Invalid Host header"})
+        return await call_next(request)
+
+
+# In-memory rate limit: (key -> list of timestamps), prune older than 1 minute
+_rate_limit_store: dict = {}
+_rate_limit_window_sec = 60
+
+
+class RateLimitMiddleware(BaseHTTPMiddleware):
+    """Global API rate limit (e.g. 100 requests per minute per IP). Auth routes use slower limit in auth_router."""
+    async def dispatch(self, request: Request, call_next):
+        path = request.url.path
+        if path.rstrip("/").endswith("/api/auth/login") or path.rstrip("/").endswith("/api/auth/refresh"):
+            return await call_next(request)  # Auth has its own 10/min via slowapi
+        key = request.client.host if request.client else "unknown"
+        now = time.time()
+        if key not in _rate_limit_store:
+            _rate_limit_store[key] = []
+        times = _rate_limit_store[key]
+        times.append(now)
+        # Prune older than 1 minute
+        cutoff = now - _rate_limit_window_sec
+        _rate_limit_store[key] = [t for t in times if t > cutoff]
+        if len(_rate_limit_store[key]) > _rate_limit_per_minute():
+            return JSONResponse(
+                status_code=429,
+                content={"detail": "Too many requests. Try again later."},
+            )
+        return await call_next(request)
 
 # Get project root directory (parent of backend/)
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -75,13 +174,22 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Configure CORS
+# Rate limiting (slowapi) for auth routes
+if SLOWAPI_AVAILABLE and LIMITER is not None:
+    app.state.limiter = LIMITER
+    app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+# Security middleware (order: first added = outermost)
+app.add_middleware(TrustedHostMiddleware)
+app.add_middleware(RequestSizeLimitMiddleware)
+app.add_middleware(SecurityHeadersMiddleware)
+app.add_middleware(RateLimitMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "OPTIONS", "PUT", "DELETE"],
+    allow_headers=["Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With"],
 )
 
 # Include routers

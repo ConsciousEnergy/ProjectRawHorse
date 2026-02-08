@@ -16,6 +16,23 @@ function About() {
       </div>
 
       <div className="card">
+        <h3>Repository</h3>
+        <p>
+          Source code, releases, and contribution guidelines are hosted on GitHub:
+        </p>
+        <p style={{ marginTop: '12px' }}>
+          <a
+            href="https://github.com/ConsciousEnergy/ProjectRawHorse"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: 'var(--color-primary)', fontWeight: 600 }}
+          >
+            https://github.com/ConsciousEnergy/ProjectRawHorse
+          </a>
+        </p>
+      </div>
+
+      <div className="card">
         <h3>Data Sources and Attribution</h3>
         <p>
           This project incorporates research and analysis from the following sources. We are deeply 

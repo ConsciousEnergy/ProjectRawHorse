@@ -581,3 +581,19 @@
     max-width: none;
   }
 }
+
+/* Pyramid link in entities table */
+.browse-pyramid-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8px;
+  padding: 4px;
+  border-radius: 4px;
+  color: var(--primary-color, #5B4FFF);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.browse-pyramid-link:hover {
+  background: var(--border-color);
+  color: var(--text-primary);
+}

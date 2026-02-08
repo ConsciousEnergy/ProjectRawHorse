@@ -7,6 +7,7 @@ import Browse from './pages/Browse';
 import Analysis from './pages/Analysis';
 import AnalysisOverview from './pages/AnalysisOverview';
 import NetworkGraphPage from './pages/NetworkGraphPage';
+import PyramidPage from './pages/PyramidPage';
 import SankeyDiagramPage from './pages/SankeyDiagramPage';
 import Export from './pages/Export';
 import Contribute from './pages/Contribute';
@@ -105,6 +106,7 @@ function App() {
               <Route path="/analysis" element={<AnalysisOverview />} />
               <Route path="/analysis/network" element={<NetworkGraphPage />} />
               <Route path="/analysis/sankey" element={<SankeyDiagramPage />} />
+              <Route path="/analysis/pyramid" element={<PyramidPage />} />
               <Route path="/analysis/legacy" element={<Analysis />} />
               <Route path="/export" element={<Export />} />
               <Route path="/contribute" element={<Contribute />} />

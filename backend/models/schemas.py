@@ -1,5 +1,9 @@
 """
-Pydantic models for data validation and API schemas
+Pydantic models for data validation and API schemas.
+
+Sections: Entity, MoneyFlow, Award, FOIATarget, Relationship, MaterialsFlow,
+query params, Stats, Graph, Sankey, DataVersion, Export, Contribution,
+Pyramid/Intel Stack (PyramidEntitySummary, PyramidLevelSummary, CrossLevelFlow, PyramidDataResponse).
 """
 from typing import Optional, List
 from datetime import datetime, date
@@ -19,6 +23,7 @@ class EntityCreate(EntityBase):
 
 
 class EntityResponse(EntityBase):
+    intel_stack_level: Optional[int] = None
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -96,6 +101,11 @@ class RelationshipBase(BaseModel):
     source: str
     target: str
     label: str
+    description: Optional[str] = None
+    relationship_type: Optional[str] = None
+    source_citation: Optional[str] = None
+    start_date: Optional[date] = None
+    end_date: Optional[date] = None
 
 
 class RelationshipCreate(RelationshipBase):
@@ -104,6 +114,26 @@ class RelationshipCreate(RelationshipBase):
 
 class RelationshipResponse(RelationshipBase):
     id: int
+    model_config = ConfigDict(from_attributes=True)
+
+
+# Materials Flow Models
+class MaterialsFlowBase(BaseModel):
+    source: str
+    target: str
+    material_type: Optional[str] = None
+    relationship: Optional[str] = None
+    description: Optional[str] = None
+    start_date: Optional[date] = None
+    end_date: Optional[date] = None
+    source_citation: Optional[str] = None
+
+
+class MaterialsFlowResponse(MaterialsFlowBase):
+    id: int
+    edge_id: Optional[str] = None
+    source_norm: Optional[str] = None
+    target_norm: Optional[str] = None
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -220,3 +250,53 @@ class ContributionResponse(BaseModel):
     success: bool
     message: str
     pr_url: Optional[str] = None
+
+
+# Pyramid / Intel Stack (GET /analysis/intel-stack/pyramid and /summary)
+class PyramidEntitySummary(BaseModel):
+    entity_id: str
+    display_name: str
+    entity_type: Optional[str] = None
+    description: Optional[str] = None
+    relationship_count: int = 0
+    money_flow_total_usd: float = 0.0
+    key_connections: List[str] = []
+    hierarchy_parent: Optional[str] = None
+
+
+class PyramidLevelSummary(BaseModel):
+    level: int
+    name: str
+    color: str
+    entity_count: int
+    total_money_flow_usd: float
+    entities: List[PyramidEntitySummary]
+
+
+class CrossLevelFlow(BaseModel):
+    from_level: int
+    to_level: int
+    total_usd: float
+    flow_count: int
+
+
+class PyramidDataResponse(BaseModel):
+    """Response for GET /analysis/intel-stack/pyramid."""
+    levels: List[PyramidLevelSummary]
+    cross_level_flows: List[CrossLevelFlow]
+
+
+# Hierarchy chain (GET /analysis/intel-stack/hierarchy)
+class HierarchyNode(BaseModel):
+    entity_id: str
+    display_name: str
+    intel_stack_level: Optional[int] = None
+    entity_type: Optional[str] = None
+
+
+class HierarchyChain(BaseModel):
+    """Chain of command from a given entity up toward L1 and down toward L6."""
+    target: HierarchyNode
+    chain_up: List[HierarchyNode] = []
+    chain_down: List[HierarchyNode] = []
+    lateral: List[HierarchyNode] = []
