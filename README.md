@@ -29,6 +29,8 @@ A cross-platform, single-click desktop application for exploring and analyzing p
 ## Screenshots of Applications UI
 <img width="1904" height="953" alt="PRHScreenshot_7" src="https://github.com/user-attachments/assets/71df00eb-2c17-42c1-b2f4-16212c8a507a" />
 
+<img width="1906" height="952" alt="PRHScreenshot_1" src="https://github.com/user-attachments/assets/9b8c04a2-3dc2-4ac0-99a4-39385f314dda" />
+
 <img width="1903" height="952" alt="PRHScreenshot_6" src="https://github.com/user-attachments/assets/3b6c65f8-a9ee-4db8-9cee-a8351cc08c17" />
 
 <img width="1905" height="953" alt="PRHScreenshot_5" src="https://github.com/user-attachments/assets/bb8410f5-8be8-4d12-ac95-b5ff2fdf099b" />
@@ -40,8 +42,6 @@ A cross-platform, single-click desktop application for exploring and analyzing p
 <img width="1904" height="946" alt="PRHIntelStackPyramidScreenshot_2" src="https://github.com/user-attachments/assets/6ebd4ca9-d345-499a-b31e-d22666105e97" />
 
 <img width="1906" height="954" alt="PRHScreenshot_3" src="https://github.com/user-attachments/assets/138009a8-301b-4777-a880-321e3de28b8b" />
-
-<img width="1906" height="952" alt="PRHScreenshot_1" src="https://github.com/user-attachments/assets/9b8c04a2-3dc2-4ac0-99a4-39385f314dda" />
 
 
 ## Features
