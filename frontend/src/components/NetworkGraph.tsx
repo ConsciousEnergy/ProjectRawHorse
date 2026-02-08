@@ -507,10 +507,13 @@ function NetworkGraph({ filterLevels = [] }: NetworkGraphProps) {
         graphData={graphData}
         aria-label="Interactive entity relationship network graph"
         nodeLabel={(node: any) => {
-          // Build tooltip with full name if available
-          let label = node.name;
-          if (node.full_name) {
+          // Build tooltip with full name if available; fallback to node ID if name empty
+          const displayName = node.name || node.id || 'Unknown';
+          let label = displayName;
+          if (node.full_name && node.name) {
             label = `${node.name} - ${node.full_name}`;
+          } else if (node.full_name) {
+            label = `${displayName} - ${node.full_name}`;
           }
           if (node.type) {
             label += ` (${node.type})`;
@@ -551,7 +554,7 @@ function NetworkGraph({ filterLevels = [] }: NetworkGraphProps) {
         cooldownTicks={300}    // More cooldown for final positioning
         cooldownTime={8000}     // Longer cooldown time
         nodeCanvasObject={(node: any, ctx, globalScale) => {
-          const label = node.name;
+          const label = node.name || node.id || 'Unknown';
           const nodeSize = getNodeSize(node);
           const fontSize = Math.max(10, 14/globalScale);
           ctx.font = `${fontSize}px Sans-Serif`;
