@@ -1,0 +1,27 @@
+source,target,label,relationship_type,description,source_citation
+# L2 reporting to L1 / OSD
+NRO,Office of Secretary of Defense,reports_to,reports_to,NRO reports to Secretary of Defense via OSD; ODNI provides day-to-day oversight,Project RawHorse hierarchy
+NRO,National Security Council,reports_to,reports_to,NRO supports NSC with classified imagery and collection,Project RawHorse hierarchy
+CIA,National Security Council,reports_to,reports_to,CIA Director reports to President and NSC,Project RawHorse hierarchy
+DIA,USD INS,reports_to,reports_to,DIA under Under Secretary of Defense for Intelligence and Security,Project RawHorse hierarchy
+NSA,USD INS,reports_to,reports_to,NSA under USD INS for DoD intelligence,Project RawHorse hierarchy
+NGA,USD INS,reports_to,reports_to,NGA combat support agency under USD INS,Project RawHorse hierarchy
+AARO,USD INS,reports_to,reports_to,AARO established under USD INS (Ronald Moultrie),Project RawHorse hierarchy
+NPMS,USD INS,part_of,part_of,National Program Special Management Staff coordinates SAPs under USD INS,Project RawHorse hierarchy
+DARPA,Office of Secretary of Defense,reports_to,reports_to,DARPA reports to OSD and USD R&E,Project RawHorse hierarchy
+OUSD,Office of Secretary of Defense,subordinate_to,subordinate_to,OUSD A&S is subordinate to OSD,Project RawHorse hierarchy
+DDNI ATNF,Office of Secretary of Defense,reports_to,reports_to,DDNI ATNF oversees NRO acquisition under ODNI/DNI who report to President,Project RawHorse hierarchy
+SAF AQ,Department of the Air Force,subordinate_to,subordinate_to,Assistant Secretary of the Air Force for Acquisition under Secretary of the Air Force,Project RawHorse hierarchy
+Air Force Material Command,Department of the Air Force,subordinate_to,subordinate_to,AFMC is a MAJCOM under DAF,Project RawHorse hierarchy
+Rapid Capabilities Office,SAF AQ,part_of,part_of,RCO resides within Air Force Acquisition,Project RawHorse hierarchy
+AFRL,Air Force Material Command,subordinate_to,subordinate_to,AFRL is under AFMC,Project RawHorse hierarchy
+Air Force Test Center,Air Force Material Command,subordinate_to,subordinate_to,AFTC under AFMC,Project RawHorse hierarchy
+412th Test Wing,Air Force Test Center,subordinate_to,subordinate_to,412th Test Wing at Edwards under AFTC,Project RawHorse hierarchy
+SAF AAH,USD INS,operates_under,operates_under,Sensitive Activities governed by USD INS directives,Project RawHorse hierarchy
+DOE OICI,DOE,subordinate_to,subordinate_to,DOE OICI reports to DOE,Project RawHorse hierarchy
+DOE NEST,DOE,subordinate_to,subordinate_to,NEST is a DOE asset,Project RawHorse hierarchy
+Air Force Plant 42,Department of the Air Force,operates_at,operates_at,GOCO facility operated by contractors under DAF,Project RawHorse hierarchy
+Edwards Air Force Base,412th Test Wing,based_at,based_at,Edwards AFB is home of 412th Test Wing,Project RawHorse hierarchy
+Area 51,412th Test Wing,operates,operates,412th operates Area 51 sites per testimony,Project RawHorse hierarchy
+Nevada Test and Training Range,Department of the Air Force,operates_at,operates_at,MRTFB under DAF,Project RawHorse hierarchy
+Utah Test and Training Range,412th Test Wing,operates_in,operates_in,Western Ranges flight test operations,Project RawHorse hierarchy

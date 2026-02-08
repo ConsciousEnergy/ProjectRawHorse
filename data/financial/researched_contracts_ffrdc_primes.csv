@@ -1,0 +1,9 @@
+source,target,relationship,amount_usd,start_date,end_date,source_citation,edge_id
+Washington Headquarters Services,Institute for Defense Analyses,FFRDC Research and Analysis,180000000,2024-01-19,,Defense.gov Contracts Jan 2024; GovCon Wire; modification P00005,res_ida_180m_2024
+DoD,Institute for Defense Analyses,FFRDC contract ceiling,950700000,2019-04-30,2024-06-30,Defense.gov Contracts Apr 2019; IDA HQ003419D0001,res_ida_950m_2019
+DoD,RAND Corporation,Policy research and analysis,,,,"USAspending.gov; RAND Annual Report 2023",res_rand_dod
+Space Force,Aerospace Corporation,FFRDC systems engineering,,,,"NSF FFRDC R&D Survey 2024; Aerospace.org",res_aero_spaceforce
+NRO,Aerospace Corporation,FFRDC support,,,,"NRO budget justifications; Aerospace Corp annual report",res_aero_nro
+DOE,Battelle,Oak Ridge National Laboratory management,,,,"DOE M&O contracts; ORNL.gov",res_battelle_ornl
+DOE,Sandia National Laboratories,Management and operating,,,,"DOE SNL M&O; Sandia.gov",res_sandia_mo
+SAIC,DoD,Legacy contracts post-Leidos split,,,,"USAspending.gov; Leidos spin-off 2013",res_saic_legacy

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Network, GitBranch, BarChart3, TrendingUp, Triangle, Lock } from 'lucide-react';
+import { Network, GitBranch, BarChart3, TrendingUp, Triangle } from 'lucide-react';
 
 function AnalysisOverview() {
   return (
@@ -50,14 +50,14 @@ function AnalysisOverview() {
           <span className="viz-card-arrow">→</span>
         </Link>
 
-        <div className="viz-card viz-card-coming-soon">
-          <div className="viz-card-icon" style={{ background: 'linear-gradient(135deg, #6b7280, #9ca3af)' }}>
+        <Link to="/analysis/pyramid" className="viz-card">
+          <div className="viz-card-icon" style={{ background: 'linear-gradient(135deg, #dc2626, #ea580c)' }}>
             <Triangle size={48} />
           </div>
           <div className="viz-card-content">
             <h3>
               Intelligence Stack Pyramid
-              <span className="coming-soon-badge">Coming Soon</span>
+              <span className="viz-card-beta-badge">Beta</span>
             </h3>
             <p>
               Hierarchical visualization of U.S. intelligence agencies and their roles in 
@@ -78,10 +78,8 @@ function AnalysisOverview() {
               <div className="pyramid-tier tier-6">Programs (Immaculate Constellation, Kona Blue)</div>
             </div>
           </div>
-          <span className="viz-card-lock">
-            <Lock size={20} />
-          </span>
-        </div>
+          <span className="viz-card-arrow">→</span>
+        </Link>
       </div>
 
       <div className="card">
@@ -181,22 +179,10 @@ function AnalysisOverview() {
           opacity: 1;
         }
 
-        .viz-card-coming-soon {
-          opacity: 0.85;
-          cursor: default;
-          border-style: dashed;
-        }
-
-        .viz-card-coming-soon:hover {
-          transform: none;
-          box-shadow: none;
-          border-color: var(--border-color);
-        }
-
-        .coming-soon-badge {
+        .viz-card-beta-badge {
           display: inline-block;
           font-size: 0.7rem;
-          background: linear-gradient(135deg, #f59e0b, #d97706);
+          background: linear-gradient(135deg, #10b981, #059669);
           color: white;
           padding: 2px 8px;
           border-radius: 4px;
@@ -204,14 +190,6 @@ function AnalysisOverview() {
           vertical-align: middle;
           font-weight: 600;
           text-transform: uppercase;
-        }
-
-        .viz-card-lock {
-          position: absolute;
-          right: 20px;
-          top: 50%;
-          transform: translateY(-50%);
-          color: var(--text-muted);
         }
 
         .pyramid-preview {

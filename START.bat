@@ -66,6 +66,14 @@ exit /b %errorlevel%
 echo [OK] Found virtual environment
 echo.
 
+REM Pre-flight: Python version
+python --version >nul 2>&1
+if errorlevel 1 (
+    echo [ERROR] Python not found in PATH. Run install.bat or add Python to PATH.
+    pause
+    exit /b 1
+)
+
 REM Check if backend exists
 if not exist "%SCRIPT_DIR%backend\main.py" (
     echo [ERROR] Backend not found at: %SCRIPT_DIR%backend
@@ -78,7 +86,11 @@ if not exist "%SCRIPT_DIR%backend\main.py" (
 echo [OK] Backend found
 echo.
 
-REM Check if static files exist (frontend build)
+REM Check database exists (optional; app will create if missing)
+if not exist "%SCRIPT_DIR%data" mkdir "%SCRIPT_DIR%data"
+echo [OK] Data directory ready
+
+REM Check if static files exist (frontend build); rebuild if missing
 if not exist "%SCRIPT_DIR%backend\static\index.html" (
     echo [!] Frontend not built - building now...
     echo.
@@ -102,12 +114,18 @@ echo Starting server at http://127.0.0.1:8000
 echo Your browser will open automatically.
 echo.
 echo Press Ctrl+C to stop the server when done.
+echo Use START.bat --dev for development mode with hot reload.
 echo ================================================================
 echo.
 
 REM Activate virtual environment and start backend
 call "%VENV_PATH%\Scripts\activate.bat"
 cd "%SCRIPT_DIR%backend"
-python main.py
+if "%~1"=="--dev" (
+    echo [DEV] Starting with hot reload...
+    python -m uvicorn main:app --reload --host 127.0.0.1 --port 8000
+) else (
+    python main.py
+)
 
 pause

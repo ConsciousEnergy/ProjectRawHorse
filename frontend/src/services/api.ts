@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { Entity, MoneyFlow, Award, FOIATarget, Stats, GraphData, SankeyData, DataVersion } from '../types';
+import type { Entity, MoneyFlow, Award, FOIATarget, Stats, GraphData, SankeyData, DataVersion, PyramidData, HierarchyChain, EntityDetail, IntelStackSearchResponse } from '../types';
 
 const API_BASE_URL = '/api';
 
@@ -70,6 +70,34 @@ export const getSankeyData = async (params?: {
   limit?: number;
 }) => {
   const response = await api.get<SankeyData>('/analysis/sankey', { params });
+  return response.data;
+};
+
+/** GET /analysis/intel-stack/pyramid: levels, entity counts, total money per level, cross-level flows. */
+export const getPyramidData = async () => {
+  const response = await api.get<PyramidData>('/analysis/intel-stack/pyramid');
+  return response.data;
+};
+
+/** GET /analysis/intel-stack/hierarchy: chain of command for an entity. */
+export const getPyramidHierarchy = async (entityId: string) => {
+  const response = await api.get<HierarchyChain>('/analysis/intel-stack/hierarchy', {
+    params: { entity_id: entityId },
+  });
+  return response.data;
+};
+
+/** GET /analysis/intel-stack/entity/:id/detail: full entity detail for drill-down. */
+export const getPyramidEntityDetail = async (entityId: string) => {
+  const response = await api.get<EntityDetail>(`/analysis/intel-stack/entity/${encodeURIComponent(entityId)}/detail`);
+  return response.data;
+};
+
+/** GET /analysis/intel-stack/search: search entities with intel stack level. */
+export const searchIntelStack = async (q: string, limit = 20) => {
+  const response = await api.get<IntelStackSearchResponse>('/analysis/intel-stack/search', {
+    params: { q, limit },
+  });
   return response.data;
 };
 

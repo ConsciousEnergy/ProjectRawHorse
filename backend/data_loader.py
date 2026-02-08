@@ -1,5 +1,20 @@
 """
-Load CSV data from UAPUFOResearch directory into SQLite database
+Load CSV data into the Project RawHorse SQLite/PostgreSQL database.
+
+Structure:
+- Entity loaders: load_entities, load_entity_type_overrides, load_nro_seeds_as_entities,
+  load_transcript_entities, load_intel_stack_levels (applies level after entities exist).
+- Financial loaders: load_money_flows, load_awards, load_awards_usaspending,
+  load_money_flows_veritas_peraton, load_federal_flows_by_recipient,
+  load_advisors_fees_as_money_flows, load_solicitations_as_awards, load_materials_flows.
+- Relationship loaders: load_relationships (supports enriched fields: description,
+  relationship_type, source_citation, start_date, end_date).
+- FOIA: load_foia_targets.
+
+Entry point: load_all_data(db, config, project_root). Load order: overrides → entities →
+money flows → awards → FOIA → relationships → NRO seeds/edges → transcript/Hidden Wing →
+additional financial CSVs → materials flows → researched contracts → intel_stack_levels.
+All paths are under config['data_sources'] (entities_dir, financial_dir, etc.).
 """
 import os
 import csv
@@ -8,7 +23,7 @@ from datetime import datetime
 from typing import Optional, Dict
 from pathlib import Path
 from sqlalchemy.orm import Session
-from database import Entity, MoneyFlow, Award, FOIATarget, Relationship, SearchLog, DataVersion
+from database import Entity, MoneyFlow, Award, FOIATarget, Relationship, SearchLog, DataVersion, MaterialsFlow
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -298,6 +313,11 @@ def load_entities(db: Session, csv_path: str) -> int:
                 
                 if not name:
                     continue
+                if not name.strip():
+                    logger.warning(f"Entity row with empty display_name skipped in {csv_path}")
+                    continue
+                if not entity_id or not str(entity_id).strip():
+                    logger.debug(f"Entity '{name}' has no entity_id; consider adding one for traceability")
                 
                 # Check if entity already exists
                 existing = None
@@ -350,6 +370,11 @@ def load_money_flows(db: Session, csv_path: str) -> int:
         for row in reader:
             try:
                 edge_id = row.get('edge_id')
+                source = (row.get('source') or '').strip()
+                target = (row.get('target') or '').strip()
+                if not source or not target:
+                    logger.warning(f"Money flow skipped: missing source or target (source={source!r}, target={target!r}) in {csv_path}")
+                    continue
                 
                 # Check for duplicates by edge_id
                 if edge_id:
@@ -359,8 +384,8 @@ def load_money_flows(db: Session, csv_path: str) -> int:
                         continue
                 
                 money_flow = MoneyFlow(
-                    source=row.get('source', ''),
-                    target=row.get('target', ''),
+                    source=source,
+                    target=target,
                     relationship=row.get('relationship'),
                     amount_usd=parse_float(row.get('amount_usd')),
                     start_date=parse_date(row.get('start_date')),
@@ -632,54 +657,372 @@ def load_transcript_entities(db: Session, csv_path: str) -> int:
     return count
 
 
+def _parse_parties_to_source_target(parties: str) -> tuple:
+    """Parse 'Source ➜ Target' or 'Source -> Target' style string. Returns (source, target) or (None, None)."""
+    if not parties or not parties.strip():
+        return None, None
+    for sep in (" ➜ ", " -> ", " → "):
+        if sep in parties:
+            parts = parties.split(sep, 1)
+            if len(parts) == 2:
+                return parts[0].strip(), parts[1].strip()
+    return parties.strip(), None
+
+
+def load_awards_usaspending(db: Session, csv_path: str) -> int:
+    """Load awards from USAspending-style CSV (recipient, uei, agency, notes, award_or_idv_url)."""
+    if not os.path.exists(csv_path):
+        logger.warning(f"Awards USAspending file not found: {csv_path}")
+        return 0
+    count = 0
+    with open(csv_path, "r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            try:
+                recipient = (row.get("recipient") or "").strip()
+                agency = (row.get("agency") or "").strip()
+                if not recipient:
+                    continue
+                url = (row.get("award_or_idv_url") or "").strip()
+                piid = None
+                if url and "award/" in url:
+                    piid = url.split("award/")[-1].split("_")[0] if "award/" in url else None
+                award = Award(
+                    piid=piid or row.get("idv_or_award"),
+                    recipient_name=recipient,
+                    recipient_uei=row.get("uei"),
+                    recipient_duns=row.get("duns"),
+                    awarding_agency=agency,
+                    funding_agency=agency,
+                    award_amount=None,
+                    action_date=None,
+                    description=row.get("notes"),
+                )
+                db.add(award)
+                count += 1
+            except Exception as e:
+                logger.error(f"Error loading USAspending award: {e}")
+                continue
+    db.commit()
+    logger.info(f"Loaded {count} awards from USAspending")
+    return count
+
+
+def load_money_flows_veritas_peraton(db: Session, csv_path: str) -> int:
+    """Load money flows from Veritas/Peraton CSV (parties, amount_usd, date)."""
+    if not os.path.exists(csv_path):
+        logger.warning(f"Money flows Veritas/Peraton file not found: {csv_path}")
+        return 0
+    count = 0
+    skipped = 0
+    with open(csv_path, "r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            try:
+                parties = row.get("parties", "")
+                source, target = _parse_parties_to_source_target(parties)
+                if not source:
+                    continue
+                if not target:
+                    target = "Unknown"
+                amount = parse_float(row.get("amount_usd"))
+                date_val = parse_date(row.get("date"))
+                edge_id = f"veritas_{source[:20]}_{target[:20]}_{row.get('date', '')}".replace(" ", "_")
+                existing = db.query(MoneyFlow).filter(MoneyFlow.edge_id == edge_id).first()
+                if existing:
+                    skipped += 1
+                    continue
+                money_flow = MoneyFlow(
+                    source=source,
+                    target=target,
+                    relationship=row.get("type") or "M&A",
+                    amount_usd=amount,
+                    start_date=date_val,
+                    end_date=None,
+                    source_citation=row.get("source"),
+                    edge_id=edge_id,
+                )
+                db.add(money_flow)
+                count += 1
+            except Exception as e:
+                logger.error(f"Error loading Veritas/Peraton money flow: {e}")
+                continue
+    db.commit()
+    logger.info(f"Loaded {count} money flows from Veritas/Peraton, skipped {skipped} duplicates")
+    return count
+
+
+def load_federal_flows_by_recipient(db: Session, csv_path: str) -> int:
+    """Load federal flows by recipient CSV (agency, recipient, total_current_usd) as MoneyFlow."""
+    if not os.path.exists(csv_path):
+        logger.warning(f"Federal flows by recipient file not found: {csv_path}")
+        return 0
+    count = 0
+    skipped = 0
+    seen_key: set[tuple[str, str, str]] = set()
+    with open(csv_path, "r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for idx, row in enumerate(reader):
+            try:
+                agency = (row.get("agency") or "").strip()
+                recipient = (row.get("recipient") or "").strip()
+                if not agency or not recipient:
+                    continue
+                amount = parse_float(row.get("total_current_usd"))
+                fy = (row.get("fiscal_year") or "").strip()
+                dedupe_key = (agency, recipient, fy)
+                if dedupe_key in seen_key:
+                    skipped += 1
+                    continue
+                seen_key.add(dedupe_key)
+                edge_id = f"ffr_{idx}_{agency[:20]}_{recipient[:20]}_{fy}".replace(" ", "_").replace("/", "_")
+                if len(edge_id) > 255:
+                    edge_id = f"ffr_{idx}"
+                money_flow = MoneyFlow(
+                    source=agency,
+                    target=recipient,
+                    relationship="Federal Award",
+                    amount_usd=amount,
+                    start_date=None,
+                    end_date=None,
+                    source_citation="federal_flows_by_recipient",
+                    edge_id=edge_id,
+                )
+                db.add(money_flow)
+                count += 1
+            except Exception as e:
+                logger.error(f"Error loading federal flow: {e}")
+                continue
+    db.commit()
+    logger.info(f"Loaded {count} federal flows by recipient, skipped {skipped} duplicates")
+    return count
+
+
+def load_advisors_fees_as_money_flows(db: Session, csv_path: str) -> int:
+    """Load advisors_fees CSV (buyer->source, seller->target, reported_fees_usd->amount) as MoneyFlow."""
+    if not os.path.exists(csv_path):
+        logger.warning(f"Advisors fees file not found: {csv_path}")
+        return 0
+    count = 0
+    with open(csv_path, "r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+    if not rows:
+        return 0
+    first = rows[0]
+    if "buyer" not in first or "seller" not in first:
+        logger.warning("Advisors fees CSV missing buyer/seller columns, skipping")
+        return 0
+    for row in rows:
+        try:
+            source = (row.get("buyer") or "").strip()
+            target = (row.get("seller") or "").strip()
+            if not source or not target:
+                continue
+            amount = parse_float(row.get("reported_fees_usd") or row.get("amount_usd"))
+            edge_id = f"adv_{source[:15]}_{target[:15]}".replace(" ", "_")
+            existing = db.query(MoneyFlow).filter(MoneyFlow.edge_id == edge_id).first()
+            if existing:
+                continue
+            money_flow = MoneyFlow(
+                source=source,
+                target=target,
+                relationship="Advisor Fees",
+                amount_usd=amount,
+                start_date=None,
+                end_date=None,
+                source_citation=row.get("source_citation"),
+                edge_id=edge_id,
+            )
+            db.add(money_flow)
+            count += 1
+        except Exception as e:
+            logger.error(f"Error loading advisor fee: {e}")
+            continue
+    db.commit()
+    logger.info(f"Loaded {count} advisor fee money flows")
+    return count
+
+
+def load_solicitations_as_awards(db: Session, csv_path: str) -> int:
+    """Load solicitations CSV (notice_id->piid, agency, title->description) as Award records."""
+    if not os.path.exists(csv_path):
+        logger.warning(f"Solicitations file not found: {csv_path}")
+        return 0
+    count = 0
+    with open(csv_path, "r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            try:
+                notice_id = (row.get("notice_id") or "").strip()
+                title = (row.get("title") or "").strip()
+                agency = (row.get("agency") or "").strip()
+                if not title and not notice_id:
+                    continue
+                award = Award(
+                    piid=notice_id or None,
+                    recipient_name=None,
+                    awarding_agency=agency,
+                    funding_agency=agency,
+                    award_amount=None,
+                    action_date=parse_date(row.get("posted_date")),
+                    description=title,
+                    naics_code=row.get("naics"),
+                )
+                db.add(award)
+                count += 1
+            except Exception as e:
+                logger.error(f"Error loading solicitation: {e}")
+                continue
+    db.commit()
+    logger.info(f"Loaded {count} solicitations as awards")
+    return count
+
+
+def load_intel_stack_levels(db: Session, csv_path: str) -> int:
+    """Apply intel_stack_level to entities from CSV (display_name or entity_id, intel_stack_level)."""
+    if not os.path.exists(csv_path):
+        logger.warning(f"Intel stack levels file not found: {csv_path}")
+        return 0
+    count = 0
+    with open(csv_path, "r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            try:
+                name = (row.get("display_name") or row.get("name") or row.get("entity_id") or "").strip()
+                level_str = (row.get("intel_stack_level") or "").strip()
+                if not name or name.startswith("#"):
+                    continue
+                if not level_str or not level_str.isdigit():
+                    continue
+                level = int(level_str)
+                if level < 1 or level > 6:
+                    continue
+                entity = db.query(Entity).filter(
+                    (Entity.display_name == name) | (Entity.entity_id == name)
+                ).first()
+                if entity:
+                    entity.intel_stack_level = level
+                    count += 1
+            except Exception as e:
+                logger.error(f"Error applying intel stack level: {e}")
+                continue
+    db.commit()
+    logger.info(f"Applied intel_stack_level to {count} entities")
+    return count
+
+
+def load_materials_flows(db: Session, csv_path: str) -> int:
+    """Load materials/technology flows from CSV. Deduplicate by edge_id."""
+    if not os.path.exists(csv_path):
+        logger.warning(f"Materials flows file not found: {csv_path}")
+        return 0
+    count = 0
+    skipped = 0
+    with open(csv_path, "r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            try:
+                source = (row.get("source") or "").strip()
+                target = (row.get("target") or "").strip()
+                if not source or not target:
+                    continue
+                edge_id = (row.get("edge_id") or "").strip()
+                if not edge_id:
+                    edge_id = f"mf_{source[:20]}_{target[:20]}_{row.get('material_type', '')}".replace(" ", "_")
+                existing = db.query(MaterialsFlow).filter(MaterialsFlow.edge_id == edge_id).first()
+                if existing:
+                    skipped += 1
+                    continue
+                mf = MaterialsFlow(
+                    source=source,
+                    target=target,
+                    material_type=(row.get("material_type") or "").strip() or None,
+                    relationship=(row.get("relationship") or "").strip() or None,
+                    description=(row.get("description") or "").strip() or None,
+                    start_date=parse_date(row.get("start_date")),
+                    end_date=parse_date(row.get("end_date")),
+                    source_citation=(row.get("source_citation") or "").strip() or None,
+                    edge_id=edge_id,
+                    source_norm=row.get("source_norm"),
+                    target_norm=row.get("target_norm"),
+                )
+                db.add(mf)
+                count += 1
+            except Exception as e:
+                logger.error(f"Error loading materials flow: {e}")
+                continue
+    db.commit()
+    logger.info(f"Loaded {count} materials flows, skipped {skipped} duplicates")
+    return count
+
+
 def load_relationships(db: Session, csv_path: str) -> int:
-    """Load relationships from CSV file
-    
-    Supports multiple formats:
+    """Load relationships from CSV file.
+
+    Supports:
     - Standard: source, target, label
     - NRO edges: source, target, relationship (used as label)
-    - Transcript: source, target, label, notes (notes field ignored but handled)
+    - Enriched: relationship_type, description, source_citation, start_date, end_date (e.g. hidden_wing_2026_relationships)
     """
     if not os.path.exists(csv_path):
         logger.warning(f"Relationships file not found: {csv_path}")
         return 0
-    
+
     count = 0
-    with open(csv_path, 'r', encoding='utf-8') as f:
+    with open(csv_path, "r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         for row in reader:
             try:
-                # Support both 'label' and 'relationship' field names
-                label = row.get('label') or row.get('relationship', 'RELATED_TO')
-                source = row.get('source', '').strip()
-                target = row.get('target', '').strip()
-                
+                label = row.get("label") or row.get("relationship", "RELATED_TO")
+                source = (row.get("source") or "").strip()
+                target = (row.get("target") or "").strip()
                 if not source or not target:
                     continue
-                
+                if source.startswith("#"):
+                    continue
+                description = row.get("description") or None
+                if description:
+                    description = description.strip() or None
+                relationship_type = (row.get("relationship_type") or "").strip() or None
+                source_citation = row.get("source_citation") or None
+                if source_citation:
+                    source_citation = source_citation.strip() or None
+                start_date = parse_date(row.get("start_date"))
+                end_date = parse_date(row.get("end_date"))
                 relationship = Relationship(
                     source=source,
                     target=target,
-                    label=label
+                    label=label,
+                    description=description,
+                    relationship_type=relationship_type,
+                    source_citation=source_citation,
+                    start_date=start_date,
+                    end_date=end_date,
                 )
                 db.add(relationship)
                 count += 1
             except Exception as e:
                 logger.error(f"Error loading relationship: {e}")
                 continue
-    
+
     db.commit()
     logger.info(f"Loaded {count} relationships")
     return count
 
 
 def load_all_data(db: Session, config: dict, project_root: str = "."):
-    """Load all CSV data into database
-    
+    """Load all CSV data into database.
+
+    Load order: entity overrides → core entities → money flows → awards → FOIA →
+    relationships → NRO seeds/edges → transcript and Hidden Wing entities/relationships/FOIA →
+    additional financial CSVs (USAspending, Veritas/Peraton, federal flows, advisors, solicitations) →
+    materials flows → researched FFRDC/prime contracts → intel_stack_levels backfill.
+
     Args:
-        db: Database session
-        config: Configuration dictionary
-        project_root: Absolute path to project root directory
+        db: Database session.
+        config: Configuration dict with 'data_sources' (entities_dir, financial_dir, foia_dir, etc.).
+        project_root: Absolute path to project root (used to resolve CSV paths).
     """
     logger.info("Loading data from refactored structure")
     
@@ -710,6 +1053,9 @@ def load_all_data(db: Session, config: dict, project_root: str = "."):
     # Load relationships
     relationships_path = os.path.join(project_root, config['data_sources']['entities_dir'], "entity_relationships.csv")
     load_relationships(db, relationships_path)
+    hierarchy_rels_path = os.path.join(project_root, config['data_sources']['entities_dir'], "hierarchy_relationships.csv")
+    if os.path.exists(hierarchy_rels_path):
+        load_relationships(db, hierarchy_rels_path)
     
     # Load NRO seeds as entities (extract unique entities from seeds file)
     nro_seeds_path = os.path.join(project_root, config['data_sources']['entities_dir'], "nro_public_partners_seeds_v2.csv")
@@ -775,7 +1121,40 @@ def load_all_data(db: Session, config: dict, project_root: str = "."):
     if os.path.exists(money_flows_2026_path):
         logger.info("Loading 2026 researched federal contract money flows")
         load_money_flows(db, money_flows_2026_path)
-    
+
+    # Ingest additional financial CSVs
+    awards_usaspending_path = os.path.join(project_root, config['data_sources']['financial_dir'], "awards_usaspending.csv")
+    if os.path.exists(awards_usaspending_path):
+        load_awards_usaspending(db, awards_usaspending_path)
+    money_flows_veritas_path = os.path.join(project_root, config['data_sources']['financial_dir'], "money_flows_veritas_peraton.csv")
+    if os.path.exists(money_flows_veritas_path):
+        load_money_flows_veritas_peraton(db, money_flows_veritas_path)
+    federal_flows_path = os.path.join(project_root, config['data_sources']['financial_dir'], "federal_flows_by_recipient.csv")
+    if os.path.exists(federal_flows_path):
+        load_federal_flows_by_recipient(db, federal_flows_path)
+    advisors_fees_path = os.path.join(project_root, config['data_sources']['financial_dir'], "advisors_fees.csv")
+    if os.path.exists(advisors_fees_path):
+        load_advisors_fees_as_money_flows(db, advisors_fees_path)
+    solicitations_path = os.path.join(project_root, config['data_sources']['financial_dir'], "solicitations.csv")
+    if os.path.exists(solicitations_path):
+        load_solicitations_as_awards(db, solicitations_path)
+
+    # Materials flows (technology transfers, FFRDC flows, etc.)
+    materials_flows_path = os.path.join(project_root, config['data_sources']['financial_dir'], "materials_flows.csv")
+    if os.path.exists(materials_flows_path):
+        load_materials_flows(db, materials_flows_path)
+
+    # Researched FFRDC/prime contracts (SAIC, Aerospace Corp, RAND, IDA, Battelle, Sandia, etc.)
+    researched_path = os.path.join(project_root, config['data_sources']['financial_dir'], "researched_contracts_ffrdc_primes.csv")
+    if os.path.exists(researched_path):
+        logger.info("Loading researched FFRDC/prime contract money flows")
+        load_money_flows(db, researched_path)
+
+    # Backfill intel_stack_level from CSV (after all entities loaded)
+    intel_levels_path = os.path.join(project_root, config['data_sources']['entities_dir'], "intel_stack_levels.csv")
+    if os.path.exists(intel_levels_path):
+        load_intel_stack_levels(db, intel_levels_path)
+
     # Increment data version after loading
     increment_data_version(db, "data_loader")
     

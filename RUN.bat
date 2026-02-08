@@ -43,8 +43,9 @@ echo.
 echo Press Ctrl+C to stop the server when done.
 echo.
 
-REM Activate virtual environment and start
+REM Activate virtual environment and ensure backend deps (e.g. rapidfuzz) are installed
 call "%VENV_PATH%\Scripts\activate.bat"
+pip install -r "%SCRIPT_DIR%backend\requirements.txt" --quiet 2>nul
 cd "%SCRIPT_DIR%backend"
 python main.py
 
