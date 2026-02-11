@@ -374,7 +374,7 @@ Built on publicly available data from:
 
 ## Version History
 
-### v0.4.0 (2026-01)
+### v0.3.2 (2026-01)
 - **Data Enrichment**: 26 new entities from UAPGerb's "The Hidden Wing" transcript (Air Force SAF hierarchy)
 - **UI/UX Improvements**: Separate visualization pages, Intelligence Stack filter
 - **Infrastructure**: Docker support, PostgreSQL database option, JWT authentication
