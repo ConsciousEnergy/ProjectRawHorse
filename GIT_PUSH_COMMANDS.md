@@ -2,6 +2,43 @@
 
 ---
 
+## PRH_v0.3.3Beta → main (February 2026)
+
+**Branch:** `PRH_v0.3.3Beta`  
+**Tag:** `v0.3.3-beta`  
+**Target:** Open PR into `main`  
+**Changelog:** See `CHANGELOG_v0.3.3Beta.md`
+
+### Quick commands
+
+```bash
+# From project root (folder containing frontend, backend, .github)
+git checkout -b PRH_v0.3.3Beta
+
+git add .github/workflows/build-releases.yml
+git add frontend/src/components/SearchBar.tsx frontend/src/components/SearchBar.css
+git add frontend/src/pages/Browse.tsx frontend/src/pages/Browse.css
+git add CHANGELOG_v0.3.3Beta.md GIT_PUSH_COMMANDS.md docs/development/SEARCH_UX_ENHANCEMENTS_4_6_PLAN.md
+git status   # review
+
+git commit -m "feat(search-ux): suggestions, recent results, Browse row highlight; CI workflow fixes (v0.3.3 Beta)
+
+- SearchBar: recent clicked results + recent queries (localStorage), Clear history, 200ms debounce
+- Browse: read highlight param, row ids, scrollIntoView + flash animation, URL cleanup
+- CI: upload/download-artifact v4, setup-python v5, gh-release v2, Node 20, branches-ignore, concurrency, pip/npm cache
+- CHANGELOG_v0.3.3Beta.md, GIT_PUSH_COMMANDS.md, SEARCH_UX_ENHANCEMENTS_4_6_PLAN.md"
+
+# Create annotated tag for release (best practice)
+git tag -a v0.3.3-beta -m "Release v0.3.3 Beta: Search UX 4-6, CI workflow fixes"
+
+git push -u origin PRH_v0.3.3Beta
+git push origin v0.3.3-beta
+```
+
+Then on GitHub: **New Pull Request** → Base: `main`, Compare: `PRH_v0.3.3Beta`. Use `CHANGELOG_v0.3.3Beta.md` for the PR description. The tag `v0.3.3-beta` can be used to trigger the build-releases workflow (if your trigger uses `v*`).
+
+---
+
 ## PRH_v0.3.2Beta → main (February 2026)
 
 **Branch:** `PRH_v0.3.2Beta`  
