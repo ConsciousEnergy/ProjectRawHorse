@@ -1,13 +1,30 @@
 # Project RawHorse - Feature Roadmap & Next Steps
 
-**Generated**: November 30, 2025  
-**Current Version**: v0.3.0-dev  
+**Last Updated**: February 2026  
+**Current Version**: v0.4.0  
 **Status**: Active Development
 
 ---
 
-## ✅ Recently Completed (November 2025)
+## ✅ Completed (v0.2.0 – v0.4.0)
 
+### v0.4.0 (February 2026)
+1. **Data Enrichment** - 26 new entities from UAPGerb's "The Hidden Wing" transcript
+2. **Intelligence Stack Pyramid** - Hierarchical L1–L6 visualization with chain-of-command tracing
+3. **Advanced Search & Suggestions** - Global SearchBar with debounced results, recent queries/results, row highlighting
+4. **One-Click Uninstall** - `UNINSTALL.bat` / `UNINSTALL.sh` with server detection and removal summary
+5. **CI/CD Improvements** - GitHub Actions v4 upgrades, caching, concurrency, build hardening
+6. **Docker Support** - Full Docker Compose configuration for VPS deployment
+7. **PostgreSQL Support** - Alongside SQLite fallback
+8. **JWT Authentication** - Token-based auth with role-based access control
+9. **Git LFS Removal** - Simplified cloning and contributions
+10. **OPINT Documentation Overhaul** - Architecture, developer guide, API reference, contributing rewrite
+
+### v0.3.0 (December 2025)
+1. **Enhanced Search** - Backend search with FOIA quality scoring
+2. **Data Versioning** - Data refresh and version tracking
+
+### v0.2.0 (November 2025)
 1. **Donation/Support Section** - Dashboard integration with Conscious Energy links
 2. **GitHub Issue #6 Resolution** - Color consistency, acronym expansion, entity classification fixes
 3. **Logo Integration** - PRHLogo.png in sidebar with proper backend routing
@@ -46,30 +63,8 @@
 
 ---
 
-### 2. **Advanced Search & Full-Text Search** ⭐ HIGH VALUE
-**Goal**: Enable powerful data discovery
-
-**Features to Add**:
-- **Global Search Bar**
-  - Search across all entity fields simultaneously
-  - Real-time results as you type
-  - Search highlights in results
-  
-- **Fuzzy Matching**
-  - Find similar entity names (typo tolerance)
-  - "Did you mean...?" suggestions
-  - Relevance scoring
-  
-- **Advanced Filters**
-  - Multi-select entity types
-  - Date range picker with presets
-  - Amount sliders with histogram
-  - Combine multiple filters
-
-**Implementation Complexity**: Medium  
-**User Impact**: Very High  
-**Tools**: Fuse.js for fuzzy search, React components  
-**Estimated Time**: 2-4 days
+### ~~2. **Advanced Search & Full-Text Search**~~ ✅ COMPLETED in v0.4.0
+> Global SearchBar with real-time debounced results, fuzzy matching (rapidfuzz), suggestions, recent results/queries, visual row highlighting, keyboard navigation, and `/` shortcut.
 
 ---
 
@@ -222,15 +217,13 @@
 
 Based on user impact and complexity, here's the recommended order:
 
-**Week 1-2:**
-1. **Advanced Search & Full-Text Search** (high value, medium complexity)
-2. **Data Table Enhancements** (improves daily use)
+**Next:**
+1. **UFO Database Enrichment** (NUFORC, MUFON, GEIPAN — see `UFO_DATABASE_ENRICHMENT_PLAN.md`)
+2. **Enhanced Financial Visualizations** (biggest feature, high impact)
+3. **Data Table Enhancements** (improves daily use)
 
-**Week 3-4:**
-3. **Enhanced Financial Visualizations** (biggest feature, high impact)
+**Following:**
 4. **Performance Optimizations** (foundation for scale)
-
-**Week 5-6:**
 5. **Export Enhancements** (polish existing feature)
 6. **Credibility Scoring Display** (builds trust)
 
@@ -273,7 +266,7 @@ These are small features that provide immediate value:
 | Feature | Impact | Complexity | Time | Priority |
 |---------|--------|------------|------|----------|
 | Financial Visualizations | ⭐⭐⭐⭐⭐ | Medium | 3-5d | P1 |
-| Advanced Search | ⭐⭐⭐⭐⭐ | Medium | 2-4d | P1 |
+| ~~Advanced Search~~ | ~~⭐⭐⭐⭐⭐~~ | ~~Medium~~ | ~~2-4d~~ | ✅ Done |
 | Export Enhancements | ⭐⭐⭐⭐ | Medium | 3-4d | P2 |
 | Performance Opts | ⭐⭐⭐⭐ | Medium | 2-3d | P2 |
 | Table Enhancements | ⭐⭐⭐⭐ | Medium | 2-3d | P1 |
@@ -284,11 +277,11 @@ These are small features that provide immediate value:
 
 ## 🚀 Next Session Suggestions
 
-**Option 1: Go Big** 🎨
-Start **Enhanced Financial Visualizations** - most impactful visual feature
+**Option 1: Data Enrichment** 📊
+Start **UFO Database Enrichment** - NUFORC, MUFON, GEIPAN (see plan)
 
-**Option 2: Quick Value** ⚡
-Implement **Advanced Search** - users want to find things fast
+**Option 2: Go Big** 🎨
+Start **Enhanced Financial Visualizations** - most impactful visual feature
 
 **Option 3: Polish** ✨
 Add **Quick Wins** + **Table Enhancements** - many small improvements

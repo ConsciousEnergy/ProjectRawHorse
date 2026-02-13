@@ -13,9 +13,8 @@ Complete installation guide for Project RawHorse.
 ### Prerequisites
 
 - **Python:** 3.10 or higher
-- **Node.js:** 18 or higher
+- **Node.js:** 20 or higher (LTS)
 - **Git:** Latest version
-- **Git LFS:** For data files
 
 ---
 
@@ -250,30 +249,14 @@ python main.py
 
 ---
 
-## 🔐 Git LFS Setup
-
-Required for cloning the repository:
+## Cloning the Repository
 
 ```bash
-# Install Git LFS
-# Windows:
-git lfs install
-
-# macOS:
-brew install git-lfs
-git lfs install
-
-# Linux:
-sudo apt-get install git-lfs
-git lfs install
-
-# Clone repository
 git clone https://github.com/ConsciousEnergy/ProjectRawHorse.git
 cd ProjectRawHorse
-
-# Pull LFS files
-git lfs pull
 ```
+
+> **Note:** Git LFS is no longer required as of v0.4.0. All data files are stored directly in the repository.
 
 ---
 
