@@ -48,6 +48,7 @@ contracting, intelligence organizations), contributors must also:
 * **Verify data accuracy** before contributing
 * **Respect FOIA processes** and legal boundaries
 * **Maintain objectivity** — present data without editorial bias
+* **Respect contributor privacy** — attribute research sources by their public handle only; do not use real names unless the person has explicitly consented
 
 ## Enforcement Responsibilities
 
