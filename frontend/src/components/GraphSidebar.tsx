@@ -134,16 +134,18 @@ export default function GraphSidebar({
           onFocus={() => { if (searchQuery.trim()) setShowSearchResults(true); }}
         />
         {showSearchResults && searchResults.length > 0 && (
-          <div className="search-results-dropdown">
+          <div className="search-results-dropdown" role="listbox">
             {searchResults.map(r => (
-              <div
+              <button
                 key={r.name}
                 className="search-result-item"
+                role="option"
+                type="button"
                 onClick={() => handleSelectResult(r.name)}
               >
                 <span className="result-name">{r.name}</span>
                 <span className="result-count">{r.connections} conn.</span>
-              </div>
+              </button>
             ))}
           </div>
         )}

@@ -200,6 +200,13 @@
   cursor: pointer;
   transition: background 0.15s;
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  width: 100%;
+  background: transparent;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  text-align: left;
+  font-family: inherit;
 }
 
 .search-result-item:last-child {
