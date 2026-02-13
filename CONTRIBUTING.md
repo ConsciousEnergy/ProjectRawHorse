@@ -377,6 +377,10 @@ Contributors will be recognized in:
 - Release notes for significant contributions
 - Project documentation (with permission)
 
+### Attribution and privacy
+
+When crediting research or data sources, **use only the public identifier** (e.g. channel name, handle, or username) that the person uses publicly. Do not use real names or other identifying information unless the person has explicitly consented in writing. This applies to documentation, changelogs, release notes, and in-app attribution.
+
 Thank you for helping advance open intelligence research!
 
 ---

@@ -5,11 +5,13 @@
 **Video**: "The Pentagon's UFO Program Is Real [Here's How It Works!] ft. UAPGerb"  
 **YouTube URL**: https://www.youtube.com/watch?v=u7g5Sn1DJF4  
 **Date Extracted**: 2025-01-11  
-**Extractor**: Automated extraction script based on transcript analysis
+**Extractor**: Automated extraction script based on transcript analysis  
+
+**Attribution**: We credit this research by the public handle **UAPGerb** only. Do not add or use real names in project materials.
 
 ## Overview
 
-This dataset contains entities, FOIA targets, and relationships extracted from a comprehensive interview with UAPGerb (Sammy) discussing the organizational structure, funding mechanisms, and key players in UFO legacy programs. The transcript provides detailed information about:
+This dataset contains entities, FOIA targets, and relationships extracted from a comprehensive interview with UAPGerb discussing the organizational structure, funding mechanisms, and key players in UFO legacy programs. The transcript provides detailed information about:
 
 - Government agency structure and interconnections
 - FFRDC (Federally Funded Research and Development Centers) roles
