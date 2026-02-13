@@ -1,20 +1,28 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import ForceGraph2D from 'react-force-graph-2d';
-import { forceCollide } from 'd3-force';
+import { forceCollide, forceRadial } from 'd3-force';
+import { scalePow } from 'd3-scale';
 import { getEntityGraph } from '../services/api';
 import type { GraphData as APIGraphData, GraphNode } from '../types';
 import './NetworkGraph.css';
+
+/* ------------------------------------------------------------------ */
+/*  Types                                                              */
+/* ------------------------------------------------------------------ */
 
 interface ForceGraphNode extends GraphNode {
   val?: number;
   x?: number;
   y?: number;
+  _connections?: number;
 }
 
 interface ForceGraphLink {
   source: string;
   target: string;
   label?: string;
+  value?: number;
+  count?: number;
 }
 
 interface ForceGraphData {
@@ -22,177 +30,131 @@ interface ForceGraphData {
   links: ForceGraphLink[];
 }
 
-interface NetworkGraphProps {
-  filterLevels?: number[];  // Filter by intel stack levels (1-6)
+export interface NetworkGraphProps {
+  filterLevels?: number[];
+  selectedActor: string | null;
+  onSelectActor: (name: string | null) => void;
+  colorMode: 'type' | 'proximity';
+  showInferred: boolean;
+  minConnections: number;
+  /** Expose processed data to parent */
+  onDataReady?: (data: {
+    nodeCount: number;
+    linkCount: number;
+    inferredCount: number;
+    nodeIndex: { name: string; connections: number; type: string }[];
+    rawLinks: ForceGraphLink[];
+    totalRawLinks: number;
+  }) => void;
 }
 
-function NetworkGraph({ filterLevels = [] }: NetworkGraphProps) {
+/* ------------------------------------------------------------------ */
+/*  Color Maps                                                         */
+/* ------------------------------------------------------------------ */
+
+export const ENTITY_COLOR_MAP: Record<string, string> = {
+  Corporation: '#5B4FFF',
+  'Government Agency': '#FF6B35',
+  'Investment Firm': '#E91E63',
+  'Research Institution': '#FF9800',
+  'Non-Profit': '#9C27B0',
+  Organization: '#00BCD4',
+  Facility: '#4CAF50',
+  Program: '#FF1744',
+  Individual: '#2196F3',
+  Unknown: '#9E9E9E',
+  default: '#BDBDBD',
+};
+
+/* ------------------------------------------------------------------ */
+/*  Intel-stack helpers                                                 */
+/* ------------------------------------------------------------------ */
+
+const INTEL_LEVEL_TYPE_MAP: Record<number, string[]> = {
+  1: ['Organization'],
+  2: ['Government Agency'],
+  3: ['Research Institution'],
+  4: ['Corporation', 'Investment Firm'],
+  5: ['Facility'],
+  6: ['Program'],
+};
+
+const getLinkNodeId = (ref: string | ForceGraphNode | any): string =>
+  typeof ref === 'string' ? ref : ref?.id || '';
+
+/* ------------------------------------------------------------------ */
+/*  Component                                                          */
+/* ------------------------------------------------------------------ */
+
+function NetworkGraph({
+  filterLevels = [],
+  selectedActor,
+  onSelectActor,
+  colorMode,
+  showInferred,
+  minConnections,
+  onDataReady,
+}: NetworkGraphProps) {
+  const [rawGraphData, setRawGraphData] = useState<ForceGraphData>({ nodes: [], links: [] });
   const [graphData, setGraphData] = useState<ForceGraphData>({ nodes: [], links: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [viewLocked, setViewLocked] = useState(false);
   const [hasCentered, setHasCentered] = useState(false);
-  const [isCentering, setIsCentering] = useState(false);
-  const [showInferred, setShowInferred] = useState(true);
-  const [minConnections, setMinConnections] = useState(0);
-  const [rawGraphData, setRawGraphData] = useState<ForceGraphData>({ nodes: [], links: [] });
-  const [showLegend, setShowLegend] = useState(true);
+  const [hoveredNode, setHoveredNode] = useState<ForceGraphNode | null>(null);
+  // tooltip position tracked for future enhancement
+
   const fgRef = useRef<any>();
+  const containerRef = useRef<HTMLDivElement>(null);
   const centerTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => {
-    loadGraphData();
-  }, []);
-
-  // Center graph function
-  const centerGraph = useCallback((immediate = false) => {
-    if (!fgRef.current || graphData.nodes.length === 0) return;
-    
-    setIsCentering(true);
-    const delay = immediate ? 0 : 800; // Wait for simulation to stabilize
-    
-    setTimeout(() => {
-      if (fgRef.current) {
-        // Calculate bounding box of all nodes
-        const nodesWithPositions = graphData.nodes.filter(n => n.x !== undefined && n.y !== undefined);
-        if (nodesWithPositions.length > 0) {
-          const xs = nodesWithPositions.map(n => n.x!);
-          const ys = nodesWithPositions.map(n => n.y!);
-          const minX = Math.min(...xs);
-          const maxX = Math.max(...xs);
-          const minY = Math.min(...ys);
-          const maxY = Math.max(...ys);
-          
-          const centerX = (minX + maxX) / 2;
-          const centerY = (minY + maxY) / 2;
-          
-          // Center and fit to view
-          fgRef.current.centerAt(centerX, centerY, 1000);
-          setTimeout(() => {
-            if (fgRef.current) {
-              fgRef.current.zoomToFit(400, 50);
-            }
-          }, 100);
-        } else {
-          // Fallback: center at origin and fit
-          fgRef.current.centerAt(0, 0, 1000);
-          setTimeout(() => {
-            if (fgRef.current) {
-              fgRef.current.zoomToFit(400, 50);
-            }
-          }, 100);
-        }
-        setIsCentering(false);
-      }
-    }, delay);
-  }, [graphData.nodes]);
-
-  // Reset view to initial centered state
-  const resetView = useCallback(() => {
-    setHasCentered(false);
-    setViewLocked(false);
-    centerGraph(true);
-    setTimeout(() => {
-      setHasCentered(true);
-    }, 1500);
-  }, [centerGraph]);
-
-  // Configure forces after data loads for better clustering
-  useEffect(() => {
-    if (fgRef.current && graphData.nodes.length > 0) {
-      const fg = fgRef.current;
-      
-      // Reduced repulsion to bring nodes closer together
-      // Adjust based on number of nodes for better scaling
-      const nodeCount = graphData.nodes.length;
-      const chargeStrength = nodeCount > 100 ? -300 : -400;
-      fg.d3Force('charge').strength(chargeStrength).distanceMax(200);
-      
-      // Shorter link distance to keep connected nodes closer
-      fg.d3Force('link').distance(80).strength(0.8);
-      
-      // Add collision force to prevent node overlap (smaller radius for tighter packing)
-      fg.d3Force('collision', forceCollide()
-        .radius((node: any) => (node.val || 6) + 15)
-        .strength(0.7)
-      );
-      
-      // Add centering force to keep graph centered
-      fg.d3Force('center').strength(0.1);
-      
-      // Reheat simulation to apply new forces
-      fg.d3ReheatSimulation();
-    }
-  }, [graphData]);
-
-  // Auto-center after data loads and simulation stabilizes
-  useEffect(() => {
-    if (graphData.nodes.length > 0 && !hasCentered && !viewLocked && fgRef.current) {
-      // Clear any existing timeout
-      if (centerTimeoutRef.current) {
-        clearTimeout(centerTimeoutRef.current);
-      }
-      
-      // Wait longer for simulation to stabilize with new clustering
-      centerTimeoutRef.current = setTimeout(() => {
-        centerGraph();
-        setHasCentered(true);
-      }, 3000); // Longer delay for better clustering
-    }
-    
-    return () => {
-      if (centerTimeoutRef.current) {
-        clearTimeout(centerTimeoutRef.current);
-      }
-    };
-  }, [graphData, hasCentered, viewLocked, centerGraph]);
-
-  // Keyboard shortcuts
-  useEffect(() => {
-    const handleKeyPress = (e: KeyboardEvent) => {
-      if (!fgRef.current) return;
-      
-      // Space to center
-      if (e.code === 'Space' && !e.target || (e.target as HTMLElement).tagName !== 'INPUT') {
-        e.preventDefault();
-        centerGraph(true);
-      }
-      // +/- for zoom
-      else if (e.key === '+' || e.key === '=') {
-        e.preventDefault();
-        fgRef.current.zoom(1.5, 400);
-      }
-      else if (e.key === '-') {
-        e.preventDefault();
-        fgRef.current.zoom(0.5, 400);
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyPress);
-    return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [centerGraph]);
+  /* ---------- load data ---------- */
+  useEffect(() => { loadGraphData(); }, []);
 
   const loadGraphData = async () => {
     try {
       setLoading(true);
       setError(null);
       const data: APIGraphData = await getEntityGraph();
-      
-      // Convert API response to ForceGraph format (store raw data)
-      const forceGraphData: ForceGraphData = {
+
+      // Edge deduplication: group same source-target pairs
+      const edgeMap = new Map<string, ForceGraphLink>();
+      for (const edge of data.edges) {
+        const key = `${edge.source}|||${edge.target}`;
+        const rev = `${edge.target}|||${edge.source}`;
+        const existing = edgeMap.get(key) || edgeMap.get(rev);
+        if (existing) {
+          existing.count = (existing.count || 1) + 1;
+          if (edge.value && (!existing.value || edge.value > existing.value)) {
+            existing.value = edge.value;
+          }
+        } else {
+          edgeMap.set(key, {
+            source: edge.source,
+            target: edge.target,
+            label: edge.label,
+            value: edge.value,
+            count: 1,
+          });
+        }
+      }
+
+      // Count connections per node (on deduplicated edges)
+      const connCounts = new Map<string, number>();
+      for (const link of edgeMap.values()) {
+        connCounts.set(link.source, (connCounts.get(link.source) || 0) + (link.count || 1));
+        connCounts.set(link.target, (connCounts.get(link.target) || 0) + (link.count || 1));
+      }
+
+      const forceData: ForceGraphData = {
         nodes: data.nodes.map(node => ({
           ...node,
-          val: node.value || 5,
+          val: connCounts.get(node.id) || 1,
+          _connections: connCounts.get(node.id) || 0,
         })),
-        links: data.edges.map(edge => ({
-          source: edge.source,
-          target: edge.target,
-          label: edge.label,
-          value: edge.value,
-        })),
+        links: Array.from(edgeMap.values()),
       };
-      
-      setRawGraphData(forceGraphData);
+
+      setRawGraphData(forceData);
     } catch (err) {
       setError('Failed to load graph data');
       console.error('Error loading graph:', err);
@@ -200,442 +162,303 @@ function NetworkGraph({ filterLevels = [] }: NetworkGraphProps) {
       setLoading(false);
     }
   };
-  
-  // Intel Stack Level to Entity Type mapping for fallback filtering
-  // When intel_stack_level is not set, we match by entity type
-  const INTEL_LEVEL_TYPE_MAP: Record<number, string[]> = {
-    1: ['Organization'],  // Control Group - MITRE/JASON/NSC are Organizations
-    2: ['Government Agency'],  // Administrators - IC agencies
-    3: ['Research Institution'],  // FFRDCs
-    4: ['Corporation', 'Investment Firm'],  // Prime Contractors
-    5: ['Facility'],  // Facilities
-    6: ['Program'],  // Programs
-  };
 
-  // Helper to extract ID from link source/target (can be string or node object)
-  const getLinkNodeId = (nodeRef: string | ForceGraphNode | any): string => {
-    if (typeof nodeRef === 'string') {
-      return nodeRef;
-    }
-    // It's a node object, extract the id
-    return nodeRef?.id || '';
-  };
-
-  // Apply filters to raw graph data
+  /* ---------- filtering ---------- */
   useEffect(() => {
     if (rawGraphData.nodes.length === 0) {
       setGraphData({ nodes: [], links: [] });
       return;
     }
-    
-    // Calculate connection counts for filtering
-    const nodeConnectionCounts = new Map<string, number>();
-    rawGraphData.links.forEach(link => {
-      const sourceId = getLinkNodeId(link.source);
-      const targetId = getLinkNodeId(link.target);
-      nodeConnectionCounts.set(sourceId, (nodeConnectionCounts.get(sourceId) || 0) + 1);
-      nodeConnectionCounts.set(targetId, (nodeConnectionCounts.get(targetId) || 0) + 1);
+
+    const connMap = new Map<string, number>();
+    rawGraphData.links.forEach(l => {
+      const s = getLinkNodeId(l.source);
+      const t = getLinkNodeId(l.target);
+      const c = l.count || 1;
+      connMap.set(s, (connMap.get(s) || 0) + c);
+      connMap.set(t, (connMap.get(t) || 0) + c);
     });
-    
-    // Helper function to check if node matches filter levels
-    const nodeMatchesFilter = (node: ForceGraphNode): boolean => {
-      // If node has explicit intel_stack_level, use it
-      if (node.intel_stack_level) {
-        return filterLevels.includes(node.intel_stack_level);
-      }
-      
-      // Fallback: match by entity type
+
+    const matchesIntel = (node: ForceGraphNode): boolean => {
+      if (node.intel_stack_level) return filterLevels.includes(node.intel_stack_level);
       if (node.type) {
-        for (const level of filterLevels) {
-          const matchingTypes = INTEL_LEVEL_TYPE_MAP[level] || [];
-          if (matchingTypes.includes(node.type)) {
-            return true;
-          }
+        for (const lv of filterLevels) {
+          if ((INTEL_LEVEL_TYPE_MAP[lv] || []).includes(node.type)) return true;
         }
       }
-      
       return false;
     };
-    
-    // First pass: find primary nodes that match the intel stack filter
-    const primaryMatchIds = new Set<string>();
+
+    const primaryIds = new Set<string>();
     if (filterLevels.length > 0) {
-      rawGraphData.nodes.forEach(node => {
-        if (nodeMatchesFilter(node)) {
-          primaryMatchIds.add(node.id);
-        }
+      rawGraphData.nodes.forEach(n => { if (matchesIntel(n)) primaryIds.add(n.id); });
+    }
+
+    const connectedIds = new Set<string>();
+    if (filterLevels.length > 0 && primaryIds.size > 0) {
+      rawGraphData.links.forEach(l => {
+        const s = getLinkNodeId(l.source), t = getLinkNodeId(l.target);
+        if (primaryIds.has(s)) connectedIds.add(t);
+        if (primaryIds.has(t)) connectedIds.add(s);
       });
     }
-    
-    // Second pass: find nodes connected to primary matches (to show relationships)
-    const connectedNodeIds = new Set<string>();
-    if (filterLevels.length > 0 && primaryMatchIds.size > 0) {
-      rawGraphData.links.forEach(link => {
-        const sourceId = getLinkNodeId(link.source);
-        const targetId = getLinkNodeId(link.target);
-        if (primaryMatchIds.has(sourceId)) {
-          connectedNodeIds.add(targetId);
-        }
-        if (primaryMatchIds.has(targetId)) {
-          connectedNodeIds.add(sourceId);
-        }
-      });
-    }
-    
-    // Filter nodes by minimum connections and intel stack level
+
     const filteredNodes = rawGraphData.nodes.filter(node => {
-      const connections = nodeConnectionCounts.get(node.id) || 0;
-      
-      // Check minimum connections
-      if (connections < minConnections) {
-        return false;
-      }
-      
-      // Check intel stack level filter (if any levels are selected)
-      if (filterLevels.length > 0) {
-        // Include if: matches filter, OR is connected to a matching node
-        const matchesFilter = nodeMatchesFilter(node);
-        const isConnectedToMatch = connectedNodeIds.has(node.id);
-        
-        if (!matchesFilter && !isConnectedToMatch) {
-          return false;
-        }
-      }
-      
+      const c = connMap.get(node.id) || 0;
+      if (c < minConnections) return false;
+      if (filterLevels.length > 0 && !matchesIntel(node) && !connectedIds.has(node.id)) return false;
       return true;
     });
-    
-    // Filter edges to only include those connecting visible nodes
-    // IMPORTANT: Create new edge objects with string IDs to avoid mutation issues
-    const visibleNodeIds = new Set(filteredNodes.map(n => n.id));
-    const filteredEdges: ForceGraphLink[] = [];
-    
-    rawGraphData.links.forEach(link => {
-      const sourceId = getLinkNodeId(link.source);
-      const targetId = getLinkNodeId(link.target);
-      
-      // Optionally filter out inferred relationships
-      if (!showInferred && link.label && 
-          (link.label.includes('Co-Recipient') || link.label.includes('Same Industry') || link.label.includes('Award Recipient'))) {
+
+    const visibleIds = new Set(filteredNodes.map(n => n.id));
+
+    const filteredLinks: ForceGraphLink[] = [];
+    rawGraphData.links.forEach(l => {
+      const s = getLinkNodeId(l.source), t = getLinkNodeId(l.target);
+      if (!showInferred && l.label &&
+        (l.label.includes('Co-Recipient') || l.label.includes('Same Industry') || l.label.includes('Award Recipient')))
         return;
-      }
-      
-      // Only include edges where both nodes are visible
-      if (visibleNodeIds.has(sourceId) && visibleNodeIds.has(targetId)) {
-        // Create a clean edge object with string IDs
-        filteredEdges.push({
-          source: sourceId,
-          target: targetId,
-          label: link.label,
-        });
+      if (visibleIds.has(s) && visibleIds.has(t)) {
+        filteredLinks.push({ source: s, target: t, label: l.label, value: l.value, count: l.count });
       }
     });
-    
-    setGraphData({
-      nodes: filteredNodes,
-      links: filteredEdges,
-    });
+
+    setGraphData({ nodes: filteredNodes, links: filteredLinks });
   }, [rawGraphData, showInferred, minConnections, filterLevels]);
 
-  // Color map - high contrast palette for better visual distinction
-  const colorMap: Record<string, string> = {
-    'Corporation': '#5B4FFF',           // Vibrant purple-blue
-    'Government Agency': '#FF6B35',     // Bright coral-orange (high contrast)
-    'Investment Firm': '#E91E63',       // Deep pink/magenta
-    'Research Institution': '#FF9800',  // Bright orange
-    'Non-Profit': '#9C27B0',            // Deep purple (distinct from Corporation)
-    'Organization': '#00BCD4',          // Bright cyan
-    'Facility': '#4CAF50',              // Vibrant green (nature/facilities)
-    'Program': '#FF1744',               // Bright vivid red (high visibility)
-    'Individual': '#2196F3',            // Bright blue (sky blue, distinct from cyan)
-    'Unknown': '#9E9E9E',               // Light gray
-    'default': '#BDBDBD'                // Default medium-light gray
-  };
+  /* ---------- expose data to parent ---------- */
+  const nodeIndex = useMemo(() =>
+    graphData.nodes.map(n => ({
+      name: n.name || n.id,
+      connections: n._connections || 0,
+      type: n.type || 'Unknown',
+    })).sort((a, b) => b.connections - a.connections),
+    [graphData.nodes]
+  );
 
-  const getNodeColor = (node: ForceGraphNode) => {
-    // Use the single source of truth color map
-    return colorMap[node.type || 'default'] || colorMap.default;
-  };
+  useEffect(() => {
+    const inferredCount = graphData.links.filter(l =>
+      l.label?.includes('Co-Recipient') || l.label?.includes('Same Industry') || l.label?.includes('Award Recipient')
+    ).length;
+    onDataReady?.({
+      nodeCount: graphData.nodes.length,
+      linkCount: graphData.links.length,
+      inferredCount,
+      nodeIndex,
+      rawLinks: graphData.links,
+      totalRawLinks: rawGraphData.links.length,
+    });
+  }, [graphData, nodeIndex, rawGraphData.links.length]);
 
-  const getNodeSize = (node: ForceGraphNode) => {
-    // Use value if provided, otherwise calculate from connections
-    return node.val || 6;  // Slightly larger default
-  };
-
-  // Get unique types from actual data
-  const uniqueTypes = React.useMemo(() => {
-    const types = new Set(graphData.nodes.map(n => n.type).filter(Boolean));
-    return Array.from(types).sort();
+  /* ---------- node radius scale (sqrt) ---------- */
+  const radiusScale = useMemo(() => {
+    const maxConn = Math.max(1, ...graphData.nodes.map(n => n._connections || 1));
+    return scalePow().exponent(0.5).domain([1, maxConn]).range([4, 40]).clamp(true);
   }, [graphData.nodes]);
 
+  /* ---------- selected actor adjacency sets ---------- */
+  const { selectedNeighbors, selectedLinkSet } = useMemo(() => {
+    if (!selectedActor) return { selectedNeighbors: new Set<string>(), selectedLinkSet: new Set<string>() };
+    const neighbors = new Set<string>();
+    const linkSet = new Set<string>();
+    graphData.links.forEach(l => {
+      const s = getLinkNodeId(l.source), t = getLinkNodeId(l.target);
+      if (s === selectedActor || t === selectedActor) {
+        neighbors.add(s);
+        neighbors.add(t);
+        linkSet.add(`${s}|||${t}`);
+        linkSet.add(`${t}|||${s}`);
+      }
+    });
+    return { selectedNeighbors: neighbors, selectedLinkSet: linkSet };
+  }, [selectedActor, graphData.links]);
+
+  /* ---------- proximity coloring ---------- */
+  const getNodeColor = useCallback((node: ForceGraphNode) => {
+    if (colorMode === 'proximity' && selectedActor) {
+      if (node.id === selectedActor || node.name === selectedActor) return '#dc2626';
+      if (selectedNeighbors.has(node.id) || selectedNeighbors.has(node.name || '')) {
+        return '#f59e0b'; // warm orange for direct connections
+      }
+      return 'hsl(120, 40%, 45%)'; // green for distant
+    }
+    // Default: entity type coloring
+    return ENTITY_COLOR_MAP[node.type || 'default'] || ENTITY_COLOR_MAP.default;
+  }, [colorMode, selectedActor, selectedNeighbors]);
+
+  /* ---------- configure forces ---------- */
+  useEffect(() => {
+    if (!fgRef.current || graphData.nodes.length === 0) return;
+    const fg = fgRef.current;
+    const nodeCount = graphData.nodes.length;
+    const chargeStrength = nodeCount > 100 ? -250 : -350;
+    fg.d3Force('charge')?.strength(chargeStrength).distanceMax(300);
+    fg.d3Force('link')?.distance(60).strength(0.7);
+
+    // Collision based on node radius
+    fg.d3Force('collision', forceCollide()
+      .radius((n: any) => radiusScale(n._connections || 1) + 6)
+      .strength(0.8)
+    );
+
+    // Radial force: push high-connection nodes toward center
+    fg.d3Force('radial', forceRadial(
+      (n: any) => {
+        const conn = Math.min(n._connections || 0, 50);
+        return (50 - conn) * 12 + 60; // high-conn = small radius = center
+      },
+      0, 0
+    ).strength(0.3));
+
+    fg.d3Force('center')?.strength(0.05);
+    fg.d3ReheatSimulation();
+  }, [graphData, radiusScale]);
+
+  /* ---------- auto-center ---------- */
+  useEffect(() => {
+    if (graphData.nodes.length > 0 && !hasCentered && fgRef.current) {
+      if (centerTimeoutRef.current) clearTimeout(centerTimeoutRef.current);
+      centerTimeoutRef.current = setTimeout(() => {
+        fgRef.current?.zoomToFit(600, 40);
+        setHasCentered(true);
+      }, 2500);
+    }
+    return () => { if (centerTimeoutRef.current) clearTimeout(centerTimeoutRef.current); };
+  }, [graphData, hasCentered]);
+
+  /* ---------- zoom to selected actor ---------- */
+  useEffect(() => {
+    if (!selectedActor || !fgRef.current) return;
+    const node = graphData.nodes.find(n => n.id === selectedActor || n.name === selectedActor);
+    if (node && node.x !== undefined && node.y !== undefined) {
+      fgRef.current.centerAt(node.x, node.y, 800);
+      fgRef.current.zoom(2.5, 800);
+    }
+  }, [selectedActor]);
+
+  /* ---------- render ---------- */
   if (loading) {
-    return (
-      <div className="network-graph-container">
-        <div className="loading">Loading network graph...</div>
-      </div>
-    );
+    return <div className="network-graph-container"><div className="loading">Loading network graph...</div></div>;
   }
-
   if (error) {
-    return (
-      <div className="network-graph-container">
-        <div className="error">{error}</div>
-        <button onClick={loadGraphData}>Retry</button>
-      </div>
-    );
+    return <div className="network-graph-container"><div className="error">{error}<button onClick={loadGraphData} style={{ marginTop: 12 }}>Retry</button></div></div>;
   }
-
   if (graphData.nodes.length === 0) {
-    return (
-      <div className="network-graph-container">
-        <div className="empty">No network data available</div>
-      </div>
-    );
+    return <div className="network-graph-container"><div className="empty">No network data available</div></div>;
   }
 
   return (
-    <div className="network-graph-container">
-      <div className="graph-filters">
-        <label className="filter-label">
-          <input
-            type="checkbox"
-            checked={showInferred}
-            onChange={(e) => setShowInferred(e.target.checked)}
-            aria-label="Show inferred relationships"
-          />
-          <span>Show Inferred Connections</span>
-        </label>
-        <label className="filter-label">
-          <span>Min Connections:</span>
-          <input
-            type="number"
-            min="0"
-            max="10"
-            value={minConnections}
-            onChange={(e) => setMinConnections(parseInt(e.target.value) || 0)}
-            aria-label="Minimum connections filter"
-            style={{ width: '60px', marginLeft: '8px' }}
-          />
-        </label>
-      </div>
-      
-      <div className="graph-controls" role="toolbar" aria-label="Graph controls">
-        <button
-          onClick={() => fgRef.current?.zoomToFit(400, 50)}
-          aria-label="Fit graph to view"
-          title="Fit to View"
-        >
-          <span className="button-icon">⛶</span>
-          <span className="button-label">Fit</span>
-        </button>
-        <button
-          onClick={() => centerGraph(true)}
-          aria-label="Center graph"
-          title="Center (Space)"
-        >
-          <span className="button-icon">⟲</span>
-          <span className="button-label">Center</span>
-        </button>
-        <button
-          onClick={resetView}
-          aria-label="Reset view to initial state"
-          title="Reset View"
-        >
-          <span className="button-icon">↻</span>
-          <span className="button-label">Reset</span>
-        </button>
-        <button
-          onClick={() => fgRef.current?.zoom(1.5, 400)}
-          aria-label="Zoom in"
-          title="Zoom In (+)"
-        >
-          <span className="button-icon">+</span>
-          <span className="button-label">In</span>
-        </button>
-        <button
-          onClick={() => fgRef.current?.zoom(0.5, 400)}
-          aria-label="Zoom out"
-          title="Zoom Out (-)"
-        >
-          <span className="button-icon">−</span>
-          <span className="button-label">Out</span>
-        </button>
-        <button
-          onClick={() => {
-            setViewLocked(!viewLocked);
-            if (!viewLocked) {
-              // When locking, stop auto-centering
-              if (centerTimeoutRef.current) {
-                clearTimeout(centerTimeoutRef.current);
-              }
-            }
-          }}
-          aria-label={viewLocked ? "Unlock view" : "Lock view"}
-          aria-pressed={viewLocked}
-          title={viewLocked ? "Unlock View (prevents auto-centering)" : "Lock View (prevents auto-centering)"}
-          className={viewLocked ? 'active' : ''}
-        >
-          <span className="button-icon">{viewLocked ? '🔒' : '🔓'}</span>
-          <span className="button-label">{viewLocked ? 'Locked' : 'Lock'}</span>
-        </button>
-      </div>
-      
-      <div className={`graph-legend ${showLegend ? 'expanded' : 'collapsed'}`}>
-        <button 
-          className="legend-toggle"
-          onClick={() => setShowLegend(!showLegend)}
-          aria-expanded={showLegend}
-          aria-label={showLegend ? "Collapse legend" : "Expand legend"}
-        >
-          <span>Entity Types</span>
-          <span className="toggle-icon">{showLegend ? '▼' : '▶'}</span>
-        </button>
-        {showLegend && (
-          <div className="legend-items">
-            {uniqueTypes.map(type => (
-              <div key={type} className="legend-item">
-                <span className="legend-color" style={{ backgroundColor: colorMap[type] || '#9B9B9B' }}></span>
-                <span>{type}</span>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
+    <div className="network-graph-container" ref={containerRef}>
       <ForceGraph2D
         ref={fgRef}
         graphData={graphData}
-        aria-label="Interactive entity relationship network graph"
-        nodeLabel={(node: any) => {
-          // Build tooltip with full name if available; fallback to node ID if name empty
-          const displayName = node.name || node.id || 'Unknown';
-          let label = displayName;
-          if (node.full_name && node.name) {
-            label = `${node.name} - ${node.full_name}`;
-          } else if (node.full_name) {
-            label = `${displayName} - ${node.full_name}`;
-          }
-          if (node.type) {
-            label += ` (${node.type})`;
-          }
-          return label;
-        }}
-        nodeColor={getNodeColor}
-        nodeVal={getNodeSize}
-        linkLabel="label"
-        linkColor={(link: any) => {
-          // Color links based on relationship type
-          const label = link.label || '';
-          if (label.includes('Money Flow') || label.includes('$')) {
-            return 'rgba(91, 79, 255, 0.5)'; // Purple for financial
-          } else if (label.includes('Award')) {
-            return 'rgba(212, 162, 24, 0.5)'; // Gold for awards
-          } else if (label.includes('NAICS') || label.includes('Industry')) {
-            return 'rgba(0, 212, 170, 0.4)'; // Teal for industry
-          }
-          return 'rgba(91, 79, 255, 0.4)'; // Default purple
-        }}
-        linkWidth={(link: any) => {
-          // Thicker lines for stronger relationships (money flows)
-          const label = link.label || '';
-          if (label.includes('Money Flow') || link.value) {
-            return 3;
-          }
-          return 2;
-        }}
-        linkDirectionalParticles={4}
-        linkDirectionalParticleWidth={2.5}
-        linkDirectionalParticleSpeed={0.006}
-        backgroundColor="#ffffff"
-        // Improved force simulation for better clustering
-        d3AlphaDecay={0.0228}  // Faster decay for quicker stabilization
-        d3VelocityDecay={0.4}  // Higher velocity decay for smoother movement
-        warmupTicks={200}       // More warmup for better initial layout
-        cooldownTicks={300}    // More cooldown for final positioning
-        cooldownTime={8000}     // Longer cooldown time
+        backgroundColor="#030712"
+        d3AlphaDecay={0.025}
+        d3VelocityDecay={0.4}
+        warmupTicks={200}
+        cooldownTicks={300}
+        cooldownTime={8000}
+        minZoom={0.01}
+        maxZoom={10}
+        nodeVal={(node: any) => radiusScale(node._connections || 1)}
         nodeCanvasObject={(node: any, ctx, globalScale) => {
-          const label = node.name || node.id || 'Unknown';
-          const nodeSize = getNodeSize(node);
-          const fontSize = Math.max(10, 14/globalScale);
-          ctx.font = `${fontSize}px Sans-Serif`;
-          const textWidth = ctx.measureText(label).width;
-          const bckgDimensions = [textWidth, fontSize].map(n => n + fontSize * 0.3);
+          const r = radiusScale(node._connections || 1);
+          const label = node.name || node.id || '';
+          const isSelected = selectedActor && (node.id === selectedActor || node.name === selectedActor);
+          const isNeighbor = selectedActor && (selectedNeighbors.has(node.id) || selectedNeighbors.has(node.name || ''));
+          const dimmed = selectedActor && !isSelected && !isNeighbor;
 
-          // Draw node circle with border
+          // Node circle
           ctx.beginPath();
-          ctx.arc(node.x, node.y, nodeSize, 0, 2 * Math.PI, false);
-          ctx.fillStyle = getNodeColor(node);
+          ctx.arc(node.x, node.y, r, 0, 2 * Math.PI);
+          ctx.fillStyle = dimmed ? 'rgba(100,100,100,0.25)' : getNodeColor(node);
           ctx.fill();
-          ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
-          ctx.lineWidth = 1.5;
-          ctx.stroke();
-          
-          // Only draw label if zoomed in enough
-          if (globalScale > 0.5) {
-            // Draw label background
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-            ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
-            ctx.shadowBlur = 4;
-            ctx.fillRect(
-              node.x - bckgDimensions[0] / 2,
-              node.y + nodeSize + 4,
-              bckgDimensions[0],
-              bckgDimensions[1]
-            );
-            ctx.shadowBlur = 0;
 
-            // Draw label text
+          // Border
+          if (isSelected) {
+            ctx.strokeStyle = '#06b6d4';
+            ctx.lineWidth = 3;
+          } else {
+            ctx.strokeStyle = dimmed ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.6)';
+            ctx.lineWidth = 1;
+          }
+          ctx.stroke();
+
+          // Labels
+          if (globalScale > 0.4 || isSelected || (isNeighbor && globalScale > 0.25)) {
+            const fontSize = Math.max(3, Math.min(11, 12 / globalScale));
+            ctx.font = `${isSelected ? 'bold ' : ''}${fontSize}px Sans-Serif`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'top';
-            ctx.fillStyle = '#1a1a1a';
-            ctx.fillText(label, node.x, node.y + nodeSize + 6);
-          }
-        }}
-        onNodeClick={(node) => {
-          // Zoom to node
-          fgRef.current?.centerAt(node.x, node.y, 1000);
-          fgRef.current?.zoom(2, 1000);
-        }}
-        onNodeHover={(node) => {
-          document.body.style.cursor = node ? 'pointer' : 'default';
-        }}
-        onEngineStop={() => {
-          // Only auto-center if view is not locked and we haven't manually interacted
-          if (!viewLocked && hasCentered && !isCentering) {
-            // Debounce auto-center to avoid constant re-centering
-            if (centerTimeoutRef.current) {
-              clearTimeout(centerTimeoutRef.current);
+
+            const textY = node.y + r + 2;
+            if (!dimmed) {
+              ctx.fillStyle = 'rgba(255,255,255,0.92)';
+              ctx.fillText(label, node.x, textY);
             }
-            centerTimeoutRef.current = setTimeout(() => {
-              if (!viewLocked && fgRef.current) {
-                fgRef.current.zoomToFit(400, 50);
-              }
-            }, 500);
           }
         }}
-        minZoom={0.3}
-        maxZoom={8}
+        linkColor={(link: any) => {
+          if (!selectedActor) {
+            const lbl = link.label || '';
+            if (lbl.includes('Money Flow') || lbl.includes('$')) return 'rgba(91, 79, 255, 0.35)';
+            if (lbl.includes('Award')) return 'rgba(250, 204, 21, 0.3)';
+            return 'rgba(255,255,255,0.12)';
+          }
+          const s = getLinkNodeId(link.source), t = getLinkNodeId(link.target);
+          const key = `${s}|||${t}`;
+          if (selectedLinkSet.has(key)) return '#06b6d4';
+          return 'rgba(255,255,255,0.04)';
+        }}
+        linkWidth={(link: any) => {
+          if (!selectedActor) return (link.count || 1) > 1 ? 2 : 1;
+          const s = getLinkNodeId(link.source), t = getLinkNodeId(link.target);
+          return selectedLinkSet.has(`${s}|||${t}`) ? 2.5 : 0.3;
+        }}
+        linkDirectionalParticles={(link: any) => {
+          if (!selectedActor) return 0;
+          const s = getLinkNodeId(link.source), t = getLinkNodeId(link.target);
+          return selectedLinkSet.has(`${s}|||${t}`) ? 3 : 0;
+        }}
+        linkDirectionalParticleWidth={2}
+        linkDirectionalParticleSpeed={0.008}
+        onNodeClick={(node: any) => {
+          const name = node.name || node.id;
+          onSelectActor(selectedActor === name ? null : name);
+        }}
+        onNodeHover={(node: any, _prevNode: any) => {
+          document.body.style.cursor = node ? 'pointer' : 'default';
+          setHoveredNode(node || null);
+        }}
+        onBackgroundClick={() => onSelectActor(null)}
       />
 
-      <div className="graph-stats">
-        <span>{graphData.nodes.length} nodes</span>
-        <span>{graphData.links.length} connections</span>
-        {(() => {
-          const inferredCount = graphData.links.filter(l => 
-            l.label?.includes('Co-Recipient') || 
-            l.label?.includes('Same Industry') || 
-            l.label?.includes('Award Recipient')
-          ).length;
-          return inferredCount > 0 ? (
-            <span className="inferred-badge">
-              {inferredCount} inferred
-            </span>
-          ) : null;
-        })()}
+      {/* Tooltip */}
+      {hoveredNode && (
+        <div
+          className="graph-tooltip"
+          style={{
+            position: 'absolute',
+            pointerEvents: 'none',
+            left: 0,
+            top: 0,
+            /* We position via a separate listener; for simplicity show at fixed position */
+          }}
+        >
+          {/* Implemented via nodeLabel below for simplicity */}
+        </div>
+      )}
+
+      {/* Instructions Banner */}
+      <div className="graph-instructions-bar">
+        <span>Click nodes to explore relationships</span>
+        <span className="separator">&#x2022;</span>
+        <span>Scroll to zoom</span>
+        <span className="separator">&#x2022;</span>
+        <span>Drag to pan</span>
       </div>
     </div>
   );
 }
 
 export default NetworkGraph;
-

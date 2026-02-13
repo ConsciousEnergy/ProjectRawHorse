@@ -1336,6 +1336,26 @@ These are future features; the first milestone is ingestion + dedup + DB load.
 
 ---
 
+## Research Avenues: Cross-Reference Datasets
+
+### Epstein Document Network (Exploratory — Low Priority)
+
+The [Epstein Document Network Explorer](https://epstein-doc-explorer-1.onrender.com/) (source: [github.com/maxandrews/Epstein-doc-explorer](https://github.com/maxandrews/Epstein-doc-explorer), MIT license) contains 25,232 documents, 107,030 relationships, and 19,034 actors extracted from emails released by the House Oversight Committee.
+
+**Potential overlap with UAP research:**
+- Intelligence analyses suggest Epstein's network cultivated elite theoretical physicists, potentially connected to classified advanced aerospace propulsion programs (Compact Fusion Reactor / Field-Reversed Configuration).
+- A 2006 "Confronting Gravity" workshop sponsored by Epstein included attendees with plasma physics expertise.
+- International intelligence interest in the same FRC technology has been documented.
+
+**Assessment (Feb 2026):**
+- **No direct connections** found between Epstein and the defense contractors in our database (Lockheed Martin, Northrop Grumman, Boeing, DARPA).
+- The Epstein corpus focuses on legal, financial, travel, and personal relationships — not military/aerospace contracting.
+- Adding unverified Epstein data would compromise our OPINT data integrity standards.
+
+**Recommendation:** Flag for manual investigation by domain researchers. Do NOT automate pipeline integration at this time. If specific entity overlaps are confirmed by independent researchers, they can be submitted through our standard GitHub PR contribution process with proper source attribution.
+
+---
+
 ## Open Questions
 
 1. **Should raw sighting CSVs be committed to the repo?** Recommendation: No (too large, redistribution issues). Users download them manually into `data/sightings/raw/` or we provide a download script.
