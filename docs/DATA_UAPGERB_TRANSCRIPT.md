@@ -9,7 +9,7 @@
 
 ## Overview
 
-This dataset contains entities, FOIA targets, and relationships extracted from a comprehensive interview with UAPGerb (Sammy) discussing the organizational structure, funding mechanisms, and key players in UFO legacy programs. The transcript provides detailed information about:
+This dataset contains entities, FOIA targets, and relationships extracted from a comprehensive interview with UAPGerb discussing the organizational structure, funding mechanisms, and key players in UFO legacy programs. The transcript provides detailed information about:
 
 - Government agency structure and interconnections
 - FFRDC (Federally Funded Research and Development Centers) roles
