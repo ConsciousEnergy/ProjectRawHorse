@@ -64,11 +64,17 @@ jobs:
 
       - name: Build frontend
         working-directory: frontend
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
         run: npm run build
 
       - name: Copy frontend to backend static
         shell: bash
         run: |
+          if [ ! -d frontend/dist ] || [ -z "$(ls -A frontend/dist 2>/dev/null)" ]; then
+            echo "::error::frontend/dist missing or empty - frontend build did not produce output"
+            exit 1
+          fi
           mkdir -p backend/static
           cp -r frontend/dist/* backend/static/
 

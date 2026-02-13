@@ -46,7 +46,17 @@ def copy_frontend_build():
 
 
 def create_spec_file():
-    """Create PyInstaller spec file"""
+    """Create PyInstaller spec file. In CI, UAPUFOResearch path may be missing."""
+    datas_entries = [
+        "('backend', 'backend'),",
+        "('config.yaml', '.'),",
+    ]
+    uap_path = Path("../UAPUFOResearch/UAPUFOResearch")
+    if uap_path.resolve().exists():
+        datas_entries.append("('../UAPUFOResearch/UAPUFOResearch', 'UAPUFOResearch/UAPUFOResearch'),")
+    else:
+        print("Note: UAPUFOResearch path not found; omitting from bundle (OK for CI).")
+    datas_block = "[\n        " + "\n        ".join(datas_entries) + "\n    ]"
     spec_content = """
 # -*- mode: python ; coding: utf-8 -*-
 
@@ -56,11 +66,7 @@ a = Analysis(
     ['startup.py'],
     pathex=[],
     binaries=[],
-    datas=[
-        ('backend', 'backend'),
-        ('config.yaml', '.'),
-        ('../UAPUFOResearch/UAPUFOResearch', 'UAPUFOResearch/UAPUFOResearch'),
-    ],
+    datas=""" + datas_block + """,
     hiddenimports=[
         'uvicorn.logging',
         'uvicorn.loops',
