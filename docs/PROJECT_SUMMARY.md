@@ -1,12 +1,16 @@
 # Project RawHorse - Implementation Summary
 
-**Version:** v0.2.0-alpha  
-**Date:** November 11, 2025  
-**Status:** ✅ Feature-Complete Alpha
+**Version:** v0.4.0  
+**Date:** February 2026  
+**Status:** ✅ Active Development (stable)
 
-## v0.2.0-alpha - Major Milestone! ✅
+## Development History
 
-All core alpha features successfully implemented! The application now includes complete visualization, filtering, contribution system, and all critical bug fixes. Ready for executable builds and expanded visualizations.
+> The sections below document the original v0.2.0-alpha milestone. The project is now at **v0.4.0** — see [CHANGELOG_v0.4.0.md](../CHANGELOG_v0.4.0.md) for current features.
+
+### v0.2.0-alpha Milestone (November 2025)
+
+All core alpha features successfully implemented. The application includes complete visualization, filtering, contribution system, and all critical bug fixes.
 
 ## 🆕 New in v0.2.0-alpha
 

@@ -2,44 +2,49 @@
 
 ---
 
-## PRH_v0.3.3Beta → main (February 2026)
+## PRH_v0.4.0 → main (February 2026)
 
-**Branch:** `PRH_v0.3.3Beta`  
-**Tag:** `v0.3.3-beta`  
+**Branch:** `PRH_v0.4.0`  
+**Tag:** `v0.4.0`  
 **Target:** Open PR into `main`  
-**Changelog:** See `CHANGELOG_v0.3.3Beta.md`
+**Changelog:** See `CHANGELOG_v0.4.0.md`
 
 ### Quick commands
 
 ```bash
 # From project root (folder containing frontend, backend, .github)
-git checkout -b PRH_v0.3.3Beta
+git checkout -b PRH_v0.4.0
 
-git add .github/workflows/build-releases.yml
-git add frontend/src/components/SearchBar.tsx frontend/src/components/SearchBar.css
-git add frontend/src/pages/Browse.tsx frontend/src/pages/Browse.css
-git add CHANGELOG_v0.3.3Beta.md GIT_PUSH_COMMANDS.md docs/development/SEARCH_UX_ENHANCEMENTS_4_6_PLAN.md
-git status   # review
+git add -A
+git status   # review staged changes
 
-git commit -m "feat(search-ux): suggestions, recent results, Browse row highlight; CI workflow fixes (v0.3.3 Beta)
+git commit -m "release: v0.4.0 — version alignment, OPINT docs overhaul, architecture guide
 
-- SearchBar: recent clicked results + recent queries (localStorage), Clear history, 200ms debounce
-- Browse: read highlight param, row ids, scrollIntoView + flash animation, URL cleanup
-- CI: upload/download-artifact v4, setup-python v5, gh-release v2, Node 20, branches-ignore, concurrency, pip/npm cache
-- CHANGELOG_v0.3.3Beta.md, GIT_PUSH_COMMANDS.md, SEARCH_UX_ENHANCEMENTS_4_6_PLAN.md"
+- Version alignment: all references consolidated to v0.4.0 (config, README, package.json, roadmap)
+- OPINT documentation: ARCHITECTURE.md, DEVELOPER_GUIDE.md, API_REFERENCE.md, FIRST_RUN.md
+- Contributing: rewritten CONTRIBUTING.md, generic PR template, CODE_OF_CONDUCT, SECURITY.md
+- CI: artifact names Project-RawHorse (was UAP-Data-Explorer)
+- Consolidates v0.3.0–v0.3.3 Beta development into single v0.4.0 milestone
+- See CHANGELOG_v0.4.0.md for full details"
 
-# Create annotated tag for release (best practice)
-git tag -a v0.3.3-beta -m "Release v0.3.3 Beta: Search UX 4-6, CI workflow fixes"
+# Create annotated tag for release
+git tag -a v0.4.0 -m "Release v0.4.0: Version alignment, OPINT public development overhaul"
 
-git push -u origin PRH_v0.3.3Beta
-git push origin v0.3.3-beta
+git push -u origin PRH_v0.4.0
+git push origin v0.4.0
 ```
 
-Then on GitHub: **New Pull Request** → Base: `main`, Compare: `PRH_v0.3.3Beta`. Use `CHANGELOG_v0.3.3Beta.md` for the PR description. The tag `v0.3.3-beta` can be used to trigger the build-releases workflow (if your trigger uses `v*`).
+Then on GitHub: **New Pull Request** → Base: `main`, Compare: `PRH_v0.4.0`. Use `CHANGELOG_v0.4.0.md` for the PR description. The tag `v0.4.0` triggers the build-releases workflow.
 
 ---
 
-## PRH_v0.3.2Beta → main (February 2026)
+## Historical: PRH_v0.3.3Beta (February 2026)
+
+> Superseded by v0.4.0. Kept for reference.
+
+---
+
+## Historical: PRH_v0.3.2Beta → main (February 2026)
 
 **Branch:** `PRH_v0.3.2Beta`  
 **Target:** Open PR into `main`  

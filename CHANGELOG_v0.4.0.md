@@ -1,10 +1,10 @@
 # Changelog - Project RawHorse v0.4.0
 
-## Release Date: January 2026
+## Release Date: February 2026
 
 ## Overview
 
-This release focuses on three key areas: **data enrichment** from UAPGerb's "The Hidden Wing" transcript, **UI/UX improvements** for visualization navigation, and **production infrastructure** preparation for VPS deployment.
+This release consolidates months of development (v0.3.0 through v0.3.3 Beta) into a single milestone. Key areas include: **data enrichment** from UAPGerb's "The Hidden Wing" transcript, **Intelligence Stack Pyramid** visualization, **advanced search** with suggestions and history, **one-click uninstall**, **CI/CD improvements**, and **production infrastructure** preparation for VPS deployment.
 
 ---
 
@@ -52,6 +52,38 @@ Added 26 new entities and 28 relationships from UAPGerb's US Air Force UFO Rever
 - Added "Data Sources and Attribution" card to About page
 - Credits UAPGerb's research with YouTube links
 - Lists government data sources
+
+### Intelligence Stack Pyramid (v0.3.2 Beta)
+- **Dedicated Pyramid page** at `/analysis/pyramid` with trapezoid-tier visualization (L1 narrow top → L6 wide bottom)
+- Chain-of-command tracing from any entity up through the hierarchy
+- Entity detail panels with metadata, relationships, and connections
+- Full-width layout for large datasets
+- PyramidVisualization and PyramidPage components
+
+### Advanced Search & Browse Enhancements (v0.3.1–v0.3.3 Beta)
+- **Global SearchBar** with real-time debounced search (200ms) across all data types
+- **Search Suggestions**: recent queries (last 10) and recent clicked results (last 8) from localStorage
+- **Visual Row Highlighting**: clicking a search result navigates to Browse and flashes the matching row
+- **Keyboard Navigation**: ↑↓ arrows, Enter to select, Esc to close, `/` global shortcut to focus
+- **Browse Page Rewrite**: sortable columns, pagination (10/25/50/100), search highlighting, active filter chips
+- **Backend Search**: multi-word/alias expansion, amount-aware queries, fuzzy matching with rapidfuzz
+- Clear history button for recent results and queries
+
+### One-Click Uninstall (v0.3.3 Beta)
+- **UNINSTALL.bat** (Windows) and **UNINSTALL.sh** (macOS/Linux) remove all install artifacts
+- Server detection via port 8000 (`netstat`/`lsof`/`ss`); option to stop the server before removal
+- Optional prompts: keep database, remove Linux desktop entry
+- `--force` / `/force` flag skips all prompts for scripted use
+- Removal summary printed at end (R=removed, K=kept, N=not found)
+- Windows long-path fallback for `node_modules` via `robocopy`
+
+### CI/CD Improvements (v0.3.3 Beta)
+- **Deprecated GitHub Actions upgraded**: upload/download-artifact v3→v4, setup-python v4→v5, gh-release v1→v2
+- **Node.js**: 18→20 LTS with npm caching
+- **Trigger tightened**: workflow runs only on `v*` tag pushes and `workflow_dispatch`, not branch pushes
+- **Permissions**: top-level `contents: write` for release creation
+- **Concurrency**: `cancel-in-progress: true` to prevent duplicate runs
+- **Build hardening**: `NODE_OPTIONS: --max-old-space-size=4096`, `frontend/dist` existence check
 
 ### Production Infrastructure
 
@@ -120,9 +152,22 @@ Added 26 new entities and 28 relationships from UAPGerb's US Air Force UFO Rever
 - `backend/auth.py`
 - `backend/routers/auth_router.py`
 
-**Launch Scripts:**
+**Launch & Uninstall Scripts:**
 - `START.bat` - Windows guided launcher
 - `START.sh` - macOS/Linux guided launcher
+- `UNINSTALL.bat` - Windows one-click uninstaller
+- `UNINSTALL.sh` - macOS/Linux one-click uninstaller
+
+**Search UX & Browse:**
+- `frontend/src/components/SearchBar.tsx` - Suggestions, recent results/queries, keyboard nav
+- `frontend/src/components/SearchBar.css` - Suggestion styles
+- `frontend/src/pages/Browse.tsx` - Row highlight, stable row IDs, scroll-into-view
+- `frontend/src/pages/Browse.css` - Flash animation
+
+**Pyramid Visualization:**
+- `frontend/src/pages/PyramidPage.tsx`
+- `frontend/src/components/PyramidVisualization.tsx`
+- `frontend/src/components/PyramidVisualization.css`
 
 ### Modified Files
 - `backend/data_loader.py` - Load Hidden Wing data
@@ -136,6 +181,8 @@ Added 26 new entities and 28 relationships from UAPGerb's US Air Force UFO Rever
 - `frontend/src/types/index.ts` - Intel stack types
 - `frontend/src/components/NetworkGraph.tsx` - Filter support
 - `.gitattributes` - Remove LFS for CSV
+- `.github/workflows/build-releases.yml` - Upgraded actions, caching, concurrency, trigger tightening
+- `build_executable.py` - CI-safe UAPUFOResearch path handling
 
 ---
 
@@ -195,7 +242,7 @@ New automated data collection and enrichment system:
 
 ## What's Next (v0.5.0 Roadmap)
 
-- [ ] **Intelligence Stack Pyramid** - Hierarchical visualization of U.S. intelligence agencies
+- [ ] **UFO Database Enrichment** - Ingest NUFORC, MUFON CMS, GEIPAN, and other public sighting databases
 - [ ] VPS deployment guide and one-click deploy script
 - [ ] User authentication UI in frontend
 - [ ] Enhanced Sankey diagram with intel stack coloring
@@ -223,6 +270,20 @@ duckduckgo-search>=5.0.0
 - Development: Project RawHorse Team
 - Research: UAPGerb (data source attribution)
 - Community: Open source contributors
+
+---
+
+---
+
+## Development History
+
+This release consolidates the following incremental Beta releases:
+- **v0.3.0** (Nov 2025) — Enhanced search, FOIA quality scoring, data versioning
+- **v0.3.1 Beta** (Feb 2026) — Browse page rewrite with pagination, sorting, search highlighting
+- **v0.3.2 Beta** (Feb 2026) — Intelligence Stack Pyramid, backend fuzzy search, L6 program expansion
+- **v0.3.3 Beta** (Feb 2026) — Search UX (suggestions, history, row highlighting), CI fixes, one-click uninstall
+
+See individual `CHANGELOG_v0.3.x` files for granular details.
 
 ---
 

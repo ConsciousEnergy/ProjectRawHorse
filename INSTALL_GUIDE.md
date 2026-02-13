@@ -17,7 +17,7 @@ Before running the installer, you need:
    - **IMPORTANT**: During installation, check the box "Add Python to PATH"!
    - After installing, restart your computer
 
-2. **Node.js 18 or higher**
+2. **Node.js 20 or higher** (LTS)
    - Download from: https://nodejs.org/
    - Choose the "LTS" (Long Term Support) version
    - After installing, restart your computer
@@ -82,7 +82,7 @@ Before running the installer, you need:
    - To verify, open Terminal and type: `python3 --version`
    - If not installed, get it from: https://www.python.org/downloads/
 
-2. **Node.js 18 or higher**
+2. **Node.js 20 or higher** (LTS)
    - Download from: https://nodejs.org/
    - Or install via Homebrew: `brew install node`
 
