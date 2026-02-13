@@ -20,6 +20,8 @@
 2. Wait 5-10 minutes for installation
 3. Browser opens automatically when complete
 
+**Uninstall:** Double-click `UNINSTALL.bat` to remove the app and free disk space (optional: keep database). Use `UNINSTALL.bat /force` to skip prompts.
+
 ### macOS/Linux Users
 
 **Option 1: Run START.sh** (Easiest)
@@ -33,6 +35,8 @@ chmod +x START.sh
 chmod +x install.sh
 ./install.sh
 ```
+
+**Uninstall:** Run `./UNINSTALL.sh` to remove the app and free disk space (optional: keep database). Use `./UNINSTALL.sh --force` to skip prompts. See [INSTALL_GUIDE.md](INSTALL_GUIDE.md) for details.
 
 ---
 
