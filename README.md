@@ -25,6 +25,9 @@ A cross-platform, single-click desktop application for exploring and analyzing p
 
 **See [INSTALL_GUIDE.md](INSTALL_GUIDE.md) for detailed instructions**
 
+### Uninstall
+To remove Project RawHorse and free disk space: **Windows** — double-click `UNINSTALL.bat`; **macOS/Linux** — run `./UNINSTALL.sh` (or `./UNINSTALL.sh --force` to skip prompts). You can choose to keep or delete your database. See [INSTALL_GUIDE.md](INSTALL_GUIDE.md#uninstalling-project-rawhorse).
+
 ---
 ## Screenshots of Applications UI
 <img width="1893" height="937" alt="Screenshot 2025-11-16 084427" src="https://github.com/user-attachments/assets/9b59ce0b-49ab-4bfe-96a1-9139eada53bd" />
@@ -163,6 +166,8 @@ ProjectRawHorse/
 ├── docs/                     # Documentation
 ├── START.bat                 # Windows guided launcher (recommended)
 ├── START.sh                  # macOS/Linux guided launcher
+├── UNINSTALL.bat             # Windows one-click uninstaller
+├── UNINSTALL.sh              # macOS/Linux uninstaller
 ├── install.bat               # Windows full installer
 ├── install.sh                # macOS/Linux full installer
 ├── RUN.bat                   # Windows quick launch

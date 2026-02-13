@@ -34,6 +34,14 @@ This release builds on v0.3.2 Beta with **CI/build workflow fixes** (deprecated 
   - Browse reads `highlight`, finds the matching table row by stable id (`row-entity-*`, `row-flow-*`, `row-award-*`, `row-foia-*`), scrolls it into view with `scrollIntoView({ behavior: 'smooth', block: 'nearest' })`, and applies a short **flash** animation (`.row-highlight-flash`).  
   - After 2.5s the highlight is removed and `highlight` is cleared from the URL.
 
+### One-Click Uninstall
+
+- **UNINSTALL.bat** (Windows) and **UNINSTALL.sh** (macOS/Linux) remove all install artifacts: venv (or ../venv), frontend/node_modules, backend/static, frontend/dist, dist/, build/, rawhorse.spec, .env, cache, logs, enrichment outputs, and optionally data/prh.db.
+- Server detection via port 8000 (netstat / lsof or ss); user can choose to stop the server before removal.
+- Optional prompts: keep database, (Linux) remove desktop menu entry.
+- **--force** / **-y** (or Windows `/force`) skips all prompts for scripted use.
+- Removal summary printed at the end (R=removed, K=kept, N=not found). Windows long-path fallback for node_modules (robocopy) when rmdir fails.
+
 ---
 
 ## CI / Build
@@ -58,16 +66,20 @@ This release builds on v0.3.2 Beta with **CI/build workflow fixes** (deprecated 
 
 - **CI:** `.github/workflows/build-releases.yml` (actions upgrades, trigger, permissions, concurrency, caching).  
 - **Frontend:** `frontend/src/components/SearchBar.tsx`, `frontend/src/components/SearchBar.css` (suggestions, recent results/queries, storage, keyboard).  
-- **Frontend:** `frontend/src/pages/Browse.tsx`, `frontend/src/pages/Browse.css` (read `highlight`, row ids, scroll + flash, `.row-highlight-flash`).
+- **Frontend:** `frontend/src/pages/Browse.tsx`, `frontend/src/pages/Browse.css` (read `highlight`, row ids, scroll + flash, `.row-highlight-flash`).  
+- **Docs:** `README.md`, `INSTALL_GUIDE.md`, `QUICKSTART.md` (uninstall instructions and links).
 
 ### New
 
-- `CHANGELOG_v0.3.3Beta.md` (this file).
+- `CHANGELOG_v0.3.3Beta.md` (this file).  
+- `UNINSTALL.bat` (Windows one-click uninstaller; port-8000 check, long-path node_modules fix, /force, removal summary).  
+- `UNINSTALL.sh` (macOS/Linux uninstaller; venv/../venv, lsof/ss server check, --force/-y, Linux .desktop cleanup, removal summary).
 
 ### Docs updated
 
 - `GIT_PUSH_COMMANDS.md` (PRH_v0.3.3Beta branch and tag instructions).  
-- `docs/development/SEARCH_UX_ENHANCEMENTS_4_6_PLAN.md` (implementation status for 4–6).
+- `docs/development/SEARCH_UX_ENHANCEMENTS_4_6_PLAN.md` (implementation status for 4–6).  
+- `docs/development/UNINSTALL_PLAN.md` (refined to match implemented behavior).
 
 ---
 
