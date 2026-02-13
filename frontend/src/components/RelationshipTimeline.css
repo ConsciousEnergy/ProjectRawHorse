@@ -1,0 +1,228 @@
+.relationship-timeline {
+  width: 350px;
+  min-width: 300px;
+  height: 100%;
+  background: #0a0a1a;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  color: #e2e8f0;
+  font-size: 0.85rem;
+  overflow: hidden;
+}
+
+.timeline-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+}
+
+.timeline-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.timeline-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.timeline-close-btn {
+  padding: 4px 8px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  color: #94a3b8;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  transition: all 0.2s;
+}
+
+.timeline-close-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.timeline-actor-name {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #22d3ee;
+  margin-top: 6px;
+  word-break: break-word;
+}
+
+.timeline-subtitle {
+  font-size: 0.78rem;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+/* Filter input */
+.timeline-filter {
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+}
+
+.timeline-filter label {
+  display: block;
+  font-size: 0.72rem;
+  color: #64748b;
+  margin-bottom: 4px;
+}
+
+.timeline-filter-input {
+  width: 100%;
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 5px;
+  color: #e2e8f0;
+  font-size: 0.82rem;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.timeline-filter-input:focus {
+  border-color: #06b6d4;
+}
+
+.timeline-filter-input::placeholder {
+  color: #475569;
+}
+
+/* Timeline entries list */
+.timeline-entries {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+}
+
+.timeline-entry {
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  transition: background 0.15s;
+  cursor: default;
+}
+
+.timeline-entry:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.timeline-entry-type {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 2px 6px;
+  border-radius: 3px;
+  margin-bottom: 4px;
+}
+
+.timeline-entry-type.financial {
+  background: rgba(91, 79, 255, 0.2);
+  color: #a78bfa;
+}
+
+.timeline-entry-type.relationship {
+  background: rgba(6, 182, 212, 0.15);
+  color: #22d3ee;
+}
+
+.timeline-entry-type.award {
+  background: rgba(250, 204, 21, 0.15);
+  color: #facc15;
+}
+
+.timeline-entry-type.inferred {
+  background: rgba(156, 163, 175, 0.15);
+  color: #9ca3af;
+}
+
+.timeline-entry-actors {
+  font-size: 0.82rem;
+  margin-top: 2px;
+  line-height: 1.4;
+}
+
+.timeline-entry-actors .actor-source {
+  color: #f87171;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.timeline-entry-actors .actor-source:hover {
+  text-decoration: underline;
+}
+
+.timeline-entry-actors .actor-target {
+  color: #4ade80;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.timeline-entry-actors .actor-target:hover {
+  text-decoration: underline;
+}
+
+.timeline-entry-actors .actor-action {
+  color: #94a3b8;
+}
+
+.timeline-entry-description {
+  font-size: 0.76rem;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.timeline-entry-amount {
+  font-size: 0.78rem;
+  color: #a78bfa;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+/* Browse link */
+.timeline-browse-link {
+  display: block;
+  padding: 10px 16px;
+  text-align: center;
+  color: #06b6d4;
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.timeline-browse-link:hover {
+  background: rgba(6, 182, 212, 0.08);
+}
+
+/* Empty state */
+.timeline-empty {
+  padding: 24px 16px;
+  text-align: center;
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .relationship-timeline {
+    width: 280px;
+    min-width: 240px;
+  }
+}
+
+@media (max-width: 700px) {
+  .relationship-timeline {
+    display: none;
+  }
+}
