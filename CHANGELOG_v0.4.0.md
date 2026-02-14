@@ -1,4 +1,4 @@
-# Changelog - Project RawHorse v0.3.1Beta
+# Changelog - Project RawHorse v0.4.0
 
 ## Release Date: February 2026
 
