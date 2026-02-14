@@ -120,15 +120,3 @@ This release delivers the **Intelligence Stack Pyramid** overhaul: a hierarchica
 2. **Data reload** (optional, for latest L6/hierarchy): Stop backend, run `python reload_database.py`, answer `yes`. Restart backend.
 3. **Hard-refresh** the Pyramid page (Ctrl+Shift+R) after deploying frontend.
 
----
-
-## Pre-PR Checklist
-
-- [ ] Frontend builds without errors (`npm run build` in frontend).
-- [ ] Backend starts and serves `/analysis/pyramid`.
-- [ ] Pyramid shows tiers; search and entity click open detail under search.
-- [ ] Trace chain of command highlights chain and shows count.
-- [ ] About page shows GitHub repo link.
-- [ ] Backend search: "National Geospatial" → NGA, "223" → amount flows, "Pereton" → Peraton (optional: run `python test_search_enhancements.py`).
-- [ ] RUN.bat starts server without ModuleNotFoundError (rapidfuzz installed via pip install -r backend\requirements.txt).
-- [ ] CHANGELOG and branch instructions updated.
