@@ -41,9 +41,22 @@ To remove Project RawHorse and free disk space: **Windows** — double-click `UN
 
 ---
 ## Screenshots of Applications UI
-<img width="1893" height="937" alt="Screenshot 2025-11-16 084427" src="https://github.com/user-attachments/assets/9b59ce0b-49ab-4bfe-96a1-9139eada53bd" />
+<img width="1904" height="953" alt="PRHScreenshot_7" src="https://github.com/user-attachments/assets/71df00eb-2c17-42c1-b2f4-16212c8a507a" />
 
-<img width="1899" height="873" alt="Screenshot 2025-11-16 084455" src="https://github.com/user-attachments/assets/db1dd1f3-4003-4ebe-9b96-57f8f948117c" />
+<img width="1906" height="952" alt="PRHScreenshot_1" src="https://github.com/user-attachments/assets/9b8c04a2-3dc2-4ac0-99a4-39385f314dda" />
+
+<img width="1903" height="952" alt="PRHScreenshot_6" src="https://github.com/user-attachments/assets/3b6c65f8-a9ee-4db8-9cee-a8351cc08c17" />
+
+<img width="1905" height="953" alt="PRHScreenshot_5" src="https://github.com/user-attachments/assets/bb8410f5-8be8-4d12-ac95-b5ff2fdf099b" />
+
+<img width="1919" height="951" alt="PRHAnalysisScreenshot_1" src="https://github.com/user-attachments/assets/1f582c78-2bb5-407f-b359-b6a2f29aeca0" />
+
+<img width="1900" height="948" alt="PRHIntelStackPyramidScreenshot_1" src="https://github.com/user-attachments/assets/4745091f-f60e-4921-90ee-fd847e152465" />
+
+<img width="1904" height="946" alt="PRHIntelStackPyramidScreenshot_2" src="https://github.com/user-attachments/assets/6ebd4ca9-d345-499a-b31e-d22666105e97" />
+
+<img width="1906" height="954" alt="PRHScreenshot_3" src="https://github.com/user-attachments/assets/138009a8-301b-4777-a880-321e3de28b8b" />
+
 
 ## Features
 
