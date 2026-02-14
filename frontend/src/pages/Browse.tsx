@@ -33,14 +33,16 @@ function HighlightText({ text, highlight }: { text: string; highlight: string })
   if (!highlight.trim() || !text) {
     return <>{text}</>;
   }
-  
-  const regex = new RegExp(`(${highlight.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+  const tokens = highlight.trim().split(/\s+/).filter(Boolean);
+  if (tokens.length === 0) return <>{text}</>;
+  const escaped = tokens.map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  const pattern = escaped.join('|');
+  const regex = new RegExp(`(${pattern})`, 'gi');
   const parts = text.split(regex);
-  
   return (
     <>
-      {parts.map((part, i) => 
-        regex.test(part) ? (
+      {parts.map((part, i) =>
+        i % 2 === 1 ? (
           <mark key={i} className="search-highlight">{part}</mark>
         ) : (
           <span key={i}>{part}</span>
@@ -125,6 +127,9 @@ function Browse() {
     localStorage.setItem('recentSearches', JSON.stringify(updated));
   }, [recentSearches]);
 
+  // Highlight row from SearchBar result (scroll + flash)
+  const highlightId = searchParams.get('highlight') ?? '';
+
   // Initialize from URL parameters
   useEffect(() => {
     const tab = searchParams.get('tab') as TabType;
@@ -148,6 +153,35 @@ function Browse() {
       setCurrentPage(parseInt(page));
     }
   }, [searchParams]);
+
+  // Scroll to and flash the row matching highlightId when data is loaded
+  useEffect(() => {
+    if (!highlightId || loading) return;
+    const prefix =
+      activeTab === 'entities'
+        ? 'row-entity-'
+        : activeTab === 'money-flows'
+          ? 'row-flow-'
+          : activeTab === 'awards'
+            ? 'row-award-'
+            : activeTab === 'foia'
+              ? 'row-foia-'
+              : '';
+    if (!prefix) return;
+    const rowId = prefix + highlightId;
+    const el = document.getElementById(rowId);
+    if (!el) return;
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    el.classList.add('row-highlight-flash');
+    const t = setTimeout(() => {
+      el.classList.remove('row-highlight-flash');
+      setSearchParams((prev) => {
+        prev.delete('highlight');
+        return prev;
+      });
+    }, 2500);
+    return () => clearTimeout(t);
+  }, [highlightId, activeTab, loading, setSearchParams]);
 
   // Auto-search on debounced term change
   useEffect(() => {
@@ -717,7 +751,7 @@ function Browse() {
                       </thead>
                       <tbody>
                         {sortedData.entities.map((entity) => (
-                          <tr key={entity.entity_id} className="clickable-row">
+                          <tr key={entity.entity_id} id={`row-entity-${entity.entity_id}`} className="clickable-row">
                             <td>
                               <HighlightText text={entity.display_name} highlight={debouncedSearchTerm} />
                             </td>
@@ -785,7 +819,7 @@ function Browse() {
                       </thead>
                       <tbody>
                         {sortedData.moneyFlows.map((flow) => (
-                          <tr key={flow.id}>
+                          <tr key={flow.id} id={`row-flow-${flow.id}`}>
                             <td>
                               <HighlightText text={flow.source} highlight={debouncedSearchTerm} />
                             </td>
@@ -835,7 +869,7 @@ function Browse() {
                       </thead>
                       <tbody>
                         {sortedData.awards.map((award) => (
-                          <tr key={award.id}>
+                          <tr key={award.id} id={`row-award-${award.id}`}>
                             <td className="piid-cell">{award.piid || 'N/A'}</td>
                             <td>
                               <HighlightText text={award.recipient_name || ''} highlight={debouncedSearchTerm} />
@@ -882,7 +916,7 @@ function Browse() {
                       </thead>
                       <tbody>
                         {sortedData.foiaTargets.map((foia) => (
-                          <tr key={foia.id}>
+                          <tr key={foia.id} id={`row-foia-${foia.id}`}>
                             <td>
                               <HighlightText text={foia.agency} highlight={debouncedSearchTerm} />
                             </td>

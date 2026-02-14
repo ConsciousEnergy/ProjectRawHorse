@@ -17,7 +17,7 @@ Before running the installer, you need:
    - **IMPORTANT**: During installation, check the box "Add Python to PATH"!
    - After installing, restart your computer
 
-2. **Node.js 18 or higher**
+2. **Node.js 20 or higher** (LTS)
    - Download from: https://nodejs.org/
    - Choose the "LTS" (Long Term Support) version
    - After installing, restart your computer
@@ -48,6 +48,13 @@ Before running the installer, you need:
    - Move shortcut to Desktop
    - Right-click shortcut → Properties → Change Icon → Browse to `PRHLogo.png`
 
+### Uninstalling Project RawHorse (Windows)
+- Double-click `UNINSTALL.bat` to remove the virtual environment, node modules, compiled frontend, build artifacts, cache, and optionally the database.
+- You will be prompted: (1) confirm uninstall, (2) whether to keep `data\prh.db` for future use.
+- If the app is running (port 8000 in use), you will be prompted to stop it first.
+- Use `/force` to skip all prompts: `UNINSTALL.bat /force`
+- When done, delete the project folder to finish.
+
 ### Troubleshooting Windows
 
 **"Python is not recognized"**
@@ -65,6 +72,8 @@ Before running the installer, you need:
 
 ---
 
+---
+
 ## macOS Users
 
 ### Prerequisites
@@ -73,7 +82,7 @@ Before running the installer, you need:
    - To verify, open Terminal and type: `python3 --version`
    - If not installed, get it from: https://www.python.org/downloads/
 
-2. **Node.js 18 or higher**
+2. **Node.js 20 or higher** (LTS)
    - Download from: https://nodejs.org/
    - Or install via Homebrew: `brew install node`
 
@@ -113,6 +122,11 @@ Before running the installer, you need:
      cd ~/RawHorse
      ./START.sh
      ```
+
+6. **Uninstalling Project RawHorse**
+   - Run `./UNINSTALL.sh` (use `chmod +x UNINSTALL.sh` if needed).
+   - You will be prompted to confirm, whether to keep `data/prh.db`, and on Linux whether to remove the desktop menu entry.
+   - Use `./UNINSTALL.sh --force` or `./UNINSTALL.sh -y` to skip prompts. Then delete the project folder.
 
 ### Troubleshooting macOS
 

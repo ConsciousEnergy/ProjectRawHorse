@@ -97,6 +97,8 @@ export interface SearchResponse {
   query: string;
   total_results: number;
   results: SearchResult[];
+  suggestions?: string[];
+  response_time_ms?: number;
 }
 
 export interface SankeyNode {

@@ -5,7 +5,9 @@
 **Video**: "The Pentagon's UFO Program Is Real [Here's How It Works!] ft. UAPGerb"  
 **YouTube URL**: https://www.youtube.com/watch?v=u7g5Sn1DJF4  
 **Date Extracted**: 2025-01-11  
-**Extractor**: Automated extraction script based on transcript analysis
+**Extractor**: Automated extraction script based on transcript analysis  
+
+**Attribution**: We credit this research by the public handle **UAPGerb** only. Do not add or use real names in project materials.
 
 ## Overview
 

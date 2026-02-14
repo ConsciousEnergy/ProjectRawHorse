@@ -1,5 +1,9 @@
 # Search UX Enhancements (4–6) – Plan
 
+**Implementation status:** ✅ **Implemented in v0.3.3 Beta** (branch `PRH_v0.3.3Beta`, tag `v0.3.3-beta`). See `CHANGELOG_v0.3.3Beta.md`.
+
+---
+
 ## Scope
 
 - **4. Search suggestions**: Autocomplete while typing in the global SearchBar.

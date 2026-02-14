@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getFinancialFlows, getTimeline } from '../services/api';
-import NetworkGraph from '../components/NetworkGraph';
+import { Link } from 'react-router-dom';
 import SankeyDiagram from '../components/SankeyDiagram';
 import SkeletonLoader from '../components/SkeletonLoader';
 import { useDataContext } from '../contexts/DataContext';
@@ -64,7 +64,9 @@ function Analysis() {
           Interactive visualization of entity relationships. Click and drag nodes to explore connections.
           Use controls to zoom and center the view.
         </p>
-        <NetworkGraph />
+        <Link to="/analysis/network" style={{ display: 'inline-block', marginTop: 8, color: 'var(--primary-color)', fontWeight: 600 }}>
+          Open Full Network Graph &rarr;
+        </Link>
       </div>
 
       <div className="card">
