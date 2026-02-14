@@ -33,14 +33,16 @@ function HighlightText({ text, highlight }: { text: string; highlight: string })
   if (!highlight.trim() || !text) {
     return <>{text}</>;
   }
-  
-  const regex = new RegExp(`(${highlight.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+  const tokens = highlight.trim().split(/\s+/).filter(Boolean);
+  if (tokens.length === 0) return <>{text}</>;
+  const escaped = tokens.map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  const pattern = escaped.join('|');
+  const regex = new RegExp(`(${pattern})`, 'gi');
   const parts = text.split(regex);
-  
   return (
     <>
-      {parts.map((part, i) => 
-        regex.test(part) ? (
+      {parts.map((part, i) =>
+        i % 2 === 1 ? (
           <mark key={i} className="search-highlight">{part}</mark>
         ) : (
           <span key={i}>{part}</span>
