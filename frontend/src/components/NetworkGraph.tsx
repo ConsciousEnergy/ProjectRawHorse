@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
+import { Loader2 } from 'lucide-react';
 import ForceGraph2D from 'react-force-graph-2d';
 import { forceCollide, forceRadial } from 'd3-force';
 import { scalePow } from 'd3-scale';
@@ -338,7 +339,14 @@ function NetworkGraph({
 
   /* ---------- render ---------- */
   if (loading) {
-    return <div className="network-graph-container"><div className="loading">Loading network graph...</div></div>;
+    return (
+      <div className="network-graph-container">
+        <div className="loading">
+          <Loader2 size={32} className="loading-spinner" />
+          <span>Loading network graph...</span>
+        </div>
+      </div>
+    );
   }
   if (error) {
     return <div className="network-graph-container"><div className="error">{error}<button onClick={loadGraphData} style={{ marginTop: 12 }}>Retry</button></div></div>;

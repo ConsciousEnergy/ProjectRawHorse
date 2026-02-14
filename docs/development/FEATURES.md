@@ -84,6 +84,62 @@ Complete list of features implemented in Project RawHorse.
 
 ---
 
+### FOIA Targets Page ✅ (v0.4.1)
+**Component:** FoiaTargetsPage  
+**Files:**
+- `frontend/src/pages/FoiaTargetsPage.tsx`
+- `frontend/src/pages/FoiaTargetsPage.css`
+
+**Feature:**
+- Dedicated route `/analysis/foia`
+- Sortable table: Agency, Record Request, Timeframe, Priority, Specificity, Likelihood scores
+- Filters: text search, agency dropdown
+- Pagination with page size selector (10/25/50/100)
+- Expandable quality notes on row click
+- Uses ScoreBadge, TableSkeleton, EmptyState
+
+**Impact:** Dedicated FOIA target prioritization with quality scoring
+
+---
+
+### ScoreBadge, ErrorBoundary, TableSkeleton, EmptyState ✅ (v0.4.1)
+**Components:** Shared UI utilities  
+**Files:**
+- `frontend/src/components/ScoreBadge.tsx`
+- `frontend/src/components/ErrorBoundary.tsx`
+- `frontend/src/components/TableSkeleton.tsx`
+- `frontend/src/components/EmptyState.tsx`
+
+**Feature:**
+- **ScoreBadge**: Color-coded score display (priority, specificity, likelihood) for Browse and FoiaTargetsPage
+- **ErrorBoundary**: Graceful error handling with "Try Again" / "Go Home" and collapsible details
+- **TableSkeleton**: Reusable skeleton loader for table pages
+- **EmptyState**: Reusable empty state with icon, title, description, optional action
+
+**Impact:** Consistent UX and error handling across the app
+
+---
+
+### Cyberpunk Neon UI ✅ (v0.4.1)
+**Components:** Theme system and global styles  
+**Files:**
+- `frontend/src/styles/theme.css`
+- `frontend/src/App.css`
+- `frontend/src/index.css`
+
+**Feature:**
+- **Dark mode palette**: Deep blue-black backgrounds (#0A0A12, #111118, #1A1A24, #141420); primary purple and gold (logo) unchanged; neon cyan (#00F0FF) and golden yellow (#FFD700) accents; neon glow variables (--glow-purple, --glow-cyan, --glow-gold)
+- **Cards**: Neon purple border and box-shadow on .card and .stat-card; neon text-shadow on stat values (purple for odd, gold for even)
+- **Glitch hover**: Brief channel-split animation (::before cyan, ::after gold) and glitchSlice keyframes on card hover
+- **Sidebar**: Neon border, "Project RawHorse" title glow, active nav glow and left accent, nav hover cyan tint
+- **Tabs and buttons**: Neon hover box-shadow, active tab bottom-border glow, focus outlines in neon cyan (dark mode)
+- **Scanline overlay**: Subtle CRT-style horizontal lines on .main-content in dark mode (pointer-events: none)
+- **Light mode**: Subtle neon-tinted borders only; no heavy effects
+
+**Impact:** Cohesive neon/retro cyberpunk aesthetic in dark mode while preserving brand colors and readability
+
+---
+
 ### Custom Branding ✅
 **Component:** Icon and logo system  
 **Files:**

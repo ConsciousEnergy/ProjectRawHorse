@@ -53,3 +53,8 @@ button:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
+
+[data-theme="dark"] button:focus,
+[data-theme="dark"] button:focus-visible {
+  outline-color: rgba(0, 240, 255, 0.8);
+}

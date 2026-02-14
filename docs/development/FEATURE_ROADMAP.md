@@ -1,12 +1,20 @@
 # Project RawHorse - Feature Roadmap & Next Steps
 
 **Last Updated**: February 2026  
-**Current Version**: v0.4.0  
+**Current Version**: v0.4.1  
 **Status**: Active Development
 
 ---
 
-## ✅ Completed (v0.2.0 – v0.4.0)
+## ✅ Completed (v0.2.0 – v0.4.1)
+
+### v0.4.1 (February 2026)
+1. **FOIA Targets Page** - Dedicated `/analysis/foia` with sortable table, filters, pagination, expandable quality notes
+2. **ScoreBadge** - Shared component for Browse and FoiaTargetsPage score display
+3. **UX Quick Wins** - ErrorBoundary, TableSkeleton, EmptyState components; loading spinners on Network Graph and Sankey
+4. **UI Bug Fixes** - Browse FOIA score columns, Export FOIA, dashboard click-through, light mode contrast, search truncation, network graph min-width
+5. **Screenshot Management** - Version-controlled screenshots, README relative paths
+6. **Cyberpunk Neon UI Overhaul** - Dark mode: deep blue-black palette, neon purple/cyan/gold glows on cards and sidebar, glitch hover on cards, scanline overlay, neon focus outlines. Primary colors (logo) unchanged. Browse tab URL init and FOIA table column layout fixes.
 
 ### v0.4.0 (February 2026)
 1. **Data Enrichment** - 26 new entities from UAPGerb's "The Hidden Wing" transcript
@@ -37,20 +45,6 @@
 
 ## 🎯 High Priority Features (Ready to Implement)
 
-### 0. **Dedicated FOIA Targets Page** (v0.4.1) 📋 PLANNED NEXT
-**Goal**: Browse and manage FOIA targets in a dedicated Analysis sub-page
-
-**Features to Add**:
-- **Route**: `/analysis/foia` — linked from Analysis sidebar
-- **Browse-style table** with sorting and pagination
-- **Filters**: agency, priority score, specificity score
-- **Integration** with existing FOIA quality scoring system
-
-**Implementation Complexity**: Low-Medium  
-**User Impact**: Medium-High  
-**Estimated Time**: 1-2 days
-
----
 
 ### 1. **Enhanced Financial Visualizations** ⭐ RECOMMENDED AFTER v0.4.1
 **Goal**: Make money flows visual and intuitive

@@ -308,7 +308,7 @@ export default function SearchBar() {
                         >
                           <div className="search-result-icon">{getResultIcon(item.type)}</div>
                           <div className="search-result-content">
-                            <span className="search-result-title">{item.title}</span>
+                            <span className="search-result-title" title={item.title}>{item.title}</span>
                           </div>
                         </div>
                       ))}
@@ -334,7 +334,7 @@ export default function SearchBar() {
                             >
                               <div className="search-result-icon">🔍</div>
                               <div className="search-result-content">
-                                <span className="search-result-title">{q}</span>
+                                <span className="search-result-title" title={q}>{q}</span>
                               </div>
                             </div>
                           );
@@ -372,12 +372,12 @@ export default function SearchBar() {
                     <div className="search-result-icon">{getResultIcon(result.type)}</div>
                     <div className="search-result-content">
                       <div className="search-result-header">
-                        <span className="search-result-title">{result.title}</span>
+                        <span className="search-result-title" title={result.title}>{result.title}</span>
                         <span className="search-result-type-badge">
                           {getResultTypeName(result.type)}
                         </span>
                       </div>
-                      <div className="search-result-description">{result.description}</div>
+                      <div className="search-result-description" title={result.description}>{result.description}</div>
                     </div>
                   </div>
                 ))}

@@ -489,6 +489,11 @@
   color: var(--text-muted, #888);
 }
 
+/* Actions Cell - prevent wrapping */
+.actions-cell {
+  white-space: nowrap;
+}
+
 /* Record Request Cell */
 .record-request-cell {
   max-width: 400px;

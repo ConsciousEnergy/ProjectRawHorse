@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
+import { Loader2 } from 'lucide-react';
 import * as d3 from 'd3';
 import { getSankeyData } from '../services/api';
 import type { SankeyData } from '../types';
@@ -366,7 +367,12 @@ function SankeyDiagram({ minAmount = 0, includeRelationships = true, onNodeClick
   };
 
   if (loading) {
-    return <div className="sankey-container">Loading Sankey diagram...</div>;
+    return (
+      <div className="sankey-container loading-state">
+        <Loader2 size={32} className="loading-spinner" />
+        <span>Loading Sankey diagram...</span>
+      </div>
+    );
   }
 
   if (error) {
