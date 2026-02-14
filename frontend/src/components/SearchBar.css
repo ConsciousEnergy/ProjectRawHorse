@@ -214,6 +214,41 @@
   opacity: 0.7;
 }
 
+.search-did-you-mean {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.search-did-you-mean span {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+.search-suggestion-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.search-suggestion-pill {
+  padding: 6px 12px;
+  background: rgba(6, 182, 212, 0.12);
+  border: 1px solid #06b6d4;
+  border-radius: 999px;
+  color: #06b6d4;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.search-suggestion-pill:hover {
+  background: rgba(6, 182, 212, 0.25);
+  color: #22d3ee;
+}
+
 /* Suggestions block (recent results + recent searches) */
 .search-suggestions-block {
   padding: 8px 0;

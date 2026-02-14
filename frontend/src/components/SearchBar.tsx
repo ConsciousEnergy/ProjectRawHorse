@@ -64,6 +64,7 @@ export default function SearchBar() {
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [recentClicked, setRecentClicked] = useState<RecentClickedItem[]>([]);
   const [recentQueries, setRecentQueries] = useState<string[]>([]);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -84,6 +85,7 @@ export default function SearchBar() {
           const data = await searchGlobal(query);
           const list = data.results || [];
           setResults(list);
+          setSuggestions(data.suggestions || []);
           setIsOpen(true);
           setSelectedIndex(-1);
           // Save successful query to recent searches
@@ -94,6 +96,7 @@ export default function SearchBar() {
         } catch (error) {
           console.error('Search error:', error);
           setResults([]);
+          setSuggestions([]);
         } finally {
           setLoading(false);
         }
@@ -101,6 +104,7 @@ export default function SearchBar() {
       return () => clearTimeout(timer);
     } else {
       setResults([]);
+      setSuggestions([]);
       setLoading(false);
     }
   }, [query]);
@@ -386,7 +390,25 @@ export default function SearchBar() {
           ) : query.length >= 2 ? (
             <div className="search-no-results">
               <p>No results found for "{query}"</p>
-              <small>Try a different search term</small>
+              {suggestions.length > 0 ? (
+                <div className="search-did-you-mean">
+                  <span>Did you mean:</span>
+                  <div className="search-suggestion-pills">
+                    {suggestions.map((s) => (
+                      <button
+                        key={s}
+                        type="button"
+                        className="search-suggestion-pill"
+                        onClick={() => setQuery(s)}
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <small>Try a different search term</small>
+              )}
             </div>
           ) : null}
         </div>
