@@ -1,13 +1,13 @@
-# PR #11 Update: Ready-to-Paste Description for Project RawHorse v0.4.0
+# PR Description: Project RawHorse v0.4.0 Beta → main
 
-**Copy the content below the horizontal rule and paste into the PR description at:**
-https://github.com/ConsciousEnergy/ProjectRawHorse/pull/11
+**Copy the content below the horizontal rule and paste into the PR description when opening a new PR at:**
+https://github.com/ConsciousEnergy/ProjectRawHorse/compare/main...PRH_v0.4.0Beta
 
 ---
 
 ## Overview
 
-This PR merges `PRH_v0.4.0` into main, consolidating v0.4.0 Beta features: the **Network Graph 3-panel overhaul**, **search quality fixes**, **CI pipeline** improvements, **privacy compliance** updates, and existing v0.3.x enhancements (data enrichment, Intelligence Stack Pyramid, one-click install/uninstall).
+This PR merges `PRH_v0.4.0Beta` into main, consolidating v0.4.0 Beta features: the **Network Graph 3-panel overhaul**, **search quality fixes**, **CI pipeline** improvements, **privacy compliance** updates, and existing v0.3.x enhancements (data enrichment, Intelligence Stack Pyramid, one-click install/uninstall).
 
 ---
 
