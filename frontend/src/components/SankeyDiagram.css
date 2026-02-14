@@ -68,6 +68,25 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
+.sankey-container.loading-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+  color: var(--text-secondary, #94a3b8);
+  font-size: 1rem;
+}
+
+.sankey-container.loading-state .loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 .sankey-container.error {
   display: flex;
   align-items: center;

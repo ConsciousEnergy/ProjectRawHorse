@@ -41,21 +41,26 @@ To remove Project RawHorse and free disk space: **Windows** — double-click `UN
 
 ---
 ## Screenshots of Applications UI
-<img width="1904" height="953" alt="PRHScreenshot_7" src="https://github.com/user-attachments/assets/71df00eb-2c17-42c1-b2f4-16212c8a507a" />
 
-<img width="1906" height="952" alt="PRHScreenshot_1" src="https://github.com/user-attachments/assets/9b8c04a2-3dc2-4ac0-99a4-39385f314dda" />
+![Dashboard](screenshots/dashboard-overview.png)
 
-<img width="1903" height="952" alt="PRHScreenshot_6" src="https://github.com/user-attachments/assets/3b6c65f8-a9ee-4db8-9cee-a8351cc08c17" />
+![Browse Entities](screenshots/browse-entities.png)
 
-<img width="1905" height="953" alt="PRHScreenshot_5" src="https://github.com/user-attachments/assets/bb8410f5-8be8-4d12-ac95-b5ff2fdf099b" />
+![Browse FOIA](screenshots/browse-foia.png)
 
-<img width="1919" height="951" alt="PRHAnalysisScreenshot_1" src="https://github.com/user-attachments/assets/1f582c78-2bb5-407f-b359-b6a2f29aeca0" />
+![Analysis Overview](screenshots/analysis-overview.png)
 
-<img width="1900" height="948" alt="PRHIntelStackPyramidScreenshot_1" src="https://github.com/user-attachments/assets/4745091f-f60e-4921-90ee-fd847e152465" />
+![Network Graph](screenshots/network-graph-3panel.png)
 
-<img width="1904" height="946" alt="PRHIntelStackPyramidScreenshot_2" src="https://github.com/user-attachments/assets/6ebd4ca9-d345-499a-b31e-d22666105e97" />
+![Network Graph Proximity](screenshots/network-graph-proximity.png)
 
-<img width="1906" height="954" alt="PRHScreenshot_3" src="https://github.com/user-attachments/assets/138009a8-301b-4777-a880-321e3de28b8b" />
+![Sankey Diagram](screenshots/sankey-diagram.png)
+
+![Intelligence Stack Pyramid](screenshots/pyramid-visualization.png)
+
+![FOIA Targets Page](screenshots/foia-targets-page.png)
+
+![Search Suggestions](screenshots/search-suggestions.png)
 
 
 ## Features
@@ -412,6 +417,13 @@ Built on publicly available data from:
 - Open source community contributions
 
 ## Version History
+
+### v0.4.1 (2026-02)
+- **FOIA Targets Page**: Dedicated `/analysis/foia` with sortable table, filters, quality scoring
+- **UX Quick Wins**: ErrorBoundary, TableSkeleton, EmptyState; loading spinners on Network Graph and Sankey
+- **UI Fixes**: Dashboard stat cards click-through, Browse FOIA score columns, Export FOIA, light mode contrast, search truncation, network graph min-width
+- **Screenshots**: Version-controlled screenshots in `screenshots/` directory
+- See [CHANGELOG_v0.4.1Beta.md](CHANGELOG_v0.4.1Beta.md) for full details
 
 ### v0.4.0 (2026-02)
 - **Data Enrichment**: 26 new entities from UAPGerb's "The Hidden Wing" transcript (Air Force SAF hierarchy)

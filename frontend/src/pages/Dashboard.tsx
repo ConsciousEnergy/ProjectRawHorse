@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { getStats } from '../services/api';
 import type { Stats } from '../types';
 import SkeletonLoader from '../components/SkeletonLoader';
@@ -72,31 +73,31 @@ function Dashboard() {
         </div>
       ) : (
         <div className="stats-grid fade-in" role="region" aria-label="Statistics overview">
-          <div className="stat-card" role="article" aria-label="Total entities statistic">
+          <Link to="/browse?tab=entities" className="stat-card stat-card-link" role="article" aria-label="Total entities statistic">
             <h4>Total Entities</h4>
             <p className="value" aria-live="polite">{stats?.total_entities || 0}</p>
-          </div>
+          </Link>
           
-          <div className="stat-card" role="article" aria-label="Money flows statistic">
+          <Link to="/browse?tab=money-flows" className="stat-card stat-card-link" role="article" aria-label="Money flows statistic">
             <h4>Money Flows</h4>
             <p className="value" aria-live="polite">{stats?.total_money_flows || 0}</p>
-          </div>
+          </Link>
           
-          <div className="stat-card" role="article" aria-label="Federal awards statistic">
+          <Link to="/browse?tab=awards" className="stat-card stat-card-link" role="article" aria-label="Federal awards statistic">
             <h4>Federal Awards</h4>
             <p className="value" aria-live="polite">{stats?.total_awards || 0}</p>
-          </div>
+          </Link>
           
-          <div className="stat-card" role="article" aria-label="FOIA targets statistic">
+          <Link to="/browse?tab=foia" className="stat-card stat-card-link" role="article" aria-label="FOIA targets statistic">
             <h4>FOIA Targets</h4>
             <p className="value" aria-live="polite">{stats?.total_foia_targets || 0}</p>
-          </div>
+          </Link>
           
           <div className="stat-card" role="article" aria-label="Total spending tracked statistic">
             <h4>Total Spending Tracked</h4>
             <p className="value" aria-live="polite">{formatCurrency(stats?.total_money_amount || 0)}</p>
           </div>
-          
+
           <div className="stat-card" role="article" aria-label="Date range statistic">
             <h4>Date Range</h4>
             <p className="value" aria-live="polite">

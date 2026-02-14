@@ -9,11 +9,13 @@ import AnalysisOverview from './pages/AnalysisOverview';
 import NetworkGraphPage from './pages/NetworkGraphPage';
 import PyramidPage from './pages/PyramidPage';
 import SankeyDiagramPage from './pages/SankeyDiagramPage';
+import FoiaTargetsPage from './pages/FoiaTargetsPage';
 import Export from './pages/Export';
 import Contribute from './pages/Contribute';
 import About from './pages/About';
 import LegalDisclaimer from './components/LegalDisclaimer';
 import ThemeToggle from './components/ThemeToggle';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import SearchBar from './components/SearchBar';
 import RefreshButton from './components/RefreshButton';
 import { DataProvider } from './contexts/DataContext';
@@ -100,17 +102,17 @@ function App() {
           
           <main id="main-content" className="main-content" role="main">
             <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/browse" element={<Browse />} />
-              {/* Analysis with sub-routes for separate visualization pages */}
-              <Route path="/analysis" element={<AnalysisOverview />} />
-              <Route path="/analysis/network" element={<NetworkGraphPage />} />
-              <Route path="/analysis/sankey" element={<SankeyDiagramPage />} />
-              <Route path="/analysis/pyramid" element={<PyramidPage />} />
-              <Route path="/analysis/legacy" element={<Analysis />} />
-              <Route path="/export" element={<Export />} />
-              <Route path="/contribute" element={<Contribute />} />
-              <Route path="/about" element={<About />} />
+              <Route path="/" element={<ErrorBoundary><Dashboard /></ErrorBoundary>} />
+              <Route path="/browse" element={<ErrorBoundary><Browse /></ErrorBoundary>} />
+              <Route path="/analysis" element={<ErrorBoundary><AnalysisOverview /></ErrorBoundary>} />
+              <Route path="/analysis/network" element={<ErrorBoundary><NetworkGraphPage /></ErrorBoundary>} />
+              <Route path="/analysis/sankey" element={<ErrorBoundary><SankeyDiagramPage /></ErrorBoundary>} />
+              <Route path="/analysis/pyramid" element={<ErrorBoundary><PyramidPage /></ErrorBoundary>} />
+              <Route path="/analysis/foia" element={<ErrorBoundary><FoiaTargetsPage /></ErrorBoundary>} />
+              <Route path="/analysis/legacy" element={<ErrorBoundary><Analysis /></ErrorBoundary>} />
+              <Route path="/export" element={<ErrorBoundary><Export /></ErrorBoundary>} />
+              <Route path="/contribute" element={<ErrorBoundary><Contribute /></ErrorBoundary>} />
+              <Route path="/about" element={<ErrorBoundary><About /></ErrorBoundary>} />
             </Routes>
           </main>
         </div>

@@ -109,6 +109,39 @@ async def export_awards_csv(
     )
 
 
+@router.get("/csv/foia-targets")
+async def export_foia_targets_csv(
+    db: Session = Depends(get_db)
+):
+    """Export FOIA targets to CSV"""
+    targets = db.query(FOIATarget).order_by(FOIATarget.priority_score.desc().nullslast()).all()
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+
+    writer.writerow([
+        'id', 'agency', 'record_request', 'timeframe', 'relevance', 'notes',
+        'priority_score', 'specificity_score', 'likelihood_score', 'quality_notes'
+    ])
+
+    for t in targets:
+        writer.writerow([
+            t.id, t.agency, t.record_request, t.timeframe or '', t.relevance or '',
+            t.notes or '',
+            t.priority_score if t.priority_score is not None else '',
+            t.specificity_score if t.specificity_score is not None else '',
+            t.likelihood_score if t.likelihood_score is not None else '',
+            t.quality_notes or ''
+        ])
+
+    output.seek(0)
+    return StreamingResponse(
+        iter([output.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=foia_targets.csv"}
+    )
+
+
 @router.get("/json/entities")
 async def export_entities_json(
     db: Session = Depends(get_db)
