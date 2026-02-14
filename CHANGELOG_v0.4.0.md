@@ -53,6 +53,29 @@ Added 26 new entities and 28 relationships from UAPGerb's US Air Force UFO Rever
 - Credits UAPGerb's research with YouTube links
 - Lists government data sources
 
+#### Entity Network Graph Overhaul (v0.4.0 Beta)
+- 3-panel layout: GraphSidebar (left), force graph (center), RelationshipTimeline (right)
+- New components: `GraphSidebar.tsx`, `RelationshipTimeline.tsx` + CSS
+- Square-root node sizing by connection count (4-40px range)
+- Radial force model pushing high-connection nodes to center
+- Edge deduplication with count tracking
+- Dual color modes: Entity Type (default) and Proximity
+- Cyan selection highlighting with edge dimming for unconnected nodes
+- Instructions banner ("Click nodes... Scroll to zoom... Drag to pan")
+- Full-bleed dark background (#030712)
+
+#### Search Quality Fixes (v0.4.0 Beta)
+- Multi-word tokenized AND conditions across all four search functions
+- `entity_id` added to entity search columns
+- `parse_amount_query` returns multiple ranges (exact, K, M) for bare numbers
+- Text fallback for numeric queries in award/flow descriptions
+- Always-on fuzzy matching with WRatio scorer (not just fallback)
+- Lower score cutoff (55) for short queries (< 8 chars)
+- TTL-based name list cache (5 min) for fuzzy matching performance
+- "Did you mean?" suggestions API field on zero results
+- Frontend suggestion pills with cyan styling
+- Multi-token highlighting in Browse HighlightText
+
 ### Intelligence Stack Pyramid (v0.3.2 Beta)
 - **Dedicated Pyramid page** at `/analysis/pyramid` with trapezoid-tier visualization (L1 narrow top → L6 wide bottom)
 - Chain-of-command tracing from any entity up through the hierarchy
@@ -84,6 +107,11 @@ Added 26 new entities and 28 relationships from UAPGerb's US Air Force UFO Rever
 - **Permissions**: top-level `contents: write` for release creation
 - **Concurrency**: `cancel-in-progress: true` to prevent duplicate runs
 - **Build hardening**: `NODE_OPTIONS: --max-old-space-size=4096`, `frontend/dist` existence check
+
+#### CI Pipeline (v0.4.0 Beta)
+- New `ci-check.yml` for PR status checks (tsc --noEmit, pip install, npm run build)
+- Fixed `build-releases.yml` shell indentation (fi alignment)
+- Regenerated `package-lock.json` to fix npm ci failure (vite version sync)
 
 ### Production Infrastructure
 
@@ -164,12 +192,21 @@ Added 26 new entities and 28 relationships from UAPGerb's US Air Force UFO Rever
 - `frontend/src/pages/Browse.tsx` - Row highlight, stable row IDs, scroll-into-view
 - `frontend/src/pages/Browse.css` - Flash animation
 
+**Network Graph (v0.4.0 Beta):**
+- `frontend/src/components/GraphSidebar.tsx` + `.css`
+- `frontend/src/components/RelationshipTimeline.tsx` + `.css`
+
 **Pyramid Visualization:**
 - `frontend/src/pages/PyramidPage.tsx`
 - `frontend/src/components/PyramidVisualization.tsx`
 - `frontend/src/components/PyramidVisualization.css`
 
 ### Modified Files
+- `frontend/src/pages/NetworkGraphPage.tsx` - 3-panel layout rewrite
+- `frontend/src/pages/Analysis.tsx` - Replaced embedded NetworkGraph with link to dedicated page
+- `frontend/src/components/SearchBar.tsx` - "Did you mean?" suggestions
+- `frontend/src/types/index.ts` - suggestions field on SearchResponse
+- `backend/routers/search.py` - Multi-word, multi-scale, always-on fuzzy, suggestions
 - `backend/data_loader.py` - Load Hidden Wing data
 - `backend/database.py` - PostgreSQL support
 - `backend/main.py` - Auth router
@@ -240,7 +277,12 @@ New automated data collection and enrichment system:
 
 ---
 
-## What's Next (v0.5.0 Roadmap)
+## What's Next
+
+### v0.4.1
+- [ ] **Dedicated FOIA Targets page** under Analysis (`/analysis/foia`)
+
+### v0.5.0+ Roadmap
 
 - [ ] **UFO Database Enrichment** - Ingest NUFORC, MUFON CMS, GEIPAN, and other public sighting databases
 - [ ] VPS deployment guide and one-click deploy script
@@ -278,6 +320,7 @@ duckduckgo-search>=5.0.0
 ## Development History
 
 This release consolidates the following incremental Beta releases:
+- **v0.4.0 Beta** (Feb 2026) — Network Graph 3-panel overhaul, search quality fixes, CI pipeline, privacy compliance
 - **v0.3.0** (Nov 2025) — Enhanced search, FOIA quality scoring, data versioning
 - **v0.3.1 Beta** (Feb 2026) — Browse page rewrite with pagination, sorting, search highlighting
 - **v0.3.2 Beta** (Feb 2026) — Intelligence Stack Pyramid, backend fuzzy search, L6 program expansion

@@ -12,13 +12,16 @@
 1. **Data Enrichment** - 26 new entities from UAPGerb's "The Hidden Wing" transcript
 2. **Intelligence Stack Pyramid** - Hierarchical L1–L6 visualization with chain-of-command tracing
 3. **Advanced Search & Suggestions** - Global SearchBar with debounced results, recent queries/results, row highlighting
-4. **One-Click Uninstall** - `UNINSTALL.bat` / `UNINSTALL.sh` with server detection and removal summary
-5. **CI/CD Improvements** - GitHub Actions v4 upgrades, caching, concurrency, build hardening
-6. **Docker Support** - Full Docker Compose configuration for VPS deployment
-7. **PostgreSQL Support** - Alongside SQLite fallback
-8. **JWT Authentication** - Token-based auth with role-based access control
-9. **Git LFS Removal** - Simplified cloning and contributions
-10. **OPINT Documentation Overhaul** - Architecture, developer guide, API reference, contributing rewrite
+4. **Network Graph Overhaul** - 3-panel layout (GraphSidebar, force graph, RelationshipTimeline), proximity color mode, radial force layout
+5. **Search Quality Fixes** - Multi-word tokenization, multi-scale amounts, always-on fuzzy, "Did you mean?" suggestions
+6. **CI Pipeline** - `ci-check.yml` for PR status checks, `build-releases.yml` indentation fix
+7. **One-Click Uninstall** - `UNINSTALL.bat` / `UNINSTALL.sh` with server detection and removal summary
+8. **CI/CD Improvements** - GitHub Actions v4 upgrades, caching, concurrency, build hardening
+9. **Docker Support** - Full Docker Compose configuration for VPS deployment
+10. **PostgreSQL Support** - Alongside SQLite fallback
+11. **JWT Authentication** - Token-based auth with role-based access control
+12. **Git LFS Removal** - Simplified cloning and contributions
+13. **OPINT Documentation Overhaul** - Architecture, developer guide, API reference, contributing rewrite
 
 ### v0.3.0 (December 2025)
 1. **Enhanced Search** - Backend search with FOIA quality scoring
@@ -34,7 +37,22 @@
 
 ## 🎯 High Priority Features (Ready to Implement)
 
-### 1. **Enhanced Financial Visualizations** ⭐ RECOMMENDED NEXT
+### 0. **Dedicated FOIA Targets Page** (v0.4.1) 📋 PLANNED NEXT
+**Goal**: Browse and manage FOIA targets in a dedicated Analysis sub-page
+
+**Features to Add**:
+- **Route**: `/analysis/foia` — linked from Analysis sidebar
+- **Browse-style table** with sorting and pagination
+- **Filters**: agency, priority score, specificity score
+- **Integration** with existing FOIA quality scoring system
+
+**Implementation Complexity**: Low-Medium  
+**User Impact**: Medium-High  
+**Estimated Time**: 1-2 days
+
+---
+
+### 1. **Enhanced Financial Visualizations** ⭐ RECOMMENDED AFTER v0.4.1
 **Goal**: Make money flows visual and intuitive
 
 **Features to Add**:
