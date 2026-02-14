@@ -20,6 +20,8 @@
 2. Wait 5-10 minutes for installation
 3. Browser opens automatically when complete
 
+**Uninstall:** Double-click `UNINSTALL.bat` to remove the app and free disk space (optional: keep database). Use `UNINSTALL.bat /force` to skip prompts.
+
 ### macOS/Linux Users
 
 **Option 1: Run START.sh** (Easiest)
@@ -34,6 +36,8 @@ chmod +x install.sh
 ./install.sh
 ```
 
+**Uninstall:** Run `./UNINSTALL.sh` to remove the app and free disk space (optional: keep database). Use `./UNINSTALL.sh --force` to skip prompts. See [INSTALL_GUIDE.md](INSTALL_GUIDE.md) for details.
+
 ---
 
 ## Prerequisites
@@ -43,7 +47,7 @@ Before installation, you need:
 ### Windows
 - **Python 3.10+**: Download from https://www.python.org/downloads/
   - ⚠️ **IMPORTANT**: Check "Add Python to PATH" during installation!
-- **Node.js 18+**: Download from https://nodejs.org/
+- **Node.js 20+** (LTS): Download from https://nodejs.org/
 
 ### macOS
 ```bash
@@ -55,7 +59,7 @@ brew install python3 node
 ```bash
 sudo apt update
 sudo apt install python3 python3-pip python3-venv
-curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 sudo apt install nodejs
 ```
 
@@ -220,7 +224,7 @@ python -m pip install --upgrade pip virtualenv
 - Try: `pip install -r backend/requirements.txt`
 
 **Frontend build fails**
-- Check Node version: `node --version` (need 18+)
+- Check Node version: `node --version` (need 20+)
 - Delete node_modules and reinstall:
   ```bash
   cd frontend

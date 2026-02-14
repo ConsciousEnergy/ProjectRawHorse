@@ -18,6 +18,35 @@ from data_loader import AGENCY_ACRONYMS
 
 router = APIRouter()
 
+_NAME_CACHE: Dict[str, Tuple[List[str], float]] = {}
+_NAME_CACHE_TTL = 300.0  # 5 minutes
+
+
+def _get_cached_names(db: Session, column: Any, cache_key: str) -> List[str]:
+    """Get distinct names from DB with 5-minute TTL cache."""
+    now = time.time()
+    if cache_key in _NAME_CACHE:
+        cached, ts = _NAME_CACHE[cache_key]
+        if now - ts < _NAME_CACHE_TTL:
+            return cached
+    names = [r[0] for r in db.query(column).distinct().all() if r[0]]
+    _NAME_CACHE[cache_key] = (names, now)
+    return names
+
+
+def _build_suggestions(db: Session, query: str, limit: int = 3) -> List[str]:
+    """Build 'Did you mean?' suggestions when search returns zero results."""
+    q = query.strip()
+    if len(q) < 2:
+        return []
+    names = _get_cached_names(db, Entity.display_name, "entity_names")
+    if not names:
+        return []
+    fuzzy_matches = process.extract(
+        q, names, scorer=fuzz.WRatio, score_cutoff=45, limit=limit
+    )
+    return [m[0] for m in fuzzy_matches if m[0] and m[0] != q]
+
 
 def _load_alias_map() -> Tuple[Dict[str, str], Dict[str, List[str]]]:
     """Load alias map from entity_aliases.csv and AGENCY_ACRONYMS. Cached at module level."""
@@ -79,15 +108,15 @@ def expand_query(query: str) -> List[str]:
     return [q] + [t for t in sorted(seen) if t != q_lower]
 
 
-def parse_amount_query(query: str) -> Optional[Tuple[float, float]]:
+def parse_amount_query(query: str) -> Optional[List[Tuple[float, float]]]:
     """
-    If query looks like a dollar amount, return (lo, hi) range for DB filtering.
-    E.g. '223' -> millions [222e6, 224e6]; '223M' -> [222e6, 224e6]; '1.8B' -> [1.7e9, 1.9e9].
+    If query looks like a dollar amount, return a list of (lo, hi) ranges for DB filtering.
+    E.g. '223' -> [(222, 224), (222e3, 224e3), (222e6, 224e6)] (exact, K, M).
+    '223M' -> [(222e6, 224e6)].
     """
     q = query.strip().replace("$", "").replace(",", "").upper()
     if not q:
         return None
-    # Optional K/M/B suffix
     mult = 1.0
     if q.endswith("K"):
         mult, q = 1e3, q[:-1]
@@ -104,17 +133,27 @@ def parse_amount_query(query: str) -> Optional[Tuple[float, float]]:
         return None
     if val <= 0:
         return None
-    # Build range: ~1% tolerance for large amounts, or ±0.5 for integers as millions
+    ranges: List[Tuple[float, float]] = []
     if mult > 1:
+        # Explicit suffix: single range
         delta = max(val * 0.01, 1)
-        return (val - delta, val + delta)
-    if val < 10000:
-        # Interpret as millions: 223 -> $223M
-        v_m = val * 1e6
-        delta = 0.5e6
-        return (v_m - delta, v_m + delta)
-    delta = max(val * 0.01, 1)
-    return (val - delta, val + delta)
+        ranges.append((val - delta, val + delta))
+    else:
+        # No suffix: try multiple scales (exact, thousands, millions)
+        if val < 100000:
+            delta = max(val * 0.01, 0.5)
+            ranges.append((val - delta, val + delta))
+        if val < 10000:
+            v_k = val * 1e3
+            delta_k = max(v_k * 0.01, 500)
+            ranges.append((v_k - delta_k, v_k + delta_k))
+            v_m = val * 1e6
+            delta_m = max(v_m * 0.01, 0.5e6)
+            ranges.append((v_m - delta_m, v_m + delta_m))
+        else:
+            delta = max(val * 0.01, 1)
+            ranges.append((val - delta, val + delta))
+    return ranges
 
 
 def calculate_relevance(text: str, query: str) -> float:
@@ -166,7 +205,13 @@ def search_entities(db: Session, query: str, limit: int = 20) -> List[Dict[str, 
             Entity.display_name.ilike(f"%{t}%"),
             Entity.entity_type.ilike(f"%{t}%"),
             Entity.normalized_name.ilike(f"%{t}%"),
+            Entity.entity_id.ilike(f"%{t}%"),
         ])
+    # Multi-word: add tokenized AND conditions (e.g. "National Geospatial" -> display_name contains both)
+    words = [w for w in query.strip().split() if w]
+    if len(words) > 1:
+        for col in [Entity.display_name, Entity.normalized_name, Entity.entity_type, Entity.entity_id]:
+            conditions.append(and_(*[col.ilike(f"%{w}%") for w in words]))
     entities = db.query(Entity).filter(or_(*conditions)).limit(limit * 2).all()
 
     for entity in entities:
@@ -195,31 +240,32 @@ def search_entities(db: Session, query: str, limit: int = 20) -> List[Dict[str, 
                     "normalized_name": entity.normalized_name
                 }
             })
-    if len(results) < limit:
-        names = [r[0] for r in db.query(Entity.display_name).distinct().all()]
-        if names:
-            fuzzy_matches = process.extract(
-                query.strip(), names, scorer=fuzz.token_sort_ratio, score_cutoff=70, limit=limit
-            )
-            seen_ids = {r["id"] for r in results}
-            for name, score, _ in fuzzy_matches:
-                entity = db.query(Entity).filter(Entity.display_name == name).first()
-                if entity and entity.entity_id not in seen_ids:
-                    seen_ids.add(entity.entity_id)
-                    relevance = score / 100 * 0.7
-                    results.append({
-                        "type": "entity",
-                        "id": entity.entity_id,
-                        "title": entity.display_name,
-                        "description": entity.entity_type or "Unknown Type",
-                        "matched_field": "display_name",
-                        "matched_text": entity.display_name,
-                        "relevance": relevance,
-                        "metadata": {
-                            "entity_type": entity.entity_type,
-                            "normalized_name": entity.normalized_name
-                        }
-                    })
+    # Always run fuzzy matching (not just fallback); use WRatio, lower cutoff for short queries
+    score_cutoff = 55 if len(query.strip()) < 8 else 70
+    names = _get_cached_names(db, Entity.display_name, "entity_names")
+    if names:
+        fuzzy_matches = process.extract(
+            query.strip(), names, scorer=fuzz.WRatio, score_cutoff=score_cutoff, limit=limit * 2
+        )
+        seen_ids = {r["id"] for r in results}
+        for name, score, _ in fuzzy_matches:
+            entity = db.query(Entity).filter(Entity.display_name == name).first()
+            if entity and entity.entity_id not in seen_ids:
+                seen_ids.add(entity.entity_id)
+                relevance = score / 100 * 0.7
+                results.append({
+                    "type": "entity",
+                    "id": entity.entity_id,
+                    "title": entity.display_name,
+                    "description": entity.entity_type or "Unknown Type",
+                    "matched_field": "display_name",
+                    "matched_text": entity.display_name,
+                    "relevance": relevance,
+                    "metadata": {
+                        "entity_type": entity.entity_type,
+                        "normalized_name": entity.normalized_name
+                    }
+                })
     return results
 
 
@@ -236,10 +282,20 @@ def search_awards(db: Session, query: str, limit: int = 20) -> List[Dict[str, An
             Award.funding_agency.ilike(f"%{t}%"),
             Award.description.ilike(f"%{t}%"),
         ])
-    amount_range = parse_amount_query(query)
-    if amount_range:
-        lo, hi = amount_range
-        conditions.append(and_(Award.award_amount.isnot(None), Award.award_amount.between(lo, hi)))
+    words = [w for w in query.strip().split() if w]
+    if len(words) > 1:
+        for col in [Award.recipient_name, Award.awarding_agency, Award.funding_agency, Award.description]:
+            conditions.append(and_(*[col.ilike(f"%{w}%") for w in words]))
+    amount_ranges = parse_amount_query(query)
+    if amount_ranges:
+        range_conditions = []
+        for lo, hi in amount_ranges:
+            range_conditions.append(and_(Award.award_amount.isnot(None), Award.award_amount.between(lo, hi)))
+        conditions.append(or_(*range_conditions))
+        # Text fallback: search raw query in description (e.g. "223" in "Contract #223-...")
+        q_clean = query.strip().replace("$", "").replace(",", "")
+        if q_clean and q_clean.replace(".", "").isdigit():
+            conditions.append(Award.description.ilike(f"%{q_clean}%"))
     awards = db.query(Award).filter(or_(*conditions)).limit(limit * 2).all()
 
     for award in awards:
@@ -247,13 +303,14 @@ def search_awards(db: Session, query: str, limit: int = 20) -> List[Dict[str, An
         matched_text = award.recipient_name or ""
         best_relevance = 0.0
         matched_on_original = False
-        if amount_range and award.award_amount is not None:
-            lo, hi = amount_range
-            if lo <= award.award_amount <= hi:
-                best_relevance = 0.85
-                matched_field = "award_amount"
-                matched_text = f"${award.award_amount:,.0f}"
-                matched_on_original = True
+        if amount_ranges and award.award_amount is not None:
+            for lo, hi in amount_ranges:
+                if lo <= award.award_amount <= hi:
+                    best_relevance = 0.85
+                    matched_field = "award_amount"
+                    matched_text = f"${award.award_amount:,.0f}"
+                    matched_on_original = True
+                    break
         for t in terms:
             for field_name, text in [
                 ("recipient_name", award.recipient_name or ""),
@@ -288,15 +345,16 @@ def search_awards(db: Session, query: str, limit: int = 20) -> List[Dict[str, An
                     "date": str(award.action_date) if award.action_date else None
                 }
             })
-    if len(results) < limit:
-        names = [r[0] for r in db.query(Award.recipient_name).distinct().all() if r[0]]
-        if names:
-            fuzzy_matches = process.extract(
-                query.strip(), names, scorer=fuzz.token_sort_ratio, score_cutoff=70, limit=limit
-            )
-            seen_award_ids = {r["id"] for r in results}
-            for name, score, _ in fuzzy_matches:
-                for award in db.query(Award).filter(Award.recipient_name == name).limit(limit).all():
+    score_cutoff = 55 if len(query.strip()) < 8 else 70
+    names = _get_cached_names(db, Award.recipient_name, "award_recipients")
+    names = [n for n in names if n]
+    if names:
+        fuzzy_matches = process.extract(
+            query.strip(), names, scorer=fuzz.WRatio, score_cutoff=score_cutoff, limit=limit * 2
+        )
+        seen_award_ids = {r["id"] for r in results}
+        for name, score, _ in fuzzy_matches:
+            for award in db.query(Award).filter(Award.recipient_name == name).limit(limit).all():
                     if award.id not in seen_award_ids:
                         seen_award_ids.add(award.id)
                         relevance = score / 100 * 0.7
@@ -332,10 +390,19 @@ def search_money_flows(db: Session, query: str, limit: int = 20) -> List[Dict[st
             MoneyFlow.target.ilike(f"%{t}%"),
             MoneyFlow.relationship.ilike(f"%{t}%"),
         ])
-    amount_range = parse_amount_query(query)
-    if amount_range:
-        lo, hi = amount_range
-        conditions.append(and_(MoneyFlow.amount_usd.isnot(None), MoneyFlow.amount_usd.between(lo, hi)))
+    words = [w for w in query.strip().split() if w]
+    if len(words) > 1:
+        for col in [MoneyFlow.source, MoneyFlow.target, MoneyFlow.relationship]:
+            conditions.append(and_(*[col.ilike(f"%{w}%") for w in words]))
+    amount_ranges = parse_amount_query(query)
+    if amount_ranges:
+        range_conditions = []
+        for lo, hi in amount_ranges:
+            range_conditions.append(and_(MoneyFlow.amount_usd.isnot(None), MoneyFlow.amount_usd.between(lo, hi)))
+        conditions.append(or_(*range_conditions))
+        q_clean = query.strip().replace("$", "").replace(",", "")
+        if q_clean and q_clean.replace(".", "").isdigit():
+            conditions.append(MoneyFlow.relationship.ilike(f"%{q_clean}%"))
     flows = db.query(MoneyFlow).filter(or_(*conditions)).limit(limit * 2).all()
 
     for flow in flows:
@@ -343,13 +410,14 @@ def search_money_flows(db: Session, query: str, limit: int = 20) -> List[Dict[st
         matched_text = flow.source
         best_relevance = 0.0
         matched_on_original = False
-        if amount_range and flow.amount_usd is not None:
-            lo, hi = amount_range
-            if lo <= flow.amount_usd <= hi:
-                best_relevance = 0.85
-                matched_field = "amount_usd"
-                matched_text = f"${flow.amount_usd:,.0f}"
-                matched_on_original = True
+        if amount_ranges and flow.amount_usd is not None:
+            for lo, hi in amount_ranges:
+                if lo <= flow.amount_usd <= hi:
+                    best_relevance = 0.85
+                    matched_field = "amount_usd"
+                    matched_text = f"${flow.amount_usd:,.0f}"
+                    matched_on_original = True
+                    break
         for t in terms:
             for fn, text in [
                 ("source", flow.source),
@@ -387,43 +455,43 @@ def search_money_flows(db: Session, query: str, limit: int = 20) -> List[Dict[st
                     "relationship": flow.relationship
                 }
             })
-    if len(results) < limit:
-        sources = [r[0] for r in db.query(MoneyFlow.source).distinct().all() if r[0]]
-        targets = [r[0] for r in db.query(MoneyFlow.target).distinct().all() if r[0]]
-        names = list(dict.fromkeys(sources + targets))
-        if names:
-            fuzzy_matches = process.extract(
-                query.strip(), names, scorer=fuzz.token_sort_ratio, score_cutoff=70, limit=limit
-            )
-            seen_flow_ids = {r["id"] for r in results}
-            for name, score, _ in fuzzy_matches:
-                for flow in db.query(MoneyFlow).filter(
-                    or_(MoneyFlow.source == name, MoneyFlow.target == name)
-                ).limit(limit).all():
-                    if flow.id not in seen_flow_ids:
-                        seen_flow_ids.add(flow.id)
-                        relevance = score / 100 * 0.7
-                        amount_str = f"${flow.amount_usd:,.0f}" if flow.amount_usd else "Amount N/A"
-                        title = f"{flow.source} → {flow.target}: {amount_str}"
-                        description = flow.relationship or "Transaction"
-                        if flow.start_date:
-                            description += f" • {flow.start_date}"
-                        results.append({
-                            "type": "money_flow",
-                            "id": flow.id,
-                            "title": title,
-                            "description": description,
-                            "matched_field": "source" if flow.source == name else "target",
-                            "matched_text": name,
-                            "relevance": relevance,
-                            "metadata": {
-                                "source": flow.source,
-                                "target": flow.target,
-                                "amount": flow.amount_usd,
-                                "date": str(flow.start_date) if flow.start_date else None,
-                                "relationship": flow.relationship
-                            }
-                        })
+    score_cutoff = 55 if len(query.strip()) < 8 else 70
+    sources = _get_cached_names(db, MoneyFlow.source, "flow_sources")
+    targets = _get_cached_names(db, MoneyFlow.target, "flow_targets")
+    names = list(dict.fromkeys([n for n in sources + targets if n]))
+    if names:
+        fuzzy_matches = process.extract(
+            query.strip(), names, scorer=fuzz.WRatio, score_cutoff=score_cutoff, limit=limit * 2
+        )
+        seen_flow_ids = {r["id"] for r in results}
+        for name, score, _ in fuzzy_matches:
+            for flow in db.query(MoneyFlow).filter(
+                or_(MoneyFlow.source == name, MoneyFlow.target == name)
+            ).limit(limit).all():
+                if flow.id not in seen_flow_ids:
+                    seen_flow_ids.add(flow.id)
+                    relevance = score / 100 * 0.7
+                    amount_str = f"${flow.amount_usd:,.0f}" if flow.amount_usd else "Amount N/A"
+                    title = f"{flow.source} → {flow.target}: {amount_str}"
+                    description = flow.relationship or "Transaction"
+                    if flow.start_date:
+                        description += f" • {flow.start_date}"
+                    results.append({
+                        "type": "money_flow",
+                        "id": flow.id,
+                        "title": title,
+                        "description": description,
+                        "matched_field": "source" if flow.source == name else "target",
+                        "matched_text": name,
+                        "relevance": relevance,
+                        "metadata": {
+                            "source": flow.source,
+                            "target": flow.target,
+                            "amount": flow.amount_usd,
+                            "date": str(flow.start_date) if flow.start_date else None,
+                            "relationship": flow.relationship
+                        }
+                    })
     return results
 
 
@@ -438,6 +506,10 @@ def search_foia_targets(db: Session, query: str, limit: int = 20) -> List[Dict[s
             FOIATarget.agency.ilike(f"%{t}%"),
             FOIATarget.record_request.ilike(f"%{t}%"),
         ])
+    words = [w for w in query.strip().split() if w]
+    if len(words) > 1:
+        for col in [FOIATarget.agency, FOIATarget.record_request]:
+            conditions.append(and_(*[col.ilike(f"%{w}%") for w in words]))
     foia_targets = db.query(FOIATarget).filter(or_(*conditions)).limit(limit * 2).all()
 
     for foia in foia_targets:
@@ -549,12 +621,15 @@ async def global_search(
         print(f"Failed to log search: {e}")
         db.rollback()
     
-    return {
+    response = {
         "query": q,
         "total_results": len(results),
         "results": results,
         "response_time_ms": response_time_ms
     }
+    if len(results) == 0:
+        response["suggestions"] = _build_suggestions(db, q, limit=3)
+    return response
 
 
 @router.get("/search/analytics")

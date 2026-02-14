@@ -2,7 +2,49 @@
 
 ---
 
-## PRH_v0.3.2Beta → main (February 2026)
+## PRH_v0.4.0 → main (February 2026)
+
+**Branch:** `PRH_v0.4.0`  
+**Tag:** `v0.4.0`  
+**Target:** Open PR into `main`  
+**Changelog:** See `CHANGELOG_v0.4.0.md`
+
+### Quick commands
+
+```bash
+# From project root (folder containing frontend, backend, .github)
+git checkout -b PRH_v0.4.0
+
+git add -A
+git status   # review staged changes
+
+git commit -m "release: v0.4.0 — version alignment, OPINT docs overhaul, architecture guide
+
+- Version alignment: all references consolidated to v0.4.0 (config, README, package.json, roadmap)
+- OPINT documentation: ARCHITECTURE.md, DEVELOPER_GUIDE.md, API_REFERENCE.md, FIRST_RUN.md
+- Contributing: rewritten CONTRIBUTING.md, generic PR template, CODE_OF_CONDUCT, SECURITY.md
+- CI: artifact names Project-RawHorse (was UAP-Data-Explorer)
+- Consolidates v0.3.0–v0.3.3 Beta development into single v0.4.0 milestone
+- See CHANGELOG_v0.4.0.md for full details"
+
+# Create annotated tag for release
+git tag -a v0.4.0 -m "Release v0.4.0: Version alignment, OPINT public development overhaul"
+
+git push -u origin PRH_v0.4.0
+git push origin v0.4.0
+```
+
+Then on GitHub: **New Pull Request** → Base: `main`, Compare: `PRH_v0.4.0`. Use `CHANGELOG_v0.4.0.md` for the PR description. The tag `v0.4.0` triggers the build-releases workflow.
+
+---
+
+## Historical: PRH_v0.3.3Beta (February 2026)
+
+> Superseded by v0.4.0. Kept for reference.
+
+---
+
+## Historical: PRH_v0.3.2Beta → main (February 2026)
 
 **Branch:** `PRH_v0.3.2Beta`  
 **Target:** Open PR into `main`  

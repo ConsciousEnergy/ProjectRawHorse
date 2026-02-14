@@ -9,8 +9,12 @@ This directory contains all project documentation organized by category.
 ## 📚 Quick Navigation
 
 ### 🎯 Start Here
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** - System overview, data flow, and design decisions
+- **[DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md)** - Setup, build, test, and contribute
+- **[API_REFERENCE.md](API_REFERENCE.md)** - All 45+ REST API endpoints
+- **[FIRST_RUN.md](FIRST_RUN.md)** - What to expect on your first run
 - **[PRD.md](PRD.md)** - Product Requirements Document (roadmap, features, priorities)
-- **[PROJECT_SUMMARY.md](PROJECT_SUMMARY.md)** - Current implementation status
+- **[PROJECT_SUMMARY.md](PROJECT_SUMMARY.md)** - Historical implementation status
 
 ### ⚙️ Setup & Installation
 - **[setup/INSTALLATION.md](setup/INSTALLATION.md)** - Complete installation guide
@@ -18,8 +22,9 @@ This directory contains all project documentation organized by category.
 - **[setup/GIT_SETUP.md](setup/GIT_SETUP.md)** - GitHub setup and first push
 
 ### 🛠️ Development
-- **[development/BUGFIXES.md](development/BUGFIXES.md)** - All bugs fixed this session
-- **[development/FEATURES.md](development/FEATURES.md)** - New features implemented
+- **[development/FEATURE_ROADMAP.md](development/FEATURE_ROADMAP.md)** - What's planned next
+- **[development/BUGFIXES.md](development/BUGFIXES.md)** - All bugs fixed
+- **[development/FEATURES.md](development/FEATURES.md)** - Features implemented
 - **[development/CHANGELOG.md](development/CHANGELOG.md)** - Session-by-session changes
 
 ### 🎨 Design
@@ -31,7 +36,7 @@ This directory contains all project documentation organized by category.
 - **[data/DATA_MIGRATION.md](data/DATA_MIGRATION.md)** - Data refactoring details
 
 ### 📜 Legal & Compliance
-- **[DISCLAIMER.md](DISCLAIMER.md)** - Legal disclaimer for data use
+- **[DISCLAIMER.md](../DISCLAIMER.md)** - Legal disclaimer for data use
 
 ---
 
@@ -44,7 +49,7 @@ High-level project information and requirements.
 |----------|-------------|
 | **PRD.md** | Complete product requirements and roadmap |
 | **PROJECT_SUMMARY.md** | Implementation status and architecture |
-| **DISCLAIMER.md** | Legal disclaimer and data responsibility |
+| **[DISCLAIMER.md](../DISCLAIMER.md)** | Legal disclaimer and data responsibility |
 
 ### Setup Documentation
 Everything you need to get started.
@@ -105,7 +110,7 @@ Data structure and organization.
 → Browse [`development/BUGFIXES.md`](development/BUGFIXES.md)
 
 **...understand legal requirements**
-→ Read [`DISCLAIMER.md`](DISCLAIMER.md)
+→ Read [`DISCLAIMER.md`](../DISCLAIMER.md)
 
 ---
 
@@ -196,6 +201,6 @@ If you can't find what you're looking for:
 
 ---
 
-**Last Updated:** 2025-11-11  
+**Last Updated:** 2026-02-11  
 **Total Documents:** 24 files organized into 5 categories
 

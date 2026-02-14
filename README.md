@@ -9,6 +9,17 @@
 
 A cross-platform, single-click desktop application for exploring and analyzing publicly available data related to Unidentified Anomalous Phenomena (UAP) research, federal contracting, and related entities.
 
+> **OPINT** (Open Intelligence) is the practice of building transparent, publicly-auditable intelligence databases from open sources. Project RawHorse is an OPINT tool — every data point is sourced from public records, every algorithm is open source, and every conclusion is reproducible.
+
+## What Can I Do With This?
+
+- **Browse** UAP-related entities (agencies, contractors, programs) and their connections
+- **Explore** federal award money flows with interactive Sankey diagrams
+- **Visualize** the intelligence organizational pyramid (L1 Control Group → L6 Programs)
+- **Search** across all data types with instant fuzzy-matched results
+- **Export** data for your own research in CSV, JSON, or PDF format
+- **Contribute** new data directly from the app — it creates a GitHub PR for review
+
 ## ⚡ Quick Start (Non-Technical Users)
 
 ### Windows
@@ -24,6 +35,9 @@ A cross-platform, single-click desktop application for exploring and analyzing p
 4. Browser opens automatically!
 
 **See [INSTALL_GUIDE.md](INSTALL_GUIDE.md) for detailed instructions**
+
+### Uninstall
+To remove Project RawHorse and free disk space: **Windows** — double-click `UNINSTALL.bat`; **macOS/Linux** — run `./UNINSTALL.sh` (or `./UNINSTALL.sh --force` to skip prompts). You can choose to keep or delete your database. See [INSTALL_GUIDE.md](INSTALL_GUIDE.md#uninstalling-project-rawhorse).
 
 ---
 ## Screenshots of Applications UI
@@ -87,12 +101,19 @@ All data is sourced from official public databases and open research:
 
 ## Documentation
 
-- **[PRD.md](PRD.md)** - Comprehensive Product Requirements Document with architecture, roadmap, and specifications
-- **[DISCLAIMER.md](DISCLAIMER.md)** - Legal disclaimer for data use
-- **[CONTRIBUTING.md](CONTRIBUTING.md)** - Guidelines for contributing
-- **[QUICKSTART.md](QUICKSTART.md)** - Quick start guide
+**For users:**
 - **[INSTALL_GUIDE.md](INSTALL_GUIDE.md)** - Detailed installation instructions for non-technical users
-- **[data/README.md](data/README.md)** - Comprehensive data organization guide
+- **[QUICKSTART.md](QUICKSTART.md)** - Quick start guide
+- **[FIRST_RUN.md](docs/FIRST_RUN.md)** - What to expect on your first run
+- **[DISCLAIMER.md](DISCLAIMER.md)** - Legal disclaimer for data use
+
+**For developers:**
+- **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** - System overview, data flow, and design decisions
+- **[DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md)** - Setup, build, test, and contribute
+- **[API_REFERENCE.md](docs/API_REFERENCE.md)** - All 45+ REST API endpoints documented
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** - Code style, PR process, and data guidelines
+- **[PRD.md](docs/PRD.md)** - Product Requirements Document
+- **[data/README.md](data/README.md)** - Data organization and CSV schema guide
 
 ## For Developers
 
@@ -100,15 +121,15 @@ All data is sourced from official public databases and open research:
 
 **Prerequisites:**
 - Python 3.10+
-- Node.js 18+
+- Node.js 20+ (LTS)
 - Git
 
 **Quick Start:**
 
 ```bash
 # Clone repository
-git clone https://github.com/consciousenergy/projectrawhorse.git
-cd project-rawhorse
+git clone https://github.com/ConsciousEnergy/ProjectRawHorse.git
+cd ProjectRawHorse
 
 # Windows: Run installer
 install.bat
@@ -133,7 +154,7 @@ npm install
 npm run dev
 ```
 
-- Frontend dev: http://localhost:3000
+- Frontend dev: http://localhost:5173 (Vite dev server, proxies API to 8000)
 - Backend API: http://localhost:8000
 - API docs: http://localhost:8000/docs
 
@@ -176,6 +197,8 @@ ProjectRawHorse/
 ├── docs/                     # Documentation
 ├── START.bat                 # Windows guided launcher (recommended)
 ├── START.sh                  # macOS/Linux guided launcher
+├── UNINSTALL.bat             # Windows one-click uninstaller
+├── UNINSTALL.sh              # macOS/Linux uninstaller
 ├── install.bat               # Windows full installer
 ├── install.sh                # macOS/Linux full installer
 ├── RUN.bat                   # Windows quick launch
@@ -286,7 +309,7 @@ See [DISCLAIMER.md](DISCLAIMER.md) for complete terms.
 
 **Frontend build fails:**
 - Delete `node_modules` and run `npm install` again
-- Ensure Node.js 18+ installed
+- Ensure Node.js 20+ installed
 
 **Database errors:**
 - Delete `data/prh.db` to force rebuild
@@ -312,16 +335,19 @@ A: No, except for GitHub contributions. All other features work offline.
 ## Roadmap
 
 **Completed in v0.4.0:**
-- [x] Intelligence Stack hierarchy filter
-- [x] Separate visualization pages (network/sankey)
+- [x] Intelligence Stack hierarchy filter and Pyramid visualization
+- [x] Separate visualization pages (network/sankey/pyramid)
+- [x] Advanced search with suggestions, history, and row highlighting
+- [x] One-click uninstall (Windows and macOS/Linux)
 - [x] Docker deployment configuration
 - [x] PostgreSQL database support
 - [x] JWT authentication system
 - [x] spaCy NLP entity extraction pipeline
 - [x] Financial/materials flow enrichment algorithms
+- [x] CI/CD workflow upgrades (GitHub Actions v4, caching, concurrency)
 
-**Upcoming:**
-- [ ] **Intelligence Stack Pyramid** - Hierarchical visualization of U.S. intelligence agencies
+**Upcoming (v0.5.0):**
+- [ ] UFO database enrichment (NUFORC, MUFON CMS, GEIPAN, and more)
 - [ ] VPS deployment guide with one-click setup
 - [ ] User authentication UI in frontend
 - [ ] Timeline visualization for entity relationships
@@ -329,11 +355,24 @@ A: No, except for GitHub contributions. All other features work offline.
 - [ ] Redis caching for improved performance
 - [ ] Plugin system for custom analysis
 
+## OPINT Philosophy
+
+Project RawHorse follows **Open Intelligence (OPINT)** principles:
+
+1. **Transparency** — All data sources are cited, all algorithms are open source, all findings are reproducible.
+2. **Public data only** — We never use, store, or process classified, proprietary, or personally identifiable information.
+3. **Community verification** — Every data contribution goes through a public review process (GitHub PR).
+4. **Tool neutrality** — The application presents data without editorial bias; users draw their own conclusions.
+5. **Accessibility** — One-click install, no technical expertise required, runs on any modern computer.
+
+We believe that open-source intelligence tools empower citizens, researchers, and journalists to independently verify claims about government programs and spending. If you share this vision, consider [contributing](CONTRIBUTING.md).
+
 ## Support
 
-- **Issues**: [GitHub Issues](https://github.com/consciousenergy/project-rawhorse/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/consciousenergy/project-rawhorse/discussions)
-- **Documentation**: See docs/ directory
+- **Issues**: [GitHub Issues](https://github.com/ConsciousEnergy/ProjectRawHorse/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/ConsciousEnergy/ProjectRawHorse/discussions)
+- **Documentation**: See `docs/` directory
+- **Security**: See [SECURITY.md](SECURITY.md) for vulnerability reporting
 
 ## 💝 Support This Project
 
@@ -374,11 +413,13 @@ Built on publicly available data from:
 
 ## Version History
 
-### v0.3.2 (2026-01)
+### v0.4.0 (2026-02)
 - **Data Enrichment**: 26 new entities from UAPGerb's "The Hidden Wing" transcript (Air Force SAF hierarchy)
-- **UI/UX Improvements**: Separate visualization pages, Intelligence Stack filter
-- **Infrastructure**: Docker support, PostgreSQL database option, JWT authentication
-- **Simplified Setup**: Removed Git LFS dependency
+- **Intelligence Stack Pyramid**: Hierarchical L1–L6 visualization with chain-of-command tracing
+- **Advanced Search**: Suggestions, recent results/queries, visual row highlighting in Browse
+- **One-Click Uninstall**: `UNINSTALL.bat` / `UNINSTALL.sh` with server detection and removal summary
+- **CI/CD**: Upgraded GitHub Actions, npm/pip caching, concurrency, build hardening
+- **Infrastructure**: Docker support, PostgreSQL, JWT auth, removed Git LFS
 - See [CHANGELOG_v0.4.0.md](CHANGELOG_v0.4.0.md) for full details
 
 ### v0.3.0 (2025-12)
@@ -387,12 +428,17 @@ Built on publicly available data from:
 - Data versioning and refresh
 - See [CHANGELOG_v0.3.0.md](CHANGELOG_v0.3.0.md)
 
-### v1.0.0 (2025-11-11)
-- Initial release
+### v0.2.1 (2025-11-11)
+- Bug fixes and stability improvements
+- See [docs/RELEASE_NOTES_v0.2.1.md](docs/RELEASE_NOTES_v0.2.1.md)
+
+### v0.2.0 (2025-11-11)
+- Initial public release
 - Core browsing, analysis, and export features
 - GitHub PR automation for contributions
 - Cross-platform desktop application
 - 1-click installation for non-technical users
+- See [docs/RELEASE_NOTES_v0.2.0.md](docs/RELEASE_NOTES_v0.2.0.md)
 
 ---
 
@@ -400,4 +446,4 @@ Built on publicly available data from:
 
 Licensed under GNU AGPL v3 | See DISCLAIMER.md for legal information
 
-**Ready to explore? Download and run install.bat (Windows) or install.sh (Mac/Linux)!**
+**Ready to explore? Download and double-click `START.bat` (Windows) or run `./START.sh` (Mac/Linux)!**
