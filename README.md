@@ -423,6 +423,7 @@ Built on publicly available data from:
 - **UX Quick Wins**: ErrorBoundary, TableSkeleton, EmptyState; loading spinners on Network Graph and Sankey
 - **UI Fixes**: Dashboard stat cards click-through, Browse FOIA score columns, Export FOIA, light mode contrast, search truncation, network graph min-width
 - **Screenshots**: Version-controlled screenshots in `screenshots/` directory
+- **Code review**: Analysis Overview card icon gradients (purple/gold); development roadmap (`docs/development/PRH_DEVELOPMENT_ROADMAP.md`)
 - See [CHANGELOG_v0.4.1Beta.md](CHANGELOG_v0.4.1Beta.md) for full details
 
 ### v0.4.0 (2026-02)
