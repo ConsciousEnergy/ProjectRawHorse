@@ -31,6 +31,8 @@ v0.4.1 adds the dedicated FOIA Targets page, UX quick wins (loading states, erro
 - **Screenshot Management** - Version-controlled screenshots in `screenshots/` directory
 - **Network Graph** - Center panel min-width to prevent layout squeeze
 - **Theme** - `theme.css`: neon variables and dark blue-black palette; `App.css`: card glows, glitch keyframes, sidebar/tabs/buttons neon; `index.css`: neon cyan focus in dark mode
+- **Analysis Overview card icons** - Unique gradients per card: Entity Network Graph (purple), Sankey (gold), Intelligence Stack Pyramid (red-orange), FOIA Targets (green-teal)
+- **Development Roadmap** - `docs/development/PRH_DEVELOPMENT_ROADMAP.md` with audit findings by priority (P0–P3)
 
 ## New Routes
 
@@ -52,3 +54,4 @@ v0.4.1 adds the dedicated FOIA Targets page, UX quick wins (loading states, erro
 - `screenshots/*.png` (placeholder screenshots)
 - `CHANGELOG_v0.4.1Beta.md`
 - `docs/RELEASE_NOTES_v0.4.1.md`
+- `docs/development/PRH_DEVELOPMENT_ROADMAP.md`

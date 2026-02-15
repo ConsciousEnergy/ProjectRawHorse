@@ -11,7 +11,7 @@ function AnalysisOverview() {
 
       <div className="visualization-cards">
         <Link to="/analysis/network" className="viz-card">
-          <div className="viz-card-icon">
+          <div className="viz-card-icon" style={{ background: 'linear-gradient(135deg, #5B4FFF, #7c6fff)' }}>
             <Network size={48} />
           </div>
           <div className="viz-card-content">
@@ -31,7 +31,7 @@ function AnalysisOverview() {
         </Link>
 
         <Link to="/analysis/sankey" className="viz-card">
-          <div className="viz-card-icon">
+          <div className="viz-card-icon" style={{ background: 'linear-gradient(135deg, #D4A218, #FFD700)' }}>
             <GitBranch size={48} />
           </div>
           <div className="viz-card-content">

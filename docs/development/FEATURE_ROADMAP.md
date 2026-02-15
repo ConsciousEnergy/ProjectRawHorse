@@ -15,6 +15,7 @@
 4. **UI Bug Fixes** - Browse FOIA score columns, Export FOIA, dashboard click-through, light mode contrast, search truncation, network graph min-width
 5. **Screenshot Management** - Version-controlled screenshots, README relative paths
 6. **Cyberpunk Neon UI Overhaul** - Dark mode: deep blue-black palette, neon purple/cyan/gold glows on cards and sidebar, glitch hover on cards, scanline overlay, neon focus outlines. Primary colors (logo) unchanged. Browse tab URL init and FOIA table column layout fixes.
+7. **Code review (v0.4.1)** - Analysis Overview card icon gradients (Entity Network purple, Sankey gold); `PRH_DEVELOPMENT_ROADMAP.md` with audit findings by priority (P0–P3).
 
 ### v0.4.0 (February 2026)
 1. **Data Enrichment** - 26 new entities from UAPGerb's "The Hidden Wing" transcript

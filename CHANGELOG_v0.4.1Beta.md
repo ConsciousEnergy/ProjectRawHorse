@@ -19,6 +19,8 @@ v0.4.1 Beta adds the dedicated FOIA Targets page, UX quick wins (ErrorBoundary, 
 - Screenshots directory with placeholder images
 - README updated to use relative screenshot paths
 - **Cyberpunk Neon UI Overhaul** (dark mode): deep blue-black backgrounds; neon purple/cyan/gold accents; neon border glow on cards and stat-card values; glitch/retro hover effect on cards; sidebar and tab/button neon treatments; subtle CRT scanline overlay; neon cyan focus outlines. Primary colors (logo purple/gold) unchanged.
+- **Analysis Overview card icons** — Distinct gradients per card: Entity Network Graph (purple), Sankey Flow Diagram (gold), Intelligence Stack Pyramid (red-orange), FOIA Targets (green-teal).
+- **PRH Development Roadmap** — `docs/development/PRH_DEVELOPMENT_ROADMAP.md`: codebase audit findings organized by priority (P0–P3); immediate fixes, refactoring, TypeScript/React, security, testing, performance, infrastructure.
 
 ## Fixed
 
