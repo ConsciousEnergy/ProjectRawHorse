@@ -40,27 +40,12 @@ A cross-platform, single-click desktop application for exploring and analyzing p
 To remove Project RawHorse and free disk space: **Windows** — double-click `UNINSTALL.bat`; **macOS/Linux** — run `./UNINSTALL.sh` (or `./UNINSTALL.sh --force` to skip prompts). You can choose to keep or delete your database. See [INSTALL_GUIDE.md](INSTALL_GUIDE.md#uninstalling-project-rawhorse).
 
 ---
-## Screenshots of Applications UI
+## Demo Video of Applications UI
 
-![Dashboard](screenshots/dashboard-overview.png)
 
-![Browse Entities](screenshots/browse-entities.png)
 
-![Browse FOIA](screenshots/browse-foia.png)
+https://github.com/user-attachments/assets/6ee064b5-5561-443d-b4a8-2c657bcec182
 
-![Analysis Overview](screenshots/analysis-overview.png)
-
-![Network Graph](screenshots/network-graph-3panel.png)
-
-![Network Graph Proximity](screenshots/network-graph-proximity.png)
-
-![Sankey Diagram](screenshots/sankey-diagram.png)
-
-![Intelligence Stack Pyramid](screenshots/pyramid-visualization.png)
-
-![FOIA Targets Page](screenshots/foia-targets-page.png)
-
-![Search Suggestions](screenshots/search-suggestions.png)
 
 
 ## Features
