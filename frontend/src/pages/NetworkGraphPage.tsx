@@ -93,7 +93,7 @@ function NetworkGraphPage() {
 
         .network-page-center {
           flex: 1;
-          min-width: 0;
+          min-width: 280px;
           height: 100%;
           position: relative;
         }

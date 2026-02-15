@@ -76,6 +76,7 @@ This document describes the high-level architecture, data flow, and key design d
 | `/analysis/network` | `NetworkGraphPage` | Force-directed entity relationship graph |
 | `/analysis/sankey` | `SankeyDiagramPage` | Financial flow Sankey diagram |
 | `/analysis/pyramid` | `PyramidPage` | Intelligence Stack pyramid (L1–L6) |
+| `/analysis/foia` | `FoiaTargetsPage` | FOIA targets with quality scoring and filters |
 | `/export` | `Export` | CSV, JSON, PDF download |
 | `/contribute` | `Contribute` | GitHub PR contribution form |
 | `/about` | `About` | Project info, attribution, data sources |

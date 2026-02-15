@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Network, GitBranch, BarChart3, TrendingUp, Triangle } from 'lucide-react';
+import { Network, GitBranch, BarChart3, TrendingUp, Triangle, FileSearch } from 'lucide-react';
 
 function AnalysisOverview() {
   return (
@@ -11,7 +11,7 @@ function AnalysisOverview() {
 
       <div className="visualization-cards">
         <Link to="/analysis/network" className="viz-card">
-          <div className="viz-card-icon">
+          <div className="viz-card-icon" style={{ background: 'linear-gradient(135deg, #5B4FFF, #7c6fff)' }}>
             <Network size={48} />
           </div>
           <div className="viz-card-content">
@@ -31,7 +31,7 @@ function AnalysisOverview() {
         </Link>
 
         <Link to="/analysis/sankey" className="viz-card">
-          <div className="viz-card-icon">
+          <div className="viz-card-icon" style={{ background: 'linear-gradient(135deg, #D4A218, #FFD700)' }}>
             <GitBranch size={48} />
           </div>
           <div className="viz-card-content">
@@ -77,6 +77,26 @@ function AnalysisOverview() {
               <div className="pyramid-tier tier-5">Facilities (Area 51, S4, Edwards AFB)</div>
               <div className="pyramid-tier tier-6">Programs (Immaculate Constellation, Kona Blue)</div>
             </div>
+          </div>
+          <span className="viz-card-arrow">→</span>
+        </Link>
+
+        <Link to="/analysis/foia" className="viz-card">
+          <div className="viz-card-icon" style={{ background: 'linear-gradient(135deg, #059669, #0d9488)' }}>
+            <FileSearch size={48} />
+          </div>
+          <div className="viz-card-content">
+            <h3>FOIA Targets</h3>
+            <p>
+              Browse and prioritize FOIA targets with quality scoring. 
+              Filter by agency, priority, and specificity to find high-value requests.
+            </p>
+            <ul className="viz-card-features">
+              <li>Sortable table with priority, specificity, and likelihood scores</li>
+              <li>Search across records and agencies</li>
+              <li>Expandable quality notes per target</li>
+              <li>Export-ready for FOIA request drafting</li>
+            </ul>
           </div>
           <span className="viz-card-arrow">→</span>
         </Link>

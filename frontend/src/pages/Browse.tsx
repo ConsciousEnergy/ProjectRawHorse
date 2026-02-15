@@ -2,7 +2,9 @@ import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { getEntities, getMoneyFlows, getAwards, getFOIATargets } from '../services/api';
 import type { Entity, MoneyFlow, Award, FOIATarget } from '../types';
-import SkeletonLoader from '../components/SkeletonLoader';
+import TableSkeleton from '../components/TableSkeleton';
+import EmptyState from '../components/EmptyState';
+import ScoreBadge from '../components/ScoreBadge';
 import { useDataContext } from '../contexts/DataContext';
 import { Link } from 'react-router-dom';
 import { Triangle } from 'lucide-react';
@@ -56,8 +58,11 @@ function Browse() {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const { dataVersion } = useDataContext();
-  const [activeTab, setActiveTab] = useState<TabType>('entities');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [activeTab, setActiveTab] = useState<TabType>(() => {
+    const tab = searchParams.get('tab') as TabType;
+    return tab && ['entities', 'money-flows', 'awards', 'foia'].includes(tab) ? tab : 'entities';
+  });
+  const [searchTerm, setSearchTerm] = useState(() => searchParams.get('search') || '');
   const [loading, setLoading] = useState(false);
   
   // Pagination
@@ -724,20 +729,22 @@ function Browse() {
       {/* Data Tables */}
       <div className="card">
         {loading ? (
-          <SkeletonLoader type="table" />
+          <TableSkeleton />
         ) : (
           <div className="fade-in" role="tabpanel">
             {activeTab === 'entities' && (
               <>
                 {sortedData.entities.length === 0 ? (
-                  <div className="empty-state">
-                    <div className="empty-icon">🔍</div>
-                    <h3>No entities found</h3>
-                    <p>Try adjusting your search or filters, or browse all entities.</p>
-                    <button className="btn btn-primary" onClick={handleClearFilters}>
-                      Clear Filters
-                    </button>
-                  </div>
+                  <EmptyState
+                    icon="🔍"
+                    title="No entities found"
+                    description="Try adjusting your search or filters, or browse all entities."
+                    action={
+                      <button className="btn btn-primary" onClick={handleClearFilters}>
+                        Clear Filters
+                      </button>
+                    }
+                  />
                 ) : (
                   <div className="data-table-wrapper">
                     <table className="data-table" role="table" aria-label="Entities table">
@@ -767,7 +774,7 @@ function Browse() {
                                 </span>
                               ) : '-'}
                             </td>
-                            <td>
+                            <td className="actions-cell">
                               <button 
                                 className="btn btn-sm btn-outline"
                                 onClick={() => navigate(`/analysis/network?highlight=${entity.entity_id}`)}
@@ -797,14 +804,16 @@ function Browse() {
             {activeTab === 'money-flows' && (
               <>
                 {sortedData.moneyFlows.length === 0 ? (
-                  <div className="empty-state">
-                    <div className="empty-icon">💰</div>
-                    <h3>No money flows found</h3>
-                    <p>Try adjusting your search or amount filters.</p>
-                    <button className="btn btn-primary" onClick={handleClearFilters}>
-                      Clear Filters
-                    </button>
-                  </div>
+                  <EmptyState
+                    icon="💰"
+                    title="No money flows found"
+                    description="Try adjusting your search or amount filters."
+                    action={
+                      <button className="btn btn-primary" onClick={handleClearFilters}>
+                        Clear Filters
+                      </button>
+                    }
+                  />
                 ) : (
                   <div className="data-table-wrapper">
                     <table className="data-table" role="table" aria-label="Money flows table">
@@ -847,14 +856,16 @@ function Browse() {
             {activeTab === 'awards' && (
               <>
                 {sortedData.awards.length === 0 ? (
-                  <div className="empty-state">
-                    <div className="empty-icon">🏆</div>
-                    <h3>No awards found</h3>
-                    <p>Try adjusting your search, agency, or amount filters.</p>
-                    <button className="btn btn-primary" onClick={handleClearFilters}>
-                      Clear Filters
-                    </button>
-                  </div>
+                  <EmptyState
+                    icon="🏆"
+                    title="No awards found"
+                    description="Try adjusting your search, agency, or amount filters."
+                    action={
+                      <button className="btn btn-primary" onClick={handleClearFilters}>
+                        Clear Filters
+                      </button>
+                    }
+                  />
                 ) : (
                   <div className="data-table-wrapper">
                     <table className="data-table" role="table" aria-label="Awards table">
@@ -893,14 +904,16 @@ function Browse() {
             {activeTab === 'foia' && (
               <>
                 {sortedData.foiaTargets.length === 0 ? (
-                  <div className="empty-state">
-                    <div className="empty-icon">📋</div>
-                    <h3>No FOIA targets found</h3>
-                    <p>Try adjusting your search or agency filter.</p>
-                    <button className="btn btn-primary" onClick={handleClearFilters}>
-                      Clear Filters
-                    </button>
-                  </div>
+                  <EmptyState
+                    icon="📋"
+                    title="No FOIA targets found"
+                    description="Try adjusting your search or agency filter."
+                    action={
+                      <button className="btn btn-primary" onClick={handleClearFilters}>
+                        Clear Filters
+                      </button>
+                    }
+                  />
                 ) : (
                   <div className="data-table-wrapper">
                     <table className="data-table" role="table" aria-label="FOIA targets table">
@@ -925,25 +938,13 @@ function Browse() {
                             </td>
                             <td>{foia.timeframe || 'N/A'}</td>
                             <td>
-                              {foia.priority_score !== null && foia.priority_score !== undefined ? (
-                                <span className={`score-badge ${foia.priority_score >= 0.7 ? 'high' : foia.priority_score >= 0.4 ? 'medium' : 'low'}`}>
-                                  {(foia.priority_score * 100).toFixed(0)}%
-                                </span>
-                              ) : 'N/A'}
+                              <ScoreBadge score={foia.priority_score} type="priority" />
                             </td>
                             <td>
-                              {foia.specificity_score !== null && foia.specificity_score !== undefined ? (
-                                <span className={`score-badge ${foia.specificity_score >= 0.7 ? 'high' : foia.specificity_score >= 0.4 ? 'medium' : 'low'}`}>
-                                  {(foia.specificity_score * 100).toFixed(0)}%
-                                </span>
-                              ) : 'N/A'}
+                              <ScoreBadge score={foia.specificity_score} type="specificity" />
                             </td>
                             <td>
-                              {foia.likelihood_score !== null && foia.likelihood_score !== undefined ? (
-                                <span className={`score-badge ${foia.likelihood_score >= 0.6 ? 'high' : foia.likelihood_score >= 0.3 ? 'medium' : 'low'}`}>
-                                  {(foia.likelihood_score * 100).toFixed(0)}%
-                                </span>
-                              ) : 'N/A'}
+                              <ScoreBadge score={foia.likelihood_score} type="likelihood" />
                             </td>
                           </tr>
                         ))}

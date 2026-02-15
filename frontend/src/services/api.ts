@@ -136,6 +136,10 @@ export const exportAwardsCSV = () => {
   window.open(`${API_BASE_URL}/export/csv/awards`, '_blank');
 };
 
+export const exportFOIATargetsCSV = () => {
+  window.open(`${API_BASE_URL}/export/csv/foia-targets`, '_blank');
+};
+
 export const exportEntitiesJSON = () => {
   window.open(`${API_BASE_URL}/export/json/entities`, '_blank');
 };

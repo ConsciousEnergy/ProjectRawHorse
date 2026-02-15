@@ -3,11 +3,19 @@
 
 :root {
   /* Light Mode - Default */
-  --color-primary: #5B4FFF;        /* Purple Horse */
-  --color-secondary: #D4A218;      /* Gold Horse */
-  --color-accent: #8B7FFF;         /* Light Purple */
-  --color-accent-gold: #E6B933;    /* Light Gold */
-  
+  --color-primary: #5B4FFF;        /* Purple Horse - unchanged */
+  --color-secondary: #D4A218;      /* Gold Horse - unchanged */
+  --color-accent: #00F0FF;         /* Neon cyan */
+  --color-accent-gold: #FFD700;    /* Golden yellow - neon gold */
+
+  /* Neon glow variables */
+  --neon-purple: #5B4FFF;
+  --neon-cyan: #00F0FF;
+  --neon-gold: #FFD700;
+  --glow-purple: 0 0 15px rgba(91, 79, 255, 0.4), 0 0 30px rgba(91, 79, 255, 0.15);
+  --glow-cyan: 0 0 15px rgba(0, 240, 255, 0.4), 0 0 30px rgba(0, 240, 255, 0.15);
+  --glow-gold: 0 0 15px rgba(255, 215, 0, 0.4), 0 0 30px rgba(255, 215, 0, 0.15);
+
   /* Backgrounds */
   --bg-primary: #FFFFFF;
   --bg-secondary: #F5F5F7;
@@ -20,8 +28,8 @@
   --text-tertiary: #8E8E93;
   --text-inverse: #FFFFFF;
   
-  /* Borders */
-  --border-color: #D1D1D6;
+  /* Borders - subtle neon tint in light mode */
+  --border-color: rgba(91, 79, 255, 0.15);
   --border-hover: #A1A1A6;
   
   /* Spacing System (4px base) */
@@ -97,29 +105,29 @@
   --btn-secondary-text: var(--text-primary);
 }
 
-/* Dark Mode */
+/* Dark Mode - cyberpunk deep blue-black */
 [data-theme="dark"] {
-  /* Backgrounds */
-  --bg-primary: #1C1C1E;
-  --bg-secondary: #2C2C2E;
-  --bg-tertiary: #3A3A3C;
-  --bg-elevated: #2C2C2E;
-  
+  /* Backgrounds - deep blue-black tones */
+  --bg-primary: #0A0A12;
+  --bg-secondary: #111118;
+  --bg-tertiary: #1A1A24;
+  --bg-elevated: #141420;
+
   /* Text */
   --text-primary: #FFFFFF;
   --text-secondary: #E5E5EA;
-  --text-tertiary: #AEAEB2;
+  --text-tertiary: #7B7B9E;
   --text-inverse: #1C1C1E;
-  
-  /* Borders */
-  --border-color: #48484A;
+
+  /* Borders - subtle neon purple tint */
+  --border-color: rgba(91, 79, 255, 0.2);
   --border-hover: #636366;
-  
+
   /* Shadows */
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
-  
+
   /* Sidebar */
   --sidebar-bg: var(--bg-secondary);
   --sidebar-border: var(--border-color);
@@ -127,11 +135,11 @@
   --sidebar-hover: var(--bg-tertiary);
   --sidebar-active-bg: var(--color-primary);
   --sidebar-active-text: var(--text-inverse);
-  
-  /* Cards */
+
+  /* Cards - neon purple glow */
   --card-bg: var(--bg-elevated);
-  --card-border: var(--border-color);
-  --card-shadow: var(--shadow-md);
+  --card-border: rgba(91, 79, 255, 0.25);
+  --card-shadow: 0 0 20px rgba(91, 79, 255, 0.15);
   
   /* Inputs */
   --input-bg: var(--bg-tertiary);
@@ -145,6 +153,26 @@
   --btn-secondary-bg: var(--bg-tertiary);
   --btn-secondary-hover: var(--border-color);
   --btn-secondary-text: var(--text-primary);
+}
+
+/* Light mode: explicit WCAG AA contrast for cards (4.5:1 minimum) */
+[data-theme="light"] .card {
+  background-color: #FFFFFF;
+  color: #1C1C1E;
+}
+
+[data-theme="light"] .card h3,
+[data-theme="light"] .card h4 {
+  color: #1C1C1E;
+}
+
+[data-theme="light"] .card p,
+[data-theme="light"] .card li {
+  color: #48484A;
+}
+
+[data-theme="light"] .card a {
+  color: #5B4FFF;
 }
 
 /* Smooth transitions for theme switching */
