@@ -1,0 +1,29 @@
+/* ScoreBadge - shared component for FOIA quality scores */
+
+.score-badge,
+.score-badge-na {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.score-badge-na {
+  color: var(--text-muted, #888);
+}
+
+.score-badge-high {
+  background: rgba(34, 197, 94, 0.2);
+  color: #34d399;
+}
+
+.score-badge-medium {
+  background: rgba(234, 179, 8, 0.2);
+  color: #fbbf24;
+}
+
+.score-badge-low {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+}

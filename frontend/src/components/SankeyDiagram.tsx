@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
+import { Loader2 } from 'lucide-react';
 import * as d3 from 'd3';
 import { getSankeyData } from '../services/api';
 import type { SankeyData } from '../types';
@@ -203,7 +204,7 @@ function SankeyDiagram({ minAmount = 0, includeRelationships = true, onNodeClick
       }
     });
 
-    // Calculate node positions
+    // Calculate node positions (left-to-right flow: layers = columns, nodes stacked vertically per column)
     const nodeHeight = 20;
     const nodeSpacing = 30;
     const layerWidth = (width - margin.left - margin.right) / Math.max(layers.length, 1);
@@ -219,7 +220,7 @@ function SankeyDiagram({ minAmount = 0, includeRelationships = true, onNodeClick
         const node = filteredNodes.find(n => n.name === nodeName);
         const nodeValue = node?.value || 1;
         const nodeWidth = Math.max(10, Math.min(50, Math.sqrt(nodeValue) * 2));
-        
+
         nodePositions.set(nodeName, {
           x: layerX,
           y: startY + nodeIdx * (nodeHeight + nodeSpacing),
@@ -248,15 +249,13 @@ function SankeyDiagram({ minAmount = 0, includeRelationships = true, onNodeClick
       const opacity = isDimmed ? 0.1 : (isHovered ? 0.8 : 0.3);
       const strokeWidth = isHovered ? 4 : (isSelected ? 3 : 2);
 
-      // Create curved path
+      // Create curved path (left-to-right flow)
       const path = d3.path();
       const sourceX = sourcePos.x + sourcePos.width;
       const sourceY = sourcePos.y + sourcePos.height / 2;
       const targetX = targetPos.x;
       const targetY = targetPos.y + targetPos.height / 2;
-      
       const midX = (sourceX + targetX) / 2;
-      
       path.moveTo(sourceX, sourceY);
       path.bezierCurveTo(midX, sourceY, midX, targetY, targetX, targetY);
 
@@ -366,7 +365,12 @@ function SankeyDiagram({ minAmount = 0, includeRelationships = true, onNodeClick
   };
 
   if (loading) {
-    return <div className="sankey-container">Loading Sankey diagram...</div>;
+    return (
+      <div className="sankey-container loading-state">
+        <Loader2 size={32} className="loading-spinner" />
+        <span>Loading Sankey diagram...</span>
+      </div>
+    );
   }
 
   if (error) {

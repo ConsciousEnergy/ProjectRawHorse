@@ -2,6 +2,7 @@ import {
   exportEntitiesCSV, 
   exportMoneyFlowsCSV, 
   exportAwardsCSV,
+  exportFOIATargetsCSV,
   exportEntitiesJSON,
   exportSummaryPDF
 } from '../services/api';
@@ -26,6 +27,9 @@ function Export() {
           </button>
           <button onClick={exportAwardsCSV} className="btn btn-primary">
             Export Awards (CSV)
+          </button>
+          <button onClick={exportFOIATargetsCSV} className="btn btn-primary">
+            Export FOIA Targets (CSV)
           </button>
         </div>
       </div>
