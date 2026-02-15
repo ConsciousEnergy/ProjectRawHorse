@@ -204,27 +204,28 @@ function SankeyDiagram({ minAmount = 0, includeRelationships = true, onNodeClick
       }
     });
 
-    // Calculate node positions — rotated 90° clockwise: flow top→bottom, nodes spread horizontally per layer
-    const nodeHeight = 20;   // thickness across flow (vertical bars in rotated view)
+    // Calculate node positions (left-to-right flow: layers = columns, nodes stacked vertically per column)
+    const nodeHeight = 20;
     const nodeSpacing = 30;
-    const layerHeight = (height - margin.top - margin.bottom) / Math.max(layers.length, 1);
+    const layerWidth = (width - margin.left - margin.right) / Math.max(layers.length, 1);
     const nodePositions = new Map<string, { x: number; y: number; width: number; height: number }>();
 
     layers.forEach((layerNodes, layerIdx) => {
-      const layerY = margin.top + layerIdx * layerHeight;
-      const totalWidth = layerNodes.length * (nodeHeight + nodeSpacing) - nodeSpacing;
-      const startX = margin.left + (width - margin.left - margin.right - totalWidth) / 2;
+      const layerY = margin.top + (height - margin.top - margin.bottom) / 2;
+      const layerX = margin.left + layerIdx * layerWidth;
+      const totalHeight = layerNodes.length * (nodeHeight + nodeSpacing) - nodeSpacing;
+      const startY = layerY - totalHeight / 2;
 
       layerNodes.forEach((nodeName, nodeIdx) => {
         const node = filteredNodes.find(n => n.name === nodeName);
         const nodeValue = node?.value || 1;
-        const alongFlow = Math.max(10, Math.min(50, Math.sqrt(nodeValue) * 2)); // length along flow (vertical)
-        const acrossFlow = nodeHeight; // thickness across flow (horizontal)
+        const nodeWidth = Math.max(10, Math.min(50, Math.sqrt(nodeValue) * 2));
+
         nodePositions.set(nodeName, {
-          x: startX + nodeIdx * (acrossFlow + nodeSpacing),
-          y: layerY,
-          width: acrossFlow,
-          height: alongFlow
+          x: layerX,
+          y: startY + nodeIdx * (nodeHeight + nodeSpacing),
+          width: nodeWidth,
+          height: nodeHeight
         });
       });
     });
@@ -248,15 +249,15 @@ function SankeyDiagram({ minAmount = 0, includeRelationships = true, onNodeClick
       const opacity = isDimmed ? 0.1 : (isHovered ? 0.8 : 0.3);
       const strokeWidth = isHovered ? 4 : (isSelected ? 3 : 2);
 
-      // Create curved path — flow top→bottom: from bottom-center of source to top-center of target
+      // Create curved path (left-to-right flow)
       const path = d3.path();
-      const sourceX = sourcePos.x + sourcePos.width / 2;
-      const sourceY = sourcePos.y + sourcePos.height;
-      const targetX = targetPos.x + targetPos.width / 2;
-      const targetY = targetPos.y;
-      const midY = (sourceY + targetY) / 2;
+      const sourceX = sourcePos.x + sourcePos.width;
+      const sourceY = sourcePos.y + sourcePos.height / 2;
+      const targetX = targetPos.x;
+      const targetY = targetPos.y + targetPos.height / 2;
+      const midX = (sourceX + targetX) / 2;
       path.moveTo(sourceX, sourceY);
-      path.bezierCurveTo(sourceX, midY, targetX, midY, targetX, targetY);
+      path.bezierCurveTo(midX, sourceY, midX, targetY, targetX, targetY);
 
       linkGroup.append('path')
         .attr('d', path.toString())
@@ -311,12 +312,11 @@ function SankeyDiagram({ minAmount = 0, includeRelationships = true, onNodeClick
           if (!hoveredLink) setTooltip(null);
         });
 
-      // Add label — to the right of node bar, left-to-right reading (no rotation)
+      // Add label
       nodeGroup.append('text')
         .attr('x', pos.x + pos.width + 5)
         .attr('y', pos.y + pos.height / 2)
         .attr('dy', '0.35em')
-        .attr('text-anchor', 'start')
         .attr('fill', 'currentColor')
         .attr('font-size', '12px')
         .attr('opacity', selectedNode && !isSelected ? 0.3 : 0.8)
