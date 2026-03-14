@@ -189,6 +189,25 @@ class TimelineSource(Base):
     notes = Column(Text)
 
 
+class AuditLog(Base):
+    """Immutable audit log for sensitive operations (data refresh, admin actions, contributions)."""
+    __tablename__ = "audit_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    timestamp = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+    action = Column(String, nullable=False, index=True)  # data_refresh, admin_login, contribution, etc.
+    actor = Column(String, default="system")  # username or "system"
+    resource = Column(String)  # affected resource identifier
+    detail = Column(Text)  # JSON or human-readable detail
+    ip_address = Column(String)
+    success = Column(Integer, default=1)  # 1=success, 0=failure
+
+    __table_args__ = (
+        Index('idx_audit_timestamp', 'timestamp'),
+        Index('idx_audit_action', 'action'),
+    )
+
+
 class SearchLog(Base):
     """Track search queries for analytics and improvements"""
     __tablename__ = "search_logs"

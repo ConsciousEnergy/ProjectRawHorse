@@ -438,19 +438,20 @@ async def refresh_data(db: Session = Depends(get_db)):
     import os
     import yaml
     from data_loader import load_all_data
+    from audit import log_audit
     
-    # Get project root
     PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     
-    # Load configuration
     config_path = os.path.join(PROJECT_ROOT, "config.yaml")
     with open(config_path, "r") as f:
         config = yaml.safe_load(f)
     
-    # Reload all data
-    load_all_data(db, config, PROJECT_ROOT)
+    try:
+        load_all_data(db, config, PROJECT_ROOT)
+    except Exception as exc:
+        log_audit(db, action="data_refresh", actor="api", detail=str(exc), success=False)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Data refresh failed")
     
-    # Increment version
     version_record = db.query(DataVersion).order_by(DataVersion.id.desc()).first()
     if version_record:
         version_record.version += 1
@@ -462,6 +463,7 @@ async def refresh_data(db: Session = Depends(get_db)):
         db.add(version_record)
     
     db.commit()
+    log_audit(db, action="data_refresh", actor="api", detail=f"version={version_record.version}", success=True)
     
     return {
         "success": True,
