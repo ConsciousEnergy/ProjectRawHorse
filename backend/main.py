@@ -42,7 +42,22 @@ except ImportError:
     RateLimitExceeded = None
     _rate_limit_exceeded_handler = None
 
-logging.basicConfig(level=logging.INFO)
+_env = os.environ.get("ENVIRONMENT", "development")
+if _env == "production":
+    import json as _json
+    class _JsonFormatter(logging.Formatter):
+        def format(self, record):
+            return _json.dumps({
+                "ts": self.formatTime(record),
+                "level": record.levelname,
+                "logger": record.name,
+                "msg": record.getMessage(),
+            })
+    _handler = logging.StreamHandler()
+    _handler.setFormatter(_JsonFormatter())
+    logging.basicConfig(level=logging.INFO, handlers=[_handler])
+else:
+    logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Security: max request body size (10MB)
@@ -203,8 +218,22 @@ app.include_router(timeline.router, prefix="/api/timeline", tags=["timeline"])
 
 @app.get("/api/health")
 async def health_check():
-    """Health check endpoint"""
-    return {"status": "healthy"}
+    """Liveness probe — confirms the process is up."""
+    return {"status": "healthy", "version": config['app']['version']}
+
+
+@app.get("/api/ready")
+async def readiness_check():
+    """Readiness probe — confirms DB is reachable and tables exist."""
+    from dependencies import get_db as _get_db_gen
+    try:
+        db = next(_get_db_gen())
+        from database import Entity
+        count = db.query(Entity).limit(1).count()
+        db.close()
+        return {"status": "ready", "entities_present": count > 0}
+    except Exception as exc:
+        return JSONResponse(status_code=503, content={"status": "not_ready", "detail": str(exc)})
 
 
 # Mount static files (frontend) if directory exists
