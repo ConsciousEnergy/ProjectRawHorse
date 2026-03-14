@@ -13,7 +13,7 @@ from models.schemas import EntityCreate, MoneyFlowCreate, AwardCreate, FOIATarge
 
 
 class GitHubService:
-    def __init__(self, token: str, repo_url: str = "YOUR_ORG/UAPUFOResearch"):
+    def __init__(self, token: str, repo_url: str = "ConsciousEnergy/ProjectRawHorse"):
         """Initialize GitHub service with token"""
         self.token = token
         self.github = Github(token)
@@ -81,7 +81,7 @@ class GitHubService:
         csv_content = f"{entity.entity_id},{entity.display_name},{entity.normalized_name},{entity.entity_type or ''}\n"
         
         # Get current file content
-        file_path = "UAPUFOResearch/uap_entities_master.csv"
+        file_path = "data/entities/entities_master.csv"
         try:
             file = fork.get_contents(file_path, ref=branch_name)
             current_content = file.decoded_content.decode('utf-8')
@@ -133,7 +133,7 @@ class GitHubService:
         csv_content = f"{money_flow.source},{money_flow.target},{money_flow.relationship or ''},{money_flow.amount_usd or ''},{money_flow.start_date or ''},{money_flow.source_citation or ''}\n"
         
         # Similar logic to entity PR
-        file_path = "UAPUFOResearch/uap_money_edges.csv"
+        file_path = "data/financial/money_flows.csv"
         try:
             file = fork.get_contents(file_path, ref=branch_name)
             current_content = file.decoded_content.decode('utf-8')
@@ -181,7 +181,7 @@ class GitHubService:
         # Prepare CSV row
         csv_content = f"{award.piid or ''},{award.recipient_name or ''},{award.recipient_uei or ''},{award.awarding_agency or ''},{award.award_amount or ''},{award.action_date or ''}\n"
         
-        file_path = "UAPUFOResearch/awards.csv"
+        file_path = "data/financial/awards_master.csv"
         try:
             file = fork.get_contents(file_path, ref=branch_name)
             current_content = file.decoded_content.decode('utf-8')
@@ -229,7 +229,7 @@ class GitHubService:
         # Prepare CSV row
         csv_content = f"{foia_target.agency},{foia_target.record_request},{foia_target.timeframe or ''},{foia_target.relevance or ''},{foia_target.notes or ''}\n"
         
-        file_path = "UAPUFOResearch/foia_targets.csv"
+        file_path = "data/foia/foia_targets.csv"
         try:
             file = fork.get_contents(file_path, ref=branch_name)
             current_content = file.decoded_content.decode('utf-8')

@@ -177,48 +177,35 @@ export const exportSummaryPDF = () => {
   window.open(`${API_BASE_URL}/export/pdf/summary`, '_blank');
 };
 
-// Contribution endpoints
-export const contributeEntity = async (entity: any, githubToken: string) => {
-  const response = await api.post('/contribute/entity', entity, {
-    headers: {
-      'X-GitHub-Token': githubToken,
-    },
-  });
+// Contribution endpoints (database-first, no GitHub token required)
+export const submitContribution = async (payload: {
+  contribution_type: string;
+  data: Record<string, unknown>;
+  contributor_name?: string;
+  contributor_email?: string;
+  notes?: string;
+}) => {
+  const response = await api.post('/contribute/submit', payload);
   return response.data;
 };
 
-export const contributeMoneyFlow = async (moneyFlow: any, githubToken: string) => {
-  const response = await api.post('/contribute/money-flow', moneyFlow, {
-    headers: {
-      'X-GitHub-Token': githubToken,
-    },
-  });
+export const getContributionQueue = async (params?: {
+  status?: string;
+  skip?: number;
+  limit?: number;
+}) => {
+  const response = await api.get('/contribute/queue', { params });
   return response.data;
 };
 
-export const contributeAward = async (award: any, githubToken: string) => {
-  const response = await api.post('/contribute/award', award, {
-    headers: {
-      'X-GitHub-Token': githubToken,
-    },
-  });
-  return response.data;
-};
-
-export const contributeFOIATarget = async (foiaTarget: any, githubToken: string) => {
-  const response = await api.post('/contribute/foia-target', foiaTarget, {
-    headers: {
-      'X-GitHub-Token': githubToken,
-    },
-  });
-  return response.data;
-};
-
-export const validateGitHubToken = async (token: string) => {
-  const response = await api.get('/contribute/validate-token', {
-    headers: {
-      'X-GitHub-Token': token,
-    },
+export const reviewContribution = async (
+  contributionId: number,
+  action: 'approve' | 'reject',
+  review_notes?: string,
+) => {
+  const response = await api.post(`/contribute/${contributionId}/review`, {
+    action,
+    review_notes,
   });
   return response.data;
 };

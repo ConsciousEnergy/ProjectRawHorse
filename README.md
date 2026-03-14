@@ -18,7 +18,7 @@ A cross-platform, single-click desktop application for exploring and analyzing p
 - **Visualize** the intelligence organizational pyramid (L1 Control Group → L6 Programs)
 - **Search** across all data types with instant fuzzy-matched results
 - **Export** data for your own research in CSV, JSON, or PDF format
-- **Contribute** new data directly from the app — it creates a GitHub PR for review
+- **Contribute** new data directly from the app — no account required, reviewed by admins
 
 ## ⚡ Quick Start (Non-Technical Users)
 
@@ -55,7 +55,7 @@ https://github.com/user-attachments/assets/6ee064b5-5561-443d-b4a8-2c657bcec182
 - **Interactive Analysis**: Visualize entity relationships and financial networks
 - **Intelligence Stack Filter**: Filter entities by hierarchy level (Control Group → Programs)
 - **Multiple Export Formats**: Download data in CSV, JSON, or PDF
-- **Community Contributions**: Submit new data via automated GitHub pull requests
+- **Community Contributions**: Submit new data directly — no account required, admin review queue
 - **Cross-Platform**: Runs on Windows, macOS, and Linux
 - **1-Click Installation**: Simple setup for non-technical users
 - **Production-Ready**: Docker support for VPS deployment with PostgreSQL
@@ -70,7 +70,7 @@ https://github.com/user-attachments/assets/6ee064b5-5561-443d-b4a8-2c657bcec182
 - **Authentication**: JWT token-based auth for secure write operations
 - **Caching**: Redis support for production deployments
 - **Deployment**: Docker Compose with Caddy reverse proxy, multi-service architecture
-- **GitHub Integration**: PyGithub for automated PR creation
+- **Contributions**: Database-first public submissions with admin review queue (GitHub PR as optional audit trail)
 - **Packaging**: PyInstaller for cross-platform executables
 
 ## Data Sources
@@ -161,40 +161,40 @@ Output: `dist/RawHorse/RawHorse.exe` (or equivalent for your OS)
 ```
 ProjectRawHorse/
 ├── backend/                  # FastAPI backend
-│   ├── routers/              # API endpoints
-│   ├── services/             # GitHub integration
-│   ├── models/               # Data models
+│   ├── routers/              # API endpoints (data, analysis, contribute, timeline, metrics, etc.)
+│   ├── services/             # GitHub integration (admin audit trail)
+│   ├── models/               # Pydantic schemas
 │   ├── static/               # Built frontend (served by backend)
+│   ├── audit.py              # Immutable audit logging
 │   ├── auth.py               # JWT authentication
-│   ├── database.py           # SQLite/PostgreSQL support
-│   └── main.py               # Application entry
+│   ├── database.py           # SQLite/PostgreSQL support with all models
+│   └── main.py               # Application entry with middleware stack
 ├── frontend/                 # React frontend
 │   └── src/
-│       ├── pages/            # Main pages (Dashboard, Analysis, etc.)
+│       ├── pages/            # Main pages (Dashboard, Analysis, Timeline, Contribute, etc.)
 │       ├── components/       # UI components (NetworkGraph, Sankey, etc.)
 │       └── services/         # API client
 ├── data/                     # Data files
 │   ├── entities/             # Entity CSV files
-│   ├── financial/            # Money flow data
+│   ├── financial/            # Money flow and award data
 │   ├── foia/                 # FOIA targets
-│   └── scripts/              # Data enrichment pipeline
-│       ├── entity_recognition.py
-│       ├── enrich_entity_flows.py
-│       └── combine_all_data.py
+│   ├── timeline/             # Historical events seed data (events.csv, sources.csv)
+│   └── scripts/              # Data enrichment and validation pipeline
 ├── docker/                   # Docker deployment
-│   ├── Caddyfile
-│   └── init-db.sql
+│   ├── Caddyfile             # Caddy reverse proxy config
+│   ├── backup.sh             # PostgreSQL backup script
+│   └── restore.sh            # PostgreSQL restore script
 ├── docs/                     # Documentation
-├── START.bat                 # Windows guided launcher (recommended)
-├── START.sh                  # macOS/Linux guided launcher
-├── UNINSTALL.bat             # Windows one-click uninstaller
-├── UNINSTALL.sh              # macOS/Linux uninstaller
-├── install.bat               # Windows full installer
-├── install.sh                # macOS/Linux full installer
-├── RUN.bat                   # Windows quick launch
-├── RUN.sh                    # macOS/Linux quick launch
-├── LaunchRawHorse.vbs        # Windows launcher with icon support
+│   ├── governance/           # Confidence tier policy
+│   └── operations/           # SLOs, performance guardrails, release checklist
+├── tests/                    # Load testing and validation
+├── .github/                  # CI workflows and PR template
+├── START.bat / START.sh      # Guided launcher (recommended)
+├── RUN.bat / RUN.sh          # Quick launch
+├── UNINSTALL.bat / .sh       # One-click uninstaller
+├── install.bat / install.sh  # Full installer
 ├── docker-compose.yml        # Production deployment
+├── docker-compose.dev.yml    # Development deployment
 └── config.yaml               # Application configuration
 ```
 
@@ -224,9 +224,9 @@ Download data in multiple formats:
 
 ### Contribute
 Submit new data to the community:
-1. Provide GitHub personal access token
-2. Fill out contribution form
-3. Automated PR created for review
+1. Fill out the contribution form (entity, money flow, award, or FOIA target)
+2. Your submission is saved for admin review — no account required
+3. Approved contributions are merged into the live database
 
 ## Contributing
 
@@ -264,10 +264,11 @@ See [DISCLAIMER.md](DISCLAIMER.md) for complete terms.
 ## Security & Privacy
 
 - **No Telemetry**: No analytics or user tracking
-- **Local Processing**: All data stays on your machine
-- **No External Servers**: Application runs entirely locally
-- **Encrypted Storage**: GitHub tokens stored encrypted
-- **Open Source**: Full transparency
+- **Local Processing**: All data stays on your machine (local mode) or on your own VPS (production mode)
+- **Audit Logging**: All sensitive operations are recorded in an immutable audit log
+- **Security Headers**: X-Content-Type-Options, X-Frame-Options, CSP, rate limiting
+- **Dependency Scanning**: Automated CI checks via pip-audit, npm audit, and Trivy container scanning
+- **Open Source**: Full transparency — every algorithm and data source is auditable
 
 ## System Requirements
 
@@ -336,13 +337,28 @@ A: No, except for GitHub contributions. All other features work offline.
 - [x] Financial/materials flow enrichment algorithms
 - [x] CI/CD workflow upgrades (GitHub Actions v4, caching, concurrency)
 
+**Completed in v0.4.2Beta:**
+- [x] Historical timeline MVP (1933–2026) with tiered confidence (Confirmed/Corroborated/Contested)
+- [x] Database-first contribution system (no GitHub token required, admin review queue)
+- [x] Git LFS fully removed — all data stored as regular Git objects
+- [x] Operational metrics endpoint with request tracking and error budgets
+- [x] Security hardening: audit logging, dependency scanning CI, security headers
+- [x] Confidence tier governance policy and reconciliation reporting
+- [x] Request timing middleware with SLO monitoring
+- [x] Readiness/liveness health probes for container orchestration
+- [x] PostgreSQL backup/restore scripts
+- [x] Release checklist, load testing, and go/no-go gates
+- [x] Keyboard focus indicators, reduced motion support, skip-link accessibility
+- [x] PR template, CI workflow, and branch governance
+- [x] Fixed GitHub service repo name and file paths
+
 **Upcoming (v0.5.0):**
 - [ ] UFO database enrichment (NUFORC, MUFON CMS, GEIPAN, and more)
-- [ ] VPS deployment guide with one-click setup
+- [ ] Hostinger VPS deployment with public API endpoint
+- [ ] Admin dashboard for contribution review queue
 - [ ] User authentication UI in frontend
-- [ ] Timeline visualization for entity relationships
-- [ ] Batch data import from CSV upload
 - [ ] Redis caching for improved performance
+- [ ] Docker Swarm / Kubernetes graduation (after stable Compose baseline)
 - [ ] Plugin system for custom analysis
 
 ## OPINT Philosophy
@@ -402,6 +418,21 @@ Built on publicly available data from:
 - Open source community contributions
 
 ## Version History
+
+### v0.4.2Beta (2026-03)
+- **Historical Timeline MVP**: Dynamic simulation timeline of confirmed UAP events from 1933 Magenta crash to 2026, with tiered confidence model (Confirmed / Corroborated / Contested) and full citation traceability
+- **Database-First Contributions**: Replaced GitHub-token-dependent contribution system with public database submissions and admin review queue — no account required
+- **Git LFS Removal**: Completed migration from Git LFS pointers to regular Git objects for all CSV and image files
+- **Security Hardening**: Immutable audit logging, dependency scanning CI (pip-audit, npm audit, Trivy), security headers middleware
+- **Operational Observability**: Request timing middleware, operational metrics endpoint (latency percentiles, error budgets, top endpoints), readiness/liveness health probes
+- **Data Trust Governance**: Confidence tier policy (Confirmed/Corroborated/Contested) with reconciliation reporting endpoint
+- **Performance Guardrails**: SLO definitions, slow-request logging, cost control KPIs documentation
+- **Release Readiness**: Pre-release checklist, lightweight load testing script, go/no-go gates
+- **Accessibility**: Keyboard focus indicators, `prefers-reduced-motion` support, skip-link navigation
+- **Pipeline Tooling**: CSV schema validation gate, pipeline orchestrator with manifest checksums
+- **Infrastructure**: PostgreSQL backup/restore scripts, Docker health check fixes, Caddyfile domain env var, PR template and CI workflow
+- **Pyramid Schema Extension**: Added `evidence_refs`, `effective_start_date`, `effective_end_date` to entity model for pyramid provenance
+- **Frontend Typing**: Strengthened TypeScript types for analysis API contracts
 
 ### v0.4.1 (2026-02)
 - **FOIA Targets Page**: Dedicated `/analysis/foia` with sortable table, filters, quality scoring

@@ -189,6 +189,28 @@ class TimelineSource(Base):
     notes = Column(Text)
 
 
+class PendingContribution(Base):
+    """User-submitted data contributions awaiting admin review."""
+    __tablename__ = "pending_contributions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    contribution_type = Column(String, index=True, nullable=False)  # entity, money_flow, award, foia_target
+    status = Column(String, index=True, default="pending", nullable=False)  # pending, approved, rejected
+    data_json = Column(Text, nullable=False)  # JSON-serialized contribution payload
+    contributor_name = Column(String)
+    contributor_email = Column(String)
+    notes = Column(Text)
+    submitted_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+    reviewed_at = Column(DateTime)
+    reviewed_by = Column(String)
+    review_notes = Column(Text)
+
+    __table_args__ = (
+        Index('idx_contribution_status', 'status'),
+        Index('idx_contribution_submitted', 'submitted_at'),
+    )
+
+
 class AuditLog(Base):
     """Immutable audit log for sensitive operations (data refresh, admin actions, contributions)."""
     __tablename__ = "audit_logs"

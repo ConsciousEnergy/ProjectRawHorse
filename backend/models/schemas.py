@@ -255,6 +255,39 @@ class ContributionResponse(BaseModel):
     pr_url: Optional[str] = None
 
 
+class ContributionSubmitRequest(BaseModel):
+    """Public submission — no GitHub token required."""
+    contribution_type: str = Field(..., pattern="^(entity|money_flow|award|foia_target)$")
+    data: dict
+    contributor_name: Optional[str] = None
+    contributor_email: Optional[str] = None
+    notes: Optional[str] = None
+
+
+class ContributionRecord(BaseModel):
+    id: int
+    contribution_type: str
+    status: str
+    data: dict
+    contributor_name: Optional[str] = None
+    notes: Optional[str] = None
+    submitted_at: datetime
+    reviewed_at: Optional[datetime] = None
+    reviewed_by: Optional[str] = None
+    review_notes: Optional[str] = None
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ContributionReviewRequest(BaseModel):
+    action: str = Field(..., pattern="^(approve|reject)$")
+    review_notes: Optional[str] = None
+
+
+class ContributionListResponse(BaseModel):
+    total: int
+    contributions: List[ContributionRecord]
+
+
 # Pyramid / Intel Stack (GET /analysis/intel-stack/pyramid and /summary)
 class PyramidEntitySummary(BaseModel):
     entity_id: str
