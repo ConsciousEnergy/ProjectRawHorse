@@ -71,6 +71,18 @@ def _trusted_hosts():
     return [h.strip() for h in raw.split(",") if h.strip()]
 
 
+class RequestTimingMiddleware(BaseHTTPMiddleware):
+    """Log request duration for SLO monitoring. Adds X-Response-Time header."""
+    async def dispatch(self, request: Request, call_next):
+        start = time.time()
+        response = await call_next(request)
+        duration_ms = round((time.time() - start) * 1000, 1)
+        response.headers["X-Response-Time"] = f"{duration_ms}ms"
+        if duration_ms > 1000 and request.url.path.startswith("/api/"):
+            logger.warning(f"Slow request: {request.method} {request.url.path} took {duration_ms}ms")
+        return response
+
+
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     """Add security-related HTTP headers to all responses."""
     async def dispatch(self, request: Request, call_next):
@@ -195,6 +207,7 @@ if SLOWAPI_AVAILABLE and LIMITER is not None:
     app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # Security middleware (order: first added = outermost)
+app.add_middleware(RequestTimingMiddleware)
 app.add_middleware(TrustedHostMiddleware)
 app.add_middleware(RequestSizeLimitMiddleware)
 app.add_middleware(SecurityHeadersMiddleware)
