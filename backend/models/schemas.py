@@ -24,6 +24,9 @@ class EntityCreate(EntityBase):
 
 class EntityResponse(EntityBase):
     intel_stack_level: Optional[int] = None
+    evidence_refs: Optional[str] = None
+    effective_start_date: Optional[date] = None
+    effective_end_date: Optional[date] = None
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -262,6 +265,9 @@ class PyramidEntitySummary(BaseModel):
     money_flow_total_usd: float = 0.0
     key_connections: List[str] = []
     hierarchy_parent: Optional[str] = None
+    evidence_refs: Optional[str] = None
+    effective_start_date: Optional[date] = None
+    effective_end_date: Optional[date] = None
 
 
 class PyramidLevelSummary(BaseModel):

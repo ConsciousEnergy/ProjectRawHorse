@@ -711,6 +711,9 @@ async def get_pyramid_data(db: Session = Depends(get_db)):
                 money_flow_total_usd=money_per_name.get(e.display_name, 0.0),
                 key_connections=key_connections(e.display_name),
                 hierarchy_parent=hierarchy_parent.get(e.display_name),
+                evidence_refs=getattr(e, 'evidence_refs', None),
+                effective_start_date=getattr(e, 'effective_start_date', None),
+                effective_end_date=getattr(e, 'effective_end_date', None),
             )
             for e in entities
         ]

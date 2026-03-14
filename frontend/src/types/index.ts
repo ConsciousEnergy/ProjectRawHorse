@@ -3,7 +3,10 @@ export interface Entity {
   display_name: string;
   normalized_name: string;
   entity_type?: string;
-  intel_stack_level?: number; // 1-6 hierarchy level
+  intel_stack_level?: number;
+  evidence_refs?: string | null;
+  effective_start_date?: string | null;
+  effective_end_date?: string | null;
 }
 
 // Intelligence Stack Levels for filtering
@@ -136,6 +139,9 @@ export interface PyramidEntitySummary {
   money_flow_total_usd?: number;
   key_connections?: string[];
   hierarchy_parent?: string | null;
+  evidence_refs?: string | null;
+  effective_start_date?: string | null;
+  effective_end_date?: string | null;
 }
 
 export interface PyramidLevelSummary {

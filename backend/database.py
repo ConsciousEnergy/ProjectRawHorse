@@ -35,6 +35,10 @@ class Entity(Base):
     # Intelligence stack level for filtering (1-6 hierarchy)
     # 1=Control Group, 2=Administrators, 3=FFRDCs, 4=Prime Contractors, 5=Facilities, 6=Programs
     intel_stack_level = Column(Integer, index=True, nullable=True)
+    # Evidence and temporal provenance for pyramid placements
+    evidence_refs = Column(Text, nullable=True)  # JSON array of citation URLs/titles
+    effective_start_date = Column(Date, nullable=True)  # When entity entered this level
+    effective_end_date = Column(Date, nullable=True)  # When entity left this level (null = current)
     
     __table_args__ = (
         Index('idx_entity_display_name', 'display_name'),
@@ -240,9 +244,10 @@ def init_database(db_path: str = "data/prh.db"):
     Base.metadata.create_all(bind=engine)
     logger.info("Database tables created/verified")
 
-    # SQLite: add new Relationship columns if missing (no-op for new DBs)
+    # SQLite: add new columns if missing (no-op for new DBs)
     if db_type == "sqlite":
         _migrate_relationship_columns(engine)
+        _migrate_entity_pyramid_columns(engine)
 
     return engine
 
@@ -268,6 +273,27 @@ def _migrate_relationship_columns(engine):
                     logger.info(f"Added column relationships.{col}")
     except Exception as e:
         logger.warning(f"Migration of relationships table skipped: {e}")
+
+
+def _migrate_entity_pyramid_columns(engine):
+    """Add evidence_refs, effective_start_date, effective_end_date to entities if missing."""
+    from sqlalchemy import text
+    col_types = {
+        "evidence_refs": "TEXT",
+        "effective_start_date": "DATE",
+        "effective_end_date": "DATE",
+    }
+    try:
+        with engine.connect() as conn:
+            r = conn.execute(text("PRAGMA table_info(entities)"))
+            cols = {row[1] for row in r}
+            for col, ctype in col_types.items():
+                if col not in cols:
+                    conn.execute(text(f"ALTER TABLE entities ADD COLUMN {col} {ctype}"))
+                    conn.commit()
+                    logger.info(f"Added column entities.{col}")
+    except Exception as e:
+        logger.warning(f"Migration of entities table skipped: {e}")
 
 
 def get_session_maker(engine):
