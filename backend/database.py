@@ -154,6 +154,41 @@ class Relationship(Base):
     )
 
 
+class TimelineEvent(Base):
+    """Historical events with tiered confidence and mandatory citations."""
+    __tablename__ = "timeline_events"
+
+    id = Column(Integer, primary_key=True, index=True)
+    event_id = Column(String, unique=True, index=True, nullable=False)
+    event_date = Column(Date, index=True, nullable=False)
+    date_precision = Column(String, default="exact")  # exact, month_only, year_only
+    title = Column(String, nullable=False)
+    summary = Column(Text)
+    category = Column(String, index=True)  # crash_retrieval, legislation, disclosure, military, scientific, whistleblower
+    region = Column(String, index=True)
+    confidence_tier = Column(String, index=True, nullable=False)  # confirmed, corroborated, contested
+    related_entities = Column(Text)  # JSON array of entity display_names
+
+    __table_args__ = (
+        Index('idx_timeline_date', 'event_date'),
+        Index('idx_timeline_category', 'category'),
+        Index('idx_timeline_confidence', 'confidence_tier'),
+    )
+
+
+class TimelineSource(Base):
+    """Citation records for timeline events. Every event requires at least one."""
+    __tablename__ = "timeline_sources"
+
+    id = Column(Integer, primary_key=True, index=True)
+    event_id = Column(String, index=True, nullable=False)  # FK to TimelineEvent.event_id
+    source_type = Column(String)  # government_record, journalism, academic, testimony, foia
+    source_title = Column(String)
+    source_url = Column(Text)
+    source_date = Column(Date)
+    notes = Column(Text)
+
+
 class SearchLog(Base):
     """Track search queries for analytics and improvements"""
     __tablename__ = "search_logs"
@@ -244,7 +279,7 @@ def init_database(db_path: str = "data/prh.db"):
     Base.metadata.create_all(bind=engine)
     logger.info("Database tables created/verified")
 
-    # SQLite: add new columns if missing (no-op for new DBs)
+    # SQLite: add new columns if missing (no-op for new DBs); tables auto-created by create_all above
     if db_type == "sqlite":
         _migrate_relationship_columns(engine)
         _migrate_entity_pyramid_columns(engine)

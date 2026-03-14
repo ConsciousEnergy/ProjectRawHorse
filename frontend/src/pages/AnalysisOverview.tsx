@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Network, GitBranch, BarChart3, TrendingUp, Triangle, FileSearch } from 'lucide-react';
+import { Network, GitBranch, BarChart3, TrendingUp, Triangle, FileSearch, Clock } from 'lucide-react';
 
 function AnalysisOverview() {
   return (
@@ -79,6 +79,29 @@ function AnalysisOverview() {
             </div>
           </div>
           <span className="viz-card-arrow">→</span>
+        </Link>
+
+        <Link to="/analysis/timeline" className="viz-card">
+          <div className="viz-card-icon" style={{ background: 'linear-gradient(135deg, #7c3aed, #a78bfa)' }}>
+            <Clock size={48} />
+          </div>
+          <div className="viz-card-content">
+            <h3>
+              Historical Timeline
+              <span className="viz-card-beta-badge">New</span>
+            </h3>
+            <p>
+              Interactive timeline of confirmed UAP events from the 1933 Magenta crash to present day.
+              Filter by category, confidence tier, and date range with full source citations.
+            </p>
+            <ul className="viz-card-features">
+              <li>30+ curated historical events (1933–2026)</li>
+              <li>Tiered confidence: confirmed, corroborated, contested</li>
+              <li>Every event backed by citations</li>
+              <li>Decade-level aggregation chart</li>
+            </ul>
+          </div>
+          <span className="viz-card-arrow">&rarr;</span>
         </Link>
 
         <Link to="/analysis/foia" className="viz-card">

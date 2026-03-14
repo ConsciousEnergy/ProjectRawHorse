@@ -1155,10 +1155,88 @@ def load_all_data(db: Session, config: dict, project_root: str = "."):
     if os.path.exists(intel_levels_path):
         load_intel_stack_levels(db, intel_levels_path)
 
+    # Timeline events (historical UAP events with citations)
+    timeline_events_path = os.path.join(project_root, "data", "timeline", "events.csv")
+    timeline_sources_path = os.path.join(project_root, "data", "timeline", "sources.csv")
+    if os.path.exists(timeline_events_path):
+        load_timeline_events(db, timeline_events_path, timeline_sources_path)
+
     # Increment data version after loading
     increment_data_version(db, "data_loader")
     
     logger.info("Data loading complete")
+
+
+def load_timeline_events(db: Session, events_path: str, sources_path: str = None):
+    """Load historical timeline events and their citation sources from CSV."""
+    from database import TimelineEvent, TimelineSource
+
+    if not os.path.exists(events_path):
+        logger.warning(f"Timeline events file not found: {events_path}")
+        return
+
+    existing = {e.event_id for e in db.query(TimelineEvent.event_id).all()}
+    loaded = 0
+
+    with open(events_path, "r", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            eid = (row.get("event_id") or "").strip()
+            if not eid or eid.startswith("#") or eid in existing:
+                continue
+            date_str = (row.get("event_date") or "").strip()
+            if not date_str:
+                continue
+            try:
+                event_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+            except ValueError:
+                logger.warning(f"Bad date for {eid}: {date_str}")
+                continue
+
+            event = TimelineEvent(
+                event_id=eid,
+                event_date=event_date,
+                date_precision=(row.get("date_precision") or "exact").strip(),
+                title=(row.get("title") or "").strip(),
+                summary=(row.get("summary") or "").strip(),
+                category=(row.get("category") or "").strip() or None,
+                region=(row.get("region") or "").strip() or None,
+                confidence_tier=(row.get("confidence_tier") or "contested").strip(),
+                related_entities=(row.get("related_entities") or "").strip() or None,
+            )
+            db.add(event)
+            existing.add(eid)
+            loaded += 1
+
+    db.commit()
+    logger.info(f"Loaded {loaded} timeline events")
+
+    if sources_path and os.path.exists(sources_path):
+        existing_sources = db.query(TimelineSource).count()
+        src_loaded = 0
+        with open(sources_path, "r", encoding="utf-8") as f:
+            for row in csv.DictReader(f):
+                eid = (row.get("event_id") or "").strip()
+                if not eid or eid not in existing:
+                    continue
+                src_date = None
+                ds = (row.get("source_date") or "").strip()
+                if ds:
+                    try:
+                        src_date = datetime.strptime(ds, "%Y-%m-%d").date()
+                    except ValueError:
+                        pass
+                source = TimelineSource(
+                    event_id=eid,
+                    source_type=(row.get("source_type") or "").strip() or None,
+                    source_title=(row.get("source_title") or "").strip() or None,
+                    source_url=(row.get("source_url") or "").strip() or None,
+                    source_date=src_date,
+                    notes=(row.get("notes") or "").strip() or None,
+                )
+                db.add(source)
+                src_loaded += 1
+        db.commit()
+        logger.info(f"Loaded {src_loaded} timeline sources")
 
 
 def increment_data_version(db: Session, modified_by: str = "system") -> int:

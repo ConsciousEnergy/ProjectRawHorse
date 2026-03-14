@@ -234,6 +234,42 @@ export interface TimelineResponse {
 }
 
 /** Entity relationships response (GET /analysis/relationships/:name) */
+/** Timeline event types (GET /timeline/*) */
+export interface TimelineSource {
+  source_type?: string | null;
+  source_title?: string | null;
+  source_url?: string | null;
+  source_date?: string | null;
+  notes?: string | null;
+}
+
+export interface TimelineEvent {
+  event_id: string;
+  event_date: string;
+  date_precision: string;
+  title: string;
+  summary?: string | null;
+  category?: string | null;
+  region?: string | null;
+  confidence_tier: string;
+  related_entities?: string | null;
+  sources: TimelineSource[];
+}
+
+export interface TimelineEventListResponse {
+  total: number;
+  page: number;
+  page_size: number;
+  events: TimelineEvent[];
+}
+
+export interface TimelineBucket {
+  period: string;
+  count: number;
+  categories: Record<string, number>;
+  confidence_breakdown: Record<string, number>;
+}
+
 export interface EntityRelationshipsResponse {
   entity: string;
   money_flows: Array<{

@@ -306,3 +306,40 @@ class HierarchyChain(BaseModel):
     chain_up: List[HierarchyNode] = []
     chain_down: List[HierarchyNode] = []
     lateral: List[HierarchyNode] = []
+
+
+# Timeline Models (GET /analysis/timeline-events/*)
+class TimelineSourceSchema(BaseModel):
+    source_type: Optional[str] = None
+    source_title: Optional[str] = None
+    source_url: Optional[str] = None
+    source_date: Optional[date] = None
+    notes: Optional[str] = None
+
+
+class TimelineEventSchema(BaseModel):
+    event_id: str
+    event_date: date
+    date_precision: str = "exact"
+    title: str
+    summary: Optional[str] = None
+    category: Optional[str] = None
+    region: Optional[str] = None
+    confidence_tier: str
+    related_entities: Optional[str] = None
+    sources: List[TimelineSourceSchema] = []
+    model_config = ConfigDict(from_attributes=True)
+
+
+class TimelineEventListResponse(BaseModel):
+    total: int
+    page: int
+    page_size: int
+    events: List[TimelineEventSchema]
+
+
+class TimelineBucket(BaseModel):
+    period: str
+    count: int
+    categories: dict = {}
+    confidence_breakdown: dict = {}

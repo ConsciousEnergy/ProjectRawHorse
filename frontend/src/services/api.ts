@@ -3,6 +3,7 @@ import type {
   Entity, MoneyFlow, Award, FOIATarget, Stats, GraphData, SankeyData, DataVersion,
   PyramidData, HierarchyChain, EntityDetail, IntelStackSearchResponse,
   FinancialFlowsResponse, TimelineResponse, EntityRelationshipsResponse,
+  TimelineEventListResponse, TimelineEvent, TimelineBucket,
 } from '../types';
 
 const API_BASE_URL = '/api';
@@ -102,6 +103,30 @@ export const searchIntelStack = async (q: string, limit = 20) => {
   const response = await api.get<IntelStackSearchResponse>('/analysis/intel-stack/search', {
     params: { q, limit },
   });
+  return response.data;
+};
+
+// Timeline endpoints
+export const getTimelineEvents = async (params?: {
+  category?: string;
+  confidence?: string;
+  search?: string;
+  start_year?: number;
+  end_year?: number;
+  page?: number;
+  page_size?: number;
+}) => {
+  const response = await api.get<TimelineEventListResponse>('/timeline/events', { params });
+  return response.data;
+};
+
+export const getTimelineEvent = async (eventId: string) => {
+  const response = await api.get<TimelineEvent>(`/timeline/events/${encodeURIComponent(eventId)}`);
+  return response.data;
+};
+
+export const getTimelineBuckets = async (bucketSize: 'decade' | 'year' = 'decade') => {
+  const response = await api.get<TimelineBucket[]>('/timeline/buckets', { params: { bucket_size: bucketSize } });
   return response.data;
 };
 
