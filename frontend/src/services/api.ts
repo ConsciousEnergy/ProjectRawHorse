@@ -1,5 +1,9 @@
 import axios from 'axios';
-import type { Entity, MoneyFlow, Award, FOIATarget, Stats, GraphData, SankeyData, DataVersion, PyramidData, HierarchyChain, EntityDetail, IntelStackSearchResponse } from '../types';
+import type {
+  Entity, MoneyFlow, Award, FOIATarget, Stats, GraphData, SankeyData, DataVersion,
+  PyramidData, HierarchyChain, EntityDetail, IntelStackSearchResponse,
+  FinancialFlowsResponse, TimelineResponse, EntityRelationshipsResponse,
+} from '../types';
 
 const API_BASE_URL = '/api';
 
@@ -50,17 +54,17 @@ export const getMoneyFlowGraph = async (minAmount?: number) => {
 };
 
 export const getEntityRelationships = async (entityName: string) => {
-  const response = await api.get(`/analysis/relationships/${entityName}`);
+  const response = await api.get<EntityRelationshipsResponse>(`/analysis/relationships/${encodeURIComponent(entityName)}`);
   return response.data;
 };
 
 export const getFinancialFlows = async () => {
-  const response = await api.get('/analysis/financial/flows');
+  const response = await api.get<FinancialFlowsResponse>('/analysis/financial/flows');
   return response.data;
 };
 
 export const getTimeline = async () => {
-  const response = await api.get('/analysis/timeline');
+  const response = await api.get<TimelineResponse>('/analysis/timeline');
   return response.data;
 };
 

@@ -4,10 +4,11 @@ import { Link } from 'react-router-dom';
 import SankeyDiagram from '../components/SankeyDiagram';
 import SkeletonLoader from '../components/SkeletonLoader';
 import { useDataContext } from '../contexts/DataContext';
+import type { FinancialFlowsResponse, TimelineResponse } from '../types';
 
 function Analysis() {
-  const [financialData, setFinancialData] = useState<any>(null);
-  const [timelineData, setTimelineData] = useState<any>(null);
+  const [financialData, setFinancialData] = useState<FinancialFlowsResponse | null>(null);
+  const [timelineData, setTimelineData] = useState<TimelineResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { dataVersion } = useDataContext();
@@ -106,7 +107,7 @@ function Analysis() {
                   </tr>
                 </thead>
                 <tbody>
-                  {financialData?.inflows?.slice(0, 10).map((item: any, idx: number) => (
+                  {financialData?.inflows?.slice(0, 10).map((item, idx) => (
                     <tr key={idx}>
                       <td>{item.entity}</td>
                       <td>{formatCurrency(item.amount)}</td>
@@ -128,7 +129,7 @@ function Analysis() {
                   </tr>
                 </thead>
                 <tbody>
-                  {financialData?.outflows?.slice(0, 10).map((item: any, idx: number) => (
+                  {financialData?.outflows?.slice(0, 10).map((item, idx) => (
                     <tr key={idx}>
                       <td>{item.entity}</td>
                       <td>{formatCurrency(item.amount)}</td>
@@ -151,7 +152,7 @@ function Analysis() {
                   </tr>
                 </thead>
                 <tbody>
-                  {timelineData?.timeline?.map((item: any) => (
+                  {timelineData?.timeline?.map((item) => (
                     <tr key={item.year}>
                       <td>{item.year}</td>
                       <td>{item.count}</td>

@@ -197,3 +197,49 @@ export interface IntelStackSearchResult {
 export interface IntelStackSearchResponse {
   results: IntelStackSearchResult[];
 }
+
+/** Financial flows response (GET /analysis/financial/flows) */
+export interface FinancialFlowItem {
+  entity: string;
+  amount: number;
+}
+
+export interface FinancialFlowsResponse {
+  outflows: FinancialFlowItem[];
+  inflows: FinancialFlowItem[];
+}
+
+/** Financial totals response (GET /analysis/financial/totals) */
+export interface FinancialTotalsResponse {
+  total_money_flows: number;
+  total_awards: number;
+  top_recipients: FinancialFlowItem[];
+}
+
+/** Timeline response (GET /analysis/timeline) */
+export interface TimelineEntry {
+  year: string;
+  count: number;
+  total_amount: number;
+}
+
+export interface TimelineResponse {
+  timeline: TimelineEntry[];
+}
+
+/** Entity relationships response (GET /analysis/relationships/:name) */
+export interface EntityRelationshipsResponse {
+  entity: string;
+  money_flows: Array<{
+    source: string;
+    target: string;
+    amount: number | null;
+    date: string | null;
+    relationship: string | null;
+  }>;
+  relationships: Array<{
+    source: string;
+    target: string;
+    label: string | null;
+  }>;
+}
