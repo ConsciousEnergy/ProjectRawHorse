@@ -24,7 +24,7 @@ import logging
 from database import init_database, get_session_maker
 from data_loader import load_all_data, is_database_populated
 from dependencies import set_session_local, get_db
-from routers import data, analysis, export_router, contribute, search, auth_router, timeline, reconciliation
+from routers import data, analysis, export_router, contribute, search, auth_router, timeline, reconciliation, metrics
 
 # Rate limiting: global API 100/min; auth 10/min (applied in auth_router via slowapi)
 def _rate_limit_per_minute() -> int:
@@ -72,14 +72,20 @@ def _trusted_hosts():
 
 
 class RequestTimingMiddleware(BaseHTTPMiddleware):
-    """Log request duration for SLO monitoring. Adds X-Response-Time header."""
+    """Log request duration for SLO monitoring. Adds X-Response-Time header and feeds metrics."""
     async def dispatch(self, request: Request, call_next):
         start = time.time()
         response = await call_next(request)
         duration_ms = round((time.time() - start) * 1000, 1)
         response.headers["X-Response-Time"] = f"{duration_ms}ms"
-        if duration_ms > 1000 and request.url.path.startswith("/api/"):
-            logger.warning(f"Slow request: {request.method} {request.url.path} took {duration_ms}ms")
+        if request.url.path.startswith("/api/"):
+            try:
+                from routers.metrics import record_request
+                record_request(request.url.path, response.status_code, duration_ms)
+            except Exception:
+                pass
+            if duration_ms > 1000:
+                logger.warning(f"Slow request: {request.method} {request.url.path} took {duration_ms}ms")
         return response
 
 
@@ -229,6 +235,7 @@ app.include_router(search.router, prefix="/api", tags=["search"])
 app.include_router(auth_router.router, prefix="/api/auth", tags=["authentication"])
 app.include_router(timeline.router, prefix="/api/timeline", tags=["timeline"])
 app.include_router(reconciliation.router, prefix="/api/reconciliation", tags=["reconciliation"])
+app.include_router(metrics.router, prefix="/api/metrics", tags=["metrics"])
 
 @app.get("/api/health")
 async def health_check():
