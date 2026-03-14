@@ -1,0 +1,19 @@
+{
+  "toptier_agencies": [
+    "Department of Defense",
+    "Department of the Air Force",
+    "Department of the Army",
+    "Department of the Navy",
+    "Defense Advanced Research Projects Agency",
+    "Intelligence Advanced Research Projects Activity",
+    "National Aeronautics and Space Administration",
+    "Office of the Director of National Intelligence",
+    "Department of Energy",
+    "National Science Foundation",
+    "Department of Homeland Security"
+  ],
+  "description": "Expanded agency list for defense contractor and aerospace entity discovery",
+  "created_date": "2025-11-30",
+  "purpose": "contractor_expansion"
+}
+
