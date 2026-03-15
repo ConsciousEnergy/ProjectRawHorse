@@ -130,6 +130,64 @@ export const getTimelineBuckets = async (bucketSize: 'decade' | 'year' = 'decade
   return response.data;
 };
 
+/**
+ * Derived financial analytics — built from existing /analysis/financial/* endpoints.
+ * Used by FinancialDashboard component.
+ */
+export const getTopRecipientsByType = async () => {
+  const data = await api.get('/analysis/financial/totals');
+  return {
+    recipients: (data.data.top_recipients || []).map((r: { entity: string; amount: number }) => ({
+      entity: r.entity,
+      amount: r.amount,
+    })),
+  };
+};
+
+export const getAgencySpendingBreakdown = async () => {
+  const data = await api.get('/analysis/financial/flows');
+  const outflows: Array<{ entity: string; amount: number }> = data.data.outflows || [];
+  const totalAmount = outflows.reduce((s: number, o: { amount: number }) => s + (o.amount || 0), 0);
+  return {
+    agencies: outflows
+      .sort((a: { amount: number }, b: { amount: number }) => (b.amount || 0) - (a.amount || 0))
+      .slice(0, 15)
+      .map((o: { entity: string; amount: number }) => ({
+        agency: o.entity,
+        amount: o.amount || 0,
+        percentage: totalAmount > 0 ? ((o.amount || 0) / totalAmount) * 100 : 0,
+      })),
+  };
+};
+
+export const getAmountDistribution = async () => {
+  const flows = await api.get('/data/money-flows', { params: { limit: 1000 } });
+  const amounts: number[] = (flows.data || [])
+    .map((f: { amount_usd?: number }) => f.amount_usd)
+    .filter((a: number | undefined): a is number => a != null && a > 0);
+  if (amounts.length === 0) {
+    return { count: 0, total: 0, mean: 0, median: 0, min: 0, max: 0, std_dev: 0, distribution_bins: [] };
+  }
+  amounts.sort((a: number, b: number) => a - b);
+  const count = amounts.length;
+  const total = amounts.reduce((s, v) => s + v, 0);
+  const mean = total / count;
+  const median = count % 2 === 0 ? (amounts[count / 2 - 1] + amounts[count / 2]) / 2 : amounts[Math.floor(count / 2)];
+  const min = amounts[0];
+  const max = amounts[count - 1];
+  const variance = amounts.reduce((s, v) => s + (v - mean) ** 2, 0) / count;
+  const std_dev = Math.sqrt(variance);
+  const bins = ['<$1K', '$1K-$10K', '$10K-$100K', '$100K-$1M', '$1M-$10M', '$10M+'];
+  const thresholds = [1000, 10000, 100000, 1000000, 10000000, Infinity];
+  const binCounts = new Array(bins.length).fill(0);
+  for (const a of amounts) {
+    for (let i = 0; i < thresholds.length; i++) {
+      if (a < thresholds[i]) { binCounts[i]++; break; }
+    }
+  }
+  return { count, total, mean, median, min, max, std_dev, distribution_bins: bins.map((label, i) => ({ label, count: binCounts[i] })) };
+};
+
 export const getDataVersion = async () => {
   const response = await api.get<DataVersion>('/data/version');
   return response.data;

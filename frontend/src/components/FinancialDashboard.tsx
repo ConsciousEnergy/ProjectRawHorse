@@ -67,8 +67,9 @@ const FinancialDashboard: React.FC = () => {
       setTopRecipients(recipientsData?.recipients || []);
       setAgencyBreakdown(agenciesData?.agencies || []);
       setDistribution(distributionData?.count !== undefined ? distributionData : null);
-    } catch (err: any) {
-      setError(err.message || 'Failed to load dashboard data');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to load dashboard data';
+      setError(msg);
       console.error('Error loading dashboard:', err);
     } finally {
       setLoading(false);

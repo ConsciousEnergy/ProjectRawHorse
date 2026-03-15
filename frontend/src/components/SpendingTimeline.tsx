@@ -12,50 +12,36 @@ import {
   ResponsiveContainer
 } from 'recharts';
 import { getTimeline } from '../services/api';
+import type { TimelineEntry } from '../types';
 import './SpendingTimeline.css';
 
-interface TimelineData {
-  period: string;
-  total: number;
-  [key: string]: any;  // Dynamic agency fields
-}
-
-interface AgencyData {
-  name: string;
-  total: number;
-}
-
 const SpendingTimeline: React.FC = () => {
-  const [timelineData, setTimelineData] = useState<TimelineData[]>([]);
-  const [topAgencies, setTopAgencies] = useState<AgencyData[]>([]);
-  const [groupBy, setGroupBy] = useState<'year' | 'month' | 'quarter'>('year');
+  const [timelineData, setTimelineData] = useState<TimelineEntry[]>([]);
   const [chartType, setChartType] = useState<'line' | 'area'>('area');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     loadTimelineData();
-  }, [groupBy]);
+  }, []);
 
   const loadTimelineData = async () => {
     setLoading(true);
     setError(null);
     
     try {
-      const responseData = await getTimeline(groupBy);
+      const responseData = await getTimeline();
       
-      // Safely handle response data
       if (!responseData) {
         console.warn('Empty response from timeline API');
         setTimelineData([]);
-        setTopAgencies([]);
         return;
       }
       
       setTimelineData(responseData.timeline || []);
-      setTopAgencies(responseData.top_agencies || []);
-    } catch (err: any) {
-      setError(err.message || 'Failed to load timeline data');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to load timeline data';
+      setError(msg);
       console.error('Error loading timeline:', err);
     } finally {
       setLoading(false);
@@ -135,23 +121,10 @@ const SpendingTimeline: React.FC = () => {
 
       <div className="timeline-controls">
         <div className="control-group">
-          <label>Time Period:</label>
-          <select
-            value={groupBy}
-            onChange={(e) => setGroupBy(e.target.value as any)}
-            className="control-select"
-          >
-            <option value="year">Yearly</option>
-            <option value="quarter">Quarterly</option>
-            <option value="month">Monthly</option>
-          </select>
-        </div>
-
-        <div className="control-group">
           <label>Chart Type:</label>
           <select
             value={chartType}
-            onChange={(e) => setChartType(e.target.value as any)}
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setChartType(e.target.value as 'line' | 'area')}
             className="control-select"
           >
             <option value="area">Stacked Area</option>
@@ -168,12 +141,12 @@ const SpendingTimeline: React.FC = () => {
         <div className="stat-card">
           <div className="stat-label">Total Spending</div>
           <div className="stat-value">
-            {formatCurrency(timelineData.reduce((sum, d) => sum + d.total, 0))}
+            {formatCurrency(timelineData.reduce((sum, d) => sum + d.total_amount, 0))}
           </div>
         </div>
         <div className="stat-card">
-          <div className="stat-label">Tracked Agencies</div>
-          <div className="stat-value">{topAgencies.length}</div>
+          <div className="stat-label">Total Transactions</div>
+          <div className="stat-value">{timelineData.reduce((sum, d) => sum + d.count, 0)}</div>
         </div>
       </div>
 
@@ -182,66 +155,55 @@ const SpendingTimeline: React.FC = () => {
           <ResponsiveContainer width="100%" height={400}>
             <AreaChart data={timelineData}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="period" />
-              <YAxis tickFormatter={(value) => formatCurrency(value)} />
+              <XAxis dataKey="year" />
+              <YAxis tickFormatter={(value: number) => formatCurrency(value)} />
               <Tooltip content={<CustomTooltip />} />
               <Legend />
-              {topAgencies.slice(0, 5).map((agency, index) => (
-                <Area
-                  key={agency.name}
-                  type="monotone"
-                  dataKey={agency.name}
-                  stackId="1"
-                  stroke={colors[index % colors.length]}
-                  fill={colors[index % colors.length]}
-                  fillOpacity={0.6}
-                />
-              ))}
+              <Area
+                type="monotone"
+                dataKey="total_amount"
+                name="Total Spending"
+                stackId="1"
+                stroke={colors[0]}
+                fill={colors[0]}
+                fillOpacity={0.6}
+              />
             </AreaChart>
           </ResponsiveContainer>
         ) : (
           <ResponsiveContainer width="100%" height={400}>
             <LineChart data={timelineData}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="period" />
-              <YAxis tickFormatter={(value) => formatCurrency(value)} />
+              <XAxis dataKey="year" />
+              <YAxis tickFormatter={(value: number) => formatCurrency(value)} />
               <Tooltip content={<CustomTooltip />} />
               <Legend />
               <Line
                 type="monotone"
-                dataKey="total"
+                dataKey="total_amount"
+                name="Total Spending"
                 stroke="#5B4FFF"
                 strokeWidth={2}
                 dot={{ r: 4 }}
                 activeDot={{ r: 6 }}
               />
-              {topAgencies.slice(0, 5).map((agency, index) => (
-                <Line
-                  key={agency.name}
-                  type="monotone"
-                  dataKey={agency.name}
-                  stroke={colors[index % colors.length]}
-                  strokeWidth={2}
-                  dot={{ r: 3 }}
-                />
-              ))}
             </LineChart>
           </ResponsiveContainer>
         )}
       </div>
 
       <div className="agency-summary">
-        <h4>Top Agencies by Total Spending</h4>
+        <h4>Yearly Spending Breakdown</h4>
         <div className="agency-list">
-          {topAgencies.map((agency, index) => (
-            <div key={agency.name} className="agency-item">
-              <span className="agency-rank">#{index + 1}</span>
+          {timelineData.map((entry, index) => (
+            <div key={entry.year} className="agency-item">
+              <span className="agency-rank">{entry.year}</span>
               <span
                 className="agency-color"
                 style={{ backgroundColor: colors[index % colors.length] }}
               ></span>
-              <span className="agency-name">{agency.name}</span>
-              <span className="agency-total">{formatCurrency(agency.total)}</span>
+              <span className="agency-name">{entry.count} transactions</span>
+              <span className="agency-total">{formatCurrency(entry.total_amount)}</span>
             </div>
           ))}
         </div>

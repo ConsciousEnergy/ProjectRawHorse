@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import ForceGraph2D from 'react-force-graph-2d';
-import { getMoneyFlowGraphWeighted } from '../services/api';
+import { getMoneyFlowGraph } from '../services/api';
 import './MoneyFlowGraph.css';
 
 interface ForceGraphNode {
@@ -34,7 +34,7 @@ const MoneyFlowGraph: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const responseData = await getMoneyFlowGraphWeighted(minAmount > 0 ? minAmount : undefined);
+      const responseData = await getMoneyFlowGraph(minAmount > 0 ? minAmount : undefined);
       
       // Safely handle response data
       if (!responseData || !responseData.nodes || !responseData.edges) {
@@ -60,8 +60,9 @@ const MoneyFlowGraph: React.FC = () => {
       }));
 
       setGraphData({ nodes, links });
-    } catch (err: any) {
-      setError(err.message || 'Failed to load money flow graph');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to load money flow graph';
+      setError(msg);
       console.error('Error loading money flow graph:', err);
     } finally {
       setLoading(false);
