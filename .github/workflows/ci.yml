@@ -18,7 +18,9 @@ jobs:
       - name: Install dependencies
         run: pip install -r backend/requirements.txt
       - name: Syntax check all Python files
-        run: python -m py_compile backend/main.py && python -c "
+        run: |
+          python -m py_compile backend/main.py
+          python -c "
           import ast, glob
           files = glob.glob('backend/**/*.py', recursive=True)
           for f in files:
