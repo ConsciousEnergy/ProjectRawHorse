@@ -285,3 +285,77 @@ export interface EntityRelationshipsResponse {
     label: string | null;
   }>;
 }
+
+export interface SimulationTimelineSource {
+  source_type?: string | null;
+  source_title?: string | null;
+  source_url?: string | null;
+  source_date?: string | null;
+  notes?: string | null;
+}
+
+export interface SimulationEventItem {
+  event_id: string;
+  event_date: string;
+  title: string;
+  category?: string | null;
+  confidence_tier: string;
+  simulation_confidence?: number | null;
+  related_entities: string[];
+  sources: SimulationTimelineSource[];
+}
+
+export interface SimulationFlowItem {
+  edge_id?: string | null;
+  year?: number | null;
+  source: string;
+  target: string;
+  relationship?: string | null;
+  amount_usd?: number | null;
+  source_citation?: string | null;
+  simulation_confidence?: number | null;
+  confidence_tier?: string | null;
+}
+
+export interface SimulationEntityItem {
+  entity_id: string;
+  display_name: string;
+  entity_type?: string | null;
+  simulation_confidence?: number | null;
+  confidence_tier?: string | null;
+  effective_start_date?: string | null;
+  effective_end_date?: string | null;
+  evidence_refs?: string | null;
+}
+
+export interface SimulationConnectionItem {
+  source: string;
+  target: string;
+  relationship_type?: string | null;
+  label?: string | null;
+  start_date?: string | null;
+  end_date?: string | null;
+  simulation_confidence?: number | null;
+  confidence_tier?: string | null;
+  source_citation?: string | null;
+}
+
+export interface SimulationTimelineMeta {
+  total_events: number;
+  total_flows: number;
+  total_entities: number;
+  total_connections: number;
+  page: number;
+  page_size: number;
+  truncated: boolean;
+  available_filters: Record<string, string[]>;
+}
+
+export interface SimulationTimelineResponse {
+  time_range: { start?: string | null; end?: string | null };
+  events: SimulationEventItem[];
+  money_flows: SimulationFlowItem[];
+  entities: SimulationEntityItem[];
+  connections: SimulationConnectionItem[];
+  meta: SimulationTimelineMeta;
+}

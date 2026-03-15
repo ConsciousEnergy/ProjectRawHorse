@@ -15,7 +15,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
-from database import Entity, MoneyFlow, Award, Relationship, TimelineEvent, FOIATarget, AuditLog
+from database import Entity, MoneyFlow, Award, Relationship, TimelineEvent, FOIATarget, AuditLog, ReCrConfidence
 from dependencies import get_db
 
 logger = logging.getLogger(__name__)
@@ -53,6 +53,7 @@ async def get_metrics_summary(db: Session = Depends(get_db)):
         "timeline_events": db.query(TimelineEvent).count(),
         "foia_targets": db.query(FOIATarget).count(),
         "audit_log_entries": db.query(AuditLog).count(),
+        "re_cr_confidence": db.query(ReCrConfidence).count(),
     }
 
     total_requests = sum(_request_counts.values())

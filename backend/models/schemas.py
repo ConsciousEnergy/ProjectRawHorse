@@ -5,7 +5,7 @@ Sections: Entity, MoneyFlow, Award, FOIATarget, Relationship, MaterialsFlow,
 query params, Stats, Graph, Sankey, DataVersion, Export, Contribution,
 Pyramid/Intel Stack (PyramidEntitySummary, PyramidLevelSummary, CrossLevelFlow, PyramidDataResponse).
 """
-from typing import Optional, List
+from typing import Optional, List, Dict
 from datetime import datetime, date
 from pydantic import BaseModel, Field, ConfigDict
 
@@ -376,3 +376,69 @@ class TimelineBucket(BaseModel):
     count: int
     categories: dict = {}
     confidence_breakdown: dict = {}
+
+
+class SimulationEventItem(BaseModel):
+    event_id: str
+    event_date: date
+    title: str
+    category: Optional[str] = None
+    confidence_tier: str
+    simulation_confidence: Optional[float] = None
+    related_entities: List[str] = []
+    sources: List[TimelineSourceSchema] = []
+
+
+class SimulationFlowItem(BaseModel):
+    edge_id: Optional[str] = None
+    year: Optional[int] = None
+    source: str
+    target: str
+    relationship: Optional[str] = None
+    amount_usd: Optional[float] = None
+    source_citation: Optional[str] = None
+    simulation_confidence: Optional[float] = None
+    confidence_tier: Optional[str] = None
+
+
+class SimulationEntityItem(BaseModel):
+    entity_id: str
+    display_name: str
+    entity_type: Optional[str] = None
+    simulation_confidence: Optional[float] = None
+    confidence_tier: Optional[str] = None
+    effective_start_date: Optional[date] = None
+    effective_end_date: Optional[date] = None
+    evidence_refs: Optional[str] = None
+
+
+class SimulationConnectionItem(BaseModel):
+    source: str
+    target: str
+    relationship_type: Optional[str] = None
+    label: Optional[str] = None
+    start_date: Optional[date] = None
+    end_date: Optional[date] = None
+    simulation_confidence: Optional[float] = None
+    confidence_tier: Optional[str] = None
+    source_citation: Optional[str] = None
+
+
+class SimulationMeta(BaseModel):
+    total_events: int
+    total_flows: int
+    total_entities: int
+    total_connections: int
+    page: int
+    page_size: int
+    truncated: bool
+    available_filters: Dict[str, List[str]] = {}
+
+
+class SimulationTimelineResponse(BaseModel):
+    time_range: Dict[str, Optional[date]]
+    events: List[SimulationEventItem]
+    money_flows: List[SimulationFlowItem]
+    entities: List[SimulationEntityItem]
+    connections: List[SimulationConnectionItem]
+    meta: SimulationMeta

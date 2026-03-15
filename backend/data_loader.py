@@ -23,7 +23,7 @@ from datetime import datetime
 from typing import Optional, Dict
 from pathlib import Path
 from sqlalchemy.orm import Session
-from database import Entity, MoneyFlow, Award, FOIATarget, Relationship, SearchLog, DataVersion, MaterialsFlow
+from database import Entity, MoneyFlow, Award, FOIATarget, Relationship, SearchLog, DataVersion, MaterialsFlow, ReCrConfidence
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -180,6 +180,20 @@ def parse_float(value_str: Optional[str]) -> Optional[float]:
         return float(str(value_str).replace(",", "").strip())
     except (ValueError, AttributeError):
         return None
+
+
+def parse_confidence_tier(value: Optional[str], score: Optional[float]) -> str:
+    """Normalize confidence tier from explicit value or fallback by score bands."""
+    normalized = (value or "").strip().lower()
+    if normalized in {"confirmed", "corroborated", "contested"}:
+        return normalized
+    if score is None:
+        return "contested"
+    if score >= 0.8:
+        return "confirmed"
+    if score >= 0.5:
+        return "corroborated"
+    return "contested"
 
 
 def infer_entity_type(name: str) -> str:
@@ -1161,6 +1175,11 @@ def load_all_data(db: Session, config: dict, project_root: str = "."):
     if os.path.exists(timeline_events_path):
         load_timeline_events(db, timeline_events_path, timeline_sources_path)
 
+    # Simulation confidence mappings
+    re_cr_confidence_path = os.path.join(project_root, "data", "simulation", "re_cr_confidence.csv")
+    if os.path.exists(re_cr_confidence_path):
+        load_re_cr_confidence(db, re_cr_confidence_path)
+
     # Increment data version after loading
     increment_data_version(db, "data_loader")
     
@@ -1237,6 +1256,64 @@ def load_timeline_events(db: Session, events_path: str, sources_path: str = None
                 src_loaded += 1
         db.commit()
         logger.info(f"Loaded {src_loaded} timeline sources")
+
+
+def load_re_cr_confidence(db: Session, csv_path: str) -> int:
+    """Load RE/CR confidence mappings used by simulation timeline APIs."""
+    if not os.path.exists(csv_path):
+        logger.warning(f"RE/CR confidence file not found: {csv_path}")
+        return 0
+
+    count = 0
+    skipped = 0
+    with open(csv_path, "r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            try:
+                subject_type = (row.get("subject_type") or "").strip().lower()
+                subject_id = (row.get("subject_id") or "").strip()
+                score = parse_float(row.get("confidence_score"))
+                if not subject_type or not subject_id or score is None:
+                    skipped += 1
+                    continue
+                if score < 0.0 or score > 1.0:
+                    skipped += 1
+                    continue
+
+                tier = parse_confidence_tier(row.get("confidence_tier"), score)
+                existing = db.query(ReCrConfidence).filter(
+                    ReCrConfidence.subject_type == subject_type,
+                    ReCrConfidence.subject_id == subject_id,
+                ).first()
+                if existing:
+                    existing.confidence_score = score
+                    existing.confidence_tier = tier
+                    existing.evidence_refs = (row.get("evidence_refs") or "").strip() or None
+                    existing.effective_start_date = parse_date(row.get("effective_start_date"))
+                    existing.effective_end_date = parse_date(row.get("effective_end_date"))
+                    existing.notes = (row.get("notes") or "").strip() or None
+                    existing.updated_at = datetime.utcnow()
+                else:
+                    db.add(
+                        ReCrConfidence(
+                            subject_type=subject_type,
+                            subject_id=subject_id,
+                            confidence_score=score,
+                            confidence_tier=tier,
+                            evidence_refs=(row.get("evidence_refs") or "").strip() or None,
+                            effective_start_date=parse_date(row.get("effective_start_date")),
+                            effective_end_date=parse_date(row.get("effective_end_date")),
+                            notes=(row.get("notes") or "").strip() or None,
+                        )
+                    )
+                count += 1
+            except Exception as e:
+                logger.error(f"Error loading RE/CR confidence: {e}")
+                continue
+
+    db.commit()
+    logger.info(f"Loaded {count} RE/CR confidence rows, skipped {skipped}")
+    return count
 
 
 def increment_data_version(db: Session, modified_by: str = "system") -> int:

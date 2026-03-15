@@ -11,6 +11,7 @@ import PyramidPage from './pages/PyramidPage';
 import SankeyDiagramPage from './pages/SankeyDiagramPage';
 import FoiaTargetsPage from './pages/FoiaTargetsPage';
 import TimelinePage from './pages/TimelinePage';
+import SimulationTimelinePage from './pages/SimulationTimelinePage';
 import Export from './pages/Export';
 import Contribute from './pages/Contribute';
 import About from './pages/About';
@@ -73,6 +74,7 @@ function Navigation() {
 
 function App() {
   const [disclaimerAccepted, setDisclaimerAccepted] = useState(false);
+  const isSimulationEnabled = localStorage.getItem('enable_simulation_tab') !== 'false';
 
   useEffect(() => {
     const accepted = localStorage.getItem('disclaimer_accepted');
@@ -111,6 +113,9 @@ function App() {
               <Route path="/analysis/pyramid" element={<ErrorBoundary><PyramidPage /></ErrorBoundary>} />
               <Route path="/analysis/foia" element={<ErrorBoundary><FoiaTargetsPage /></ErrorBoundary>} />
               <Route path="/analysis/timeline" element={<ErrorBoundary><TimelinePage /></ErrorBoundary>} />
+              {isSimulationEnabled && (
+                <Route path="/analysis/simulation" element={<ErrorBoundary><SimulationTimelinePage /></ErrorBoundary>} />
+              )}
               <Route path="/analysis/legacy" element={<ErrorBoundary><Analysis /></ErrorBoundary>} />
               <Route path="/export" element={<ErrorBoundary><Export /></ErrorBoundary>} />
               <Route path="/contribute" element={<ErrorBoundary><Contribute /></ErrorBoundary>} />

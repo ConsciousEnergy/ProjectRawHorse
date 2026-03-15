@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
-import { Network, GitBranch, BarChart3, TrendingUp, Triangle, FileSearch, Clock } from 'lucide-react';
+import { Network, GitBranch, BarChart3, TrendingUp, Triangle, FileSearch, Clock, Orbit } from 'lucide-react';
 
 function AnalysisOverview() {
+  const isSimulationEnabled = localStorage.getItem('enable_simulation_tab') !== 'false';
   return (
     <div className="analysis-overview fade-in" role="main" aria-label="Analysis overview page">
       <div className="page-header">
@@ -103,6 +104,31 @@ function AnalysisOverview() {
           </div>
           <span className="viz-card-arrow">&rarr;</span>
         </Link>
+
+        {isSimulationEnabled && (
+          <Link to="/analysis/simulation" className="viz-card">
+            <div className="viz-card-icon" style={{ background: 'linear-gradient(135deg, #0ea5e9, #6366f1)' }}>
+              <Orbit size={48} />
+            </div>
+            <div className="viz-card-content">
+              <h3>
+                Simulation Timeline
+                <span className="viz-card-beta-badge">Beta</span>
+              </h3>
+              <p>
+                Multi-layer timeline correlating events, money flows, entities, and relationship traces
+                with explicit Reverse Engineering / Crash Retrieval confidence mapping.
+              </p>
+              <ul className="viz-card-features">
+                <li>Unified temporal lanes across datasets</li>
+                <li>Confidence threshold and layer toggles</li>
+                <li>Dense-flow fallback rendering</li>
+                <li>Evidence-aware connection tracing</li>
+              </ul>
+            </div>
+            <span className="viz-card-arrow">&rarr;</span>
+          </Link>
+        )}
 
         <Link to="/analysis/foia" className="viz-card">
           <div className="viz-card-icon" style={{ background: 'linear-gradient(135deg, #059669, #0d9488)' }}>

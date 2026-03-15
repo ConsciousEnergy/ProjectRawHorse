@@ -189,6 +189,27 @@ class TimelineSource(Base):
     notes = Column(Text)
 
 
+class ReCrConfidence(Base):
+    """Confidence mappings for Reverse Engineering / Crash Retrieval links."""
+    __tablename__ = "re_cr_confidence"
+
+    id = Column(Integer, primary_key=True, index=True)
+    subject_type = Column(String, index=True, nullable=False)  # entity, money_flow, relationship, event
+    subject_id = Column(String, index=True, nullable=False)  # entity_id, edge_id, rel key, or event_id
+    confidence_score = Column(Float, index=True, nullable=False)  # 0.0 -> 1.0
+    confidence_tier = Column(String, index=True, nullable=False)  # confirmed, corroborated, contested
+    evidence_refs = Column(Text)  # JSON array/string of citations
+    effective_start_date = Column(Date, index=True)
+    effective_end_date = Column(Date, index=True)
+    notes = Column(Text)
+    updated_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+
+    __table_args__ = (
+        Index('idx_recr_subject', 'subject_type', 'subject_id'),
+        Index('idx_recr_tier_score', 'confidence_tier', 'confidence_score'),
+    )
+
+
 class PendingContribution(Base):
     """User-submitted data contributions awaiting admin review."""
     __tablename__ = "pending_contributions"

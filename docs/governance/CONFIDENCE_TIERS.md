@@ -59,3 +59,24 @@ After each data refresh cycle:
 1. Generate delta report (new entities, modified flows, changed tiers)
 2. Flag anomalies (>20% change in entity count, tier downgrades)
 3. Pipeline manifest captures checksums for reproducibility
+
+## RE/CR Simulation Confidence Mapping
+
+For simulation timeline overlays (`/api/simulation/*`), confidence is represented with:
+
+- `confidence_score` in range `[0.0, 1.0]`
+- `confidence_tier` in `{confirmed, corroborated, contested}`
+- `effective_start_date` and `effective_end_date` for temporal validity
+- `evidence_refs` for source traceability
+
+Recommended score-to-tier defaults:
+
+- `>= 0.80` -> `confirmed`
+- `>= 0.50 and < 0.80` -> `corroborated`
+- `< 0.50` -> `contested`
+
+Governance rules:
+
+1. Every record used to render high-confidence simulation links must include at least one evidence reference.
+2. Expired mappings (`effective_end_date` in past) should be excluded from active confidence filtering.
+3. Updates must preserve historical auditability (new evidence preferred over destructive replacement).

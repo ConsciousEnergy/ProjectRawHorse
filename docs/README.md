@@ -26,8 +26,10 @@ This directory contains all project documentation organized by category.
 - **[development/BUGFIXES.md](development/BUGFIXES.md)** - All bugs fixed
 - **[development/FEATURES.md](development/FEATURES.md)** - Features implemented
 - **[development/CHANGELOG.md](development/CHANGELOG.md)** - Legacy historical changelog (archived)
+- **[development/SIMULATION_TIMELINE_GUIDE.md](development/SIMULATION_TIMELINE_GUIDE.md)** - Simulation API/UI architecture and operations guide
 
 ### 🏷️ Release Changelogs (Canonical)
+- **[../CHANGELOG_v0.4.3Beta.md](../CHANGELOG_v0.4.3Beta.md)** - v0.4.3 Beta release details
 - **[../CHANGELOG_v0.4.2Beta.md](../CHANGELOG_v0.4.2Beta.md)** - v0.4.2 Beta release details
 - **[../CHANGELOG_v0.4.1Beta.md](../CHANGELOG_v0.4.1Beta.md)** - v0.4.1 Beta release details
 - **[../CHANGELOG_v0.4.0.md](../CHANGELOG_v0.4.0.md)** - v0.4.0 release details

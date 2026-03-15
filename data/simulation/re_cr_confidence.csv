@@ -1,0 +1,11 @@
+subject_type,subject_id,confidence_score,confidence_tier,evidence_refs,effective_start_date,effective_end_date,notes
+event,EVT-1933-001,0.62,corroborated,"[{""title"":""Magenta archival claims synthesis"",""url"":""https://example.org/magenta-archive""}]",1933-01-01,,Foundational contested-corrobated case
+event,EVT-1947-002,0.71,corroborated,"[{""title"":""Roswell archive bundle"",""url"":""https://example.org/roswell-bundle""}]",1947-01-01,,High public salience with mixed-source consistency
+event,EVT-2004-001,0.83,confirmed,"[{""title"":""USS Nimitz records"",""url"":""https://example.org/nimitz-records""}]",2004-01-01,,Sensor + witness convergence
+entity,a1b2c3d4e5f6g7h8,0.58,corroborated,"[{""title"":""Program contractor linkage notes"",""url"":""https://example.org/contractor-linkage""}]",2010-01-01,,Entity appears across multiple linked records
+entity,f6g7h8i9j0k1l2m3,0.64,corroborated,"[{""title"":""Peraton relation matrix"",""url"":""https://example.org/peraton-matrix""}]",2021-01-01,,Post-merger signal concentration
+entity,i9j0k1l2m3n4o5p6,0.69,corroborated,"[{""title"":""NGA mission overlap evidence"",""url"":""https://example.org/nga-overlap""}]",2018-01-01,,Agency overlap with monitored programs
+money_flow,62ddc5e72a685019,0.66,corroborated,"[{""title"":""USAF-MITRE NSEC contract trace"",""url"":""https://example.org/usaf-mitre-nsec""}]",2025-10-01,2028-09-30,Large contract with strong supporting traceability
+money_flow,dc2e413f77292c0c,0.61,corroborated,"[{""title"":""Peraton carve-out finance trail"",""url"":""https://example.org/peraton-carveout""}]",2021-02-01,,Consolidation flow tied to key entities
+money_flow,195f032b92ec0293,0.63,corroborated,"[{""title"":""Perspecta acquisition path"",""url"":""https://example.org/perspecta-path""}]",2021-05-06,,Control-path significance in entity network
+relationship,"Perspecta|Peraton|Acquired ($7.1B, 2021-05-06)",0.72,corroborated,"[{""title"":""Entity relationship verification"",""url"":""https://example.org/relationship-verify""}]",2021-05-06,,Directly linked relationship in normalized graph

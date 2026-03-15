@@ -3,7 +3,7 @@ import type {
   Entity, MoneyFlow, Award, FOIATarget, Stats, GraphData, SankeyData, DataVersion,
   PyramidData, HierarchyChain, EntityDetail, IntelStackSearchResponse,
   FinancialFlowsResponse, TimelineResponse, EntityRelationshipsResponse,
-  TimelineEventListResponse, TimelineEvent, TimelineBucket,
+  TimelineEventListResponse, TimelineEvent, TimelineBucket, SimulationTimelineResponse,
 } from '../types';
 
 const API_BASE_URL = '/api';
@@ -127,6 +127,43 @@ export const getTimelineEvent = async (eventId: string) => {
 
 export const getTimelineBuckets = async (bucketSize: 'decade' | 'year' = 'decade') => {
   const response = await api.get<TimelineBucket[]>('/timeline/buckets', { params: { bucket_size: bucketSize } });
+  return response.data;
+};
+
+export const getSimulationTimeline = async (params?: {
+  start_year?: number;
+  end_year?: number;
+  confidence_min?: number;
+  category?: string[];
+  entity_id?: string[];
+  page?: number;
+  page_size?: number;
+  group_by?: 'year' | 'decade';
+}) => {
+  const response = await api.get<SimulationTimelineResponse>('/simulation/timeline', { params });
+  return response.data;
+};
+
+export const getSimulationEntities = async (params?: {
+  confidence_min?: number;
+  active_year?: number;
+  type?: string;
+  page?: number;
+  page_size?: number;
+}) => {
+  const response = await api.get('/simulation/entities', { params });
+  return response.data;
+};
+
+export const getSimulationFlows = async (params?: {
+  confidence_min?: number;
+  min_amount?: number;
+  start_year?: number;
+  end_year?: number;
+  page?: number;
+  page_size?: number;
+}) => {
+  const response = await api.get('/simulation/flows', { params });
   return response.data;
 };
 

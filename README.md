@@ -419,6 +419,14 @@ Built on publicly available data from:
 
 ## Version History
 
+### v0.4.3Beta (2026-03)
+- **Simulation Timeline**: New `/analysis/simulation` tab unifying events, money flows, entities, and relationship traces
+- **Simulation API Contract**: Added `/api/simulation/timeline`, `/api/simulation/entities`, and `/api/simulation/flows` with deterministic paging/filtering
+- **RE/CR Confidence Model**: Dedicated confidence mapping table and seed dataset with evidence references and effective dates
+- **Rendering Safeguards**: Layer toggles, year/decade grouping, confidence threshold slider, and dense-flow canvas fallback
+- **Validation Tooling**: Added simulation schema validator and contract smoke test script
+- See [CHANGELOG_v0.4.3Beta.md](CHANGELOG_v0.4.3Beta.md) for full details
+
 ### v0.4.2Beta (2026-03)
 - **Historical Timeline MVP**: Dynamic simulation timeline of confirmed UAP events from 1933 Magenta crash to 2026, with tiered confidence model (Confirmed / Corroborated / Contested) and full citation traceability
 - **Database-First Contributions**: Replaced GitHub-token-dependent contribution system with public database submissions and admin review queue — no account required
