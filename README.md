@@ -433,6 +433,7 @@ Built on publicly available data from:
 - **Infrastructure**: PostgreSQL backup/restore scripts, Docker health check fixes, Caddyfile domain env var, PR template and CI workflow
 - **Pyramid Schema Extension**: Added `evidence_refs`, `effective_start_date`, `effective_end_date` to entity model for pyramid provenance
 - **Frontend Typing**: Strengthened TypeScript types for analysis API contracts
+- See [CHANGELOG_v0.4.2Beta.md](CHANGELOG_v0.4.2Beta.md) for full details
 
 ### v0.4.1 (2026-02)
 - **FOIA Targets Page**: Dedicated `/analysis/foia` with sortable table, filters, quality scoring

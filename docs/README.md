@@ -25,7 +25,12 @@ This directory contains all project documentation organized by category.
 - **[development/FEATURE_ROADMAP.md](development/FEATURE_ROADMAP.md)** - What's planned next
 - **[development/BUGFIXES.md](development/BUGFIXES.md)** - All bugs fixed
 - **[development/FEATURES.md](development/FEATURES.md)** - Features implemented
-- **[development/CHANGELOG.md](development/CHANGELOG.md)** - Session-by-session changes
+- **[development/CHANGELOG.md](development/CHANGELOG.md)** - Legacy historical changelog (archived)
+
+### 🏷️ Release Changelogs (Canonical)
+- **[../CHANGELOG_v0.4.2Beta.md](../CHANGELOG_v0.4.2Beta.md)** - v0.4.2 Beta release details
+- **[../CHANGELOG_v0.4.1Beta.md](../CHANGELOG_v0.4.1Beta.md)** - v0.4.1 Beta release details
+- **[../CHANGELOG_v0.4.0.md](../CHANGELOG_v0.4.0.md)** - v0.4.0 release details
 
 ### 🎨 Design
 - **[design/COLORS.md](design/COLORS.md)** - Color scheme and theming

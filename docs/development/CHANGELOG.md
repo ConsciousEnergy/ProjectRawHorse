@@ -1,4 +1,8 @@
-# Changelog
+# Changelog (Legacy Archive)
+
+> Status: Archived legacy changelog for early versions.
+>
+> Canonical release changelogs now live at project root (for example: `CHANGELOG_v0.4.2Beta.md`, `CHANGELOG_v0.4.1Beta.md`, `CHANGELOG_v0.4.0.md`).
 
 **Project:** Project RawHorse  
 **Format:** Keep a Changelog v1.0.0  
