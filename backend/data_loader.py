@@ -466,6 +466,27 @@ def load_foia_targets(db: Session, csv_path: str) -> int:
     
     count = 0
     skipped = 0
+
+    def _parse_date(value: str):
+        if not value:
+            return None
+        raw = str(value).strip()
+        if not raw:
+            return None
+        try:
+            from datetime import datetime
+            return datetime.strptime(raw, "%Y-%m-%d").date()
+        except ValueError:
+            return None
+
+    def _parse_float(value):
+        if value in (None, ""):
+            return None
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            return None
+
     with open(csv_path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
@@ -491,7 +512,16 @@ def load_foia_targets(db: Session, csv_path: str) -> int:
                     record_request=record_request,
                     timeframe=row.get('timeframe'),
                     relevance=row.get('relevance'),
-                    notes=row.get('notes')
+                    notes=row.get('notes'),
+                    status=(row.get('status') or 'draft').strip().lower(),
+                    submitted_at=_parse_date(row.get('submitted_at')),
+                    response_due_at=_parse_date(row.get('response_due_at')),
+                    responded_at=_parse_date(row.get('responded_at')),
+                    estimated_cost=_parse_float(row.get('estimated_cost')),
+                    actual_cost=_parse_float(row.get('actual_cost')),
+                    is_overdue=(row.get('is_overdue') or '').strip().lower() == 'true',
+                    reference_url=row.get('reference_url'),
+                    archive_url=row.get('archive_url'),
                 )
                 db.add(foia)
                 count += 1

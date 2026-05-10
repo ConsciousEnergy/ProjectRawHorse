@@ -347,7 +347,7 @@ export default function PyramidVisualization(props: PyramidVisualizationProps) {
                             fontSize={10}
                             className="pyramid-entity-more"
                           >
-                            +{moreCount} more
+                            ... +{moreCount}
                           </text>
                         )}
                       </>

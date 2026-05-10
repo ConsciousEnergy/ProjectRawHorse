@@ -1,0 +1,72 @@
+.offline-import-page {
+  padding: 1rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.offline-import-card {
+  display: grid;
+  gap: 14px;
+}
+
+.offline-import-controls {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.offline-import-controls label {
+  display: grid;
+  gap: 6px;
+  color: var(--text-secondary);
+}
+
+.offline-import-controls select {
+  min-width: 180px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: var(--input-bg);
+  color: var(--text-primary);
+}
+
+.offline-import-file {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+  padding: 10px 12px;
+  border: 1px dashed var(--border-color);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.offline-import-file input {
+  display: none;
+}
+
+.offline-import-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.offline-import-report {
+  margin-top: 16px;
+}
+
+.offline-import-errors {
+  margin-top: 4px;
+  color: #f87171;
+}
+
+.offline-import-report pre {
+  max-height: 280px;
+  overflow: auto;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 0.8rem;
+}

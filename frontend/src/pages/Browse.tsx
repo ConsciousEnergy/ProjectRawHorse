@@ -392,7 +392,7 @@ function Browse() {
     }).format(amount);
   };
 
-  const SortableHeader = ({ column, label }: { column: string; label: string }) => {
+  const SortableHeader = ({ column, label, tooltip }: { column: string; label: string; tooltip?: string }) => {
     const getAriaSort = (): 'ascending' | 'descending' | 'none' => {
       if (sortConfig.key !== column) return 'none';
       return sortConfig.direction === 'asc' ? 'ascending' : 'descending';
@@ -404,6 +404,7 @@ function Browse() {
         className="sortable-header"
         role="columnheader"
         aria-sort={getAriaSort()}
+        title={tooltip}
       >
         {label}
         <span className="sort-indicator">
@@ -750,10 +751,14 @@ function Browse() {
                     <table className="data-table" role="table" aria-label="Entities table">
                       <thead>
                         <tr>
-                          <SortableHeader column="display_name" label="Display Name" />
+                          <SortableHeader column="display_name" label="Name" />
                           <SortableHeader column="entity_type" label="Type" />
-                          <SortableHeader column="intel_stack_level" label="Intel Level" />
-                          <th>Actions</th>
+                          <SortableHeader
+                            column="intel_stack_level"
+                            label="Intel Level (Hierarchy)"
+                            tooltip="Intel Level maps an entity to the L1-L6 Intelligence Stack hierarchy."
+                          />
+                          <th title="Actions open related views like Network Graph and Pyramid detail">Actions</th>
                         </tr>
                       </thead>
                       <tbody>

@@ -223,6 +223,8 @@ async def get_awards(
 async def get_foia_targets(
     search: str = Query(None, max_length=MAX_SEARCH_LENGTH),
     agency: str = Query(None, max_length=MAX_SEARCH_LENGTH),
+    status: str = Query(None, max_length=30),
+    overdue_only: bool = Query(False),
     offset: int = Query(0, ge=0),
     skip: int = Query(None, ge=0),  # Alias for offset
     limit: int = Query(100, ge=1, le=1000),
@@ -246,11 +248,37 @@ async def get_foia_targets(
     
     if agency:
         query = query.filter(FOIATarget.agency.ilike(f"%{agency}%"))
+
+    if status:
+        query = query.filter(FOIATarget.status == status)
+
+    if overdue_only:
+        from datetime import date
+        today = date.today()
+        query = query.filter(
+            or_(
+                FOIATarget.is_overdue.is_(True),
+                (
+                    (FOIATarget.response_due_at.isnot(None)) &
+                    (FOIATarget.response_due_at < today) &
+                    (FOIATarget.status.notin_(["responded", "closed"]))
+                )
+            )
+        )
     
     # Use skip if offset not provided (backwards compatibility)
     actual_offset = offset if offset > 0 else (skip or 0)
     
-    return query.order_by(FOIATarget.priority_score.desc().nullslast()).offset(actual_offset).limit(limit).all()
+    results = query.order_by(FOIATarget.priority_score.desc().nullslast()).offset(actual_offset).limit(limit).all()
+
+    # Backwards-compatible computed overdue flag for legacy rows.
+    from datetime import date
+    today = date.today()
+    for row in results:
+        if row.response_due_at and row.status not in ("responded", "closed"):
+            row.is_overdue = bool(row.is_overdue) or row.response_due_at < today
+
+    return results
 
 
 @router.get("/stats", response_model=StatsResponse)

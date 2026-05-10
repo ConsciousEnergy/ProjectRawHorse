@@ -158,53 +158,58 @@ export default function PyramidPage() {
       </div>
 
       <div className="pyramid-page-main">
-        <div className="pyramid-controls">
-          <IntelStackFilter
-            activeLevels={activeLevels}
-            onChange={setActiveLevels}
-            showAll
-            compact={false}
-          />
-          <label className="pyramid-toggle">
-            <input
-              type="checkbox"
-              checked={showFlowLines}
-              onChange={(e) => setShowFlowLines(e.target.checked)}
+        <aside className="pyramid-side-panel">
+          <div className="pyramid-controls">
+            <IntelStackFilter
+              activeLevels={activeLevels}
+              onChange={setActiveLevels}
+              showAll
+              compact={false}
             />
-            <span>Show flow lines</span>
-          </label>
-          <label className="pyramid-toggle">
-            <input
-              type="checkbox"
-              checked={chainMode}
-              onChange={(e) => setChainMode(e.target.checked)}
-            />
-            <span>Trace chain of command</span>
-            {chainMode && chainEntityIds.size > 0 && (
-              <span className="pyramid-chain-badge" title="Entities in chain">({chainEntityIds.size})</span>
-            )}
-          </label>
-        </div>
+            <label className="pyramid-toggle">
+              <input
+                type="checkbox"
+                checked={showFlowLines}
+                onChange={(e) => setShowFlowLines(e.target.checked)}
+              />
+              <span>Show flow lines</span>
+            </label>
+            <label className="pyramid-toggle">
+              <input
+                type="checkbox"
+                checked={chainMode}
+                onChange={(e) => setChainMode(e.target.checked)}
+              />
+              <span>Trace chain of command</span>
+              {chainMode && chainEntityIds.size > 0 && (
+                <span className="pyramid-chain-badge" title="Entities in chain">({chainEntityIds.size})</span>
+              )}
+            </label>
+          </div>
+          <div className="pyramid-legend">
+            <h4>Level Legend</h4>
+            {LEVEL_LEGEND.map(({ level, name, color }) => (
+              <span key={level} className="pyramid-legend-item">
+                <span className="pyramid-legend-dot" style={{ backgroundColor: color }} /> L{level} {name}
+              </span>
+            ))}
+          </div>
+        </aside>
 
-        <PyramidVisualization
-          data={data}
-          loading={loading}
-          highlightedEntityId={highlightId}
-          showFlowLines={showFlowLines}
-          activeLevels={activeLevels}
-          chainEntityIds={chainMode ? chainEntityIds : undefined}
-          onEntityClick={(ent) => {
-            setSearchParams({ entity_id: ent.entity_id });
-            setDetailEntityId(ent.entity_id);
-          }}
-        />
-      </div>
-      <div className="pyramid-legend">
-        {LEVEL_LEGEND.map(({ level, name, color }) => (
-          <span key={level} className="pyramid-legend-item">
-            <span className="pyramid-legend-dot" style={{ backgroundColor: color }} /> L{level} {name}
-          </span>
-        ))}
+        <div className="pyramid-viz-panel">
+          <PyramidVisualization
+            data={data}
+            loading={loading}
+            highlightedEntityId={highlightId}
+            showFlowLines={showFlowLines}
+            activeLevels={activeLevels}
+            chainEntityIds={chainMode ? chainEntityIds : undefined}
+            onEntityClick={(ent) => {
+              setSearchParams({ entity_id: ent.entity_id });
+              setDetailEntityId(ent.entity_id);
+            }}
+          />
+        </div>
       </div>
       <button type="button" className="pyramid-help-btn" onClick={() => setHelpOpen((o) => !o)} aria-label="Help" title="Help">?</button>
       {helpOpen && (

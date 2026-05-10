@@ -34,3 +34,28 @@ v0.4.3 Beta introduces the Simulation Timeline feature with a unified multi-laye
 - Layer toggles and progressive loading/error states
 - Bounded payload behavior surfaced via `meta.truncated`
 
+## In Progress (v0.4.4 Scope)
+
+### UX and Analysis Improvements
+- Reduced dashboard glow intensity and removed jitter-prone hover effects for better readability.
+- Browse entities table terminology update: `Display Name` -> `Name`, with improved hierarchy/action hints.
+- Analysis landing now prioritizes Entity Network Graph with a primary hero CTA.
+- Pyramid controls/legend moved into a stable side panel; hidden node overflow now shown as `... +N`.
+
+### Sankey Improvements
+- Maintained left-to-right layout baseline for readability.
+- Added synchronized min amount slider + numeric input.
+- Added clickable legend filters by entity category.
+- Improved label rendering to show fuller names when space permits.
+- Added keyboard/touch fallback action (`Open References`) for contextual research links.
+
+### FOIA Workflow and Data Model
+- Added FOIA lifecycle fields (`status`, submitted/due/responded dates, estimated/actual cost, overdue flag, reference/archive URLs).
+- Added SQLite migration-safe column backfill for FOIA lifecycle fields.
+- FOIA page now supports lifecycle/status filtering and overdue workflow cues.
+
+### Offline Import MVP
+- Added backend offline import APIs for template retrieval and CSV/JSON import (`dry_run` preview + commit mode).
+- Added strict row-level validation and import reporting (errors, skipped, inserted, preview).
+- Added frontend Offline Import page with templates, validation preview, and commit action.
+

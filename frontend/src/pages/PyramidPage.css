@@ -13,9 +13,27 @@
 }
 
 .pyramid-page-main {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 16px;
   min-width: 0;
   overflow: auto;
   flex: 1;
+}
+
+.pyramid-side-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 12px;
+  height: fit-content;
+}
+
+.pyramid-viz-panel {
+  min-width: 0;
 }
 
 /* Detail/empty block sits under search in main column */
@@ -44,6 +62,18 @@
 }
 
 @media (max-width: 900px) {
+  .pyramid-page-main {
+    grid-template-columns: 1fr;
+  }
+
+  .pyramid-side-panel {
+    order: 2;
+  }
+
+  .pyramid-viz-panel {
+    order: 1;
+  }
+
   .pyramid-page-detail-section {
     max-width: none;
   }
@@ -55,10 +85,10 @@
 
 .pyramid-controls {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 20px;
-  margin-bottom: 20px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 0;
 }
 
 .pyramid-toggle {
@@ -151,19 +181,21 @@
 }
 
 .pyramid-legend {
-  position: fixed;
-  bottom: 16px;
-  left: 24px;
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px 16px;
-  font-size: 0.75rem;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 0.8rem;
   color: var(--text-muted);
-  z-index: 40;
+}
+
+.pyramid-legend h4 {
+  margin: 0 0 4px 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
 }
 
 .pyramid-legend-item {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 4px;
 }

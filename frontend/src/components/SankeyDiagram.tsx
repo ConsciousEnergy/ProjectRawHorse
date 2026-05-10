@@ -54,6 +54,7 @@ function SankeyDiagram({ minAmount = 0, includeRelationships = true, onNodeClick
   const [minAmountFilter, setMinAmountFilter] = useState(minAmount);
   const [viewType, setViewType] = useState<'money' | 'relationships' | 'combined'>('combined');
   const [showLegend, setShowLegend] = useState(true);
+  const [activeCategories, setActiveCategories] = useState<string[]>([]);
 
   useEffect(() => {
     loadData();
@@ -95,7 +96,7 @@ function SankeyDiagram({ minAmount = 0, includeRelationships = true, onNodeClick
     if (data && svgRef.current && containerRef.current) {
       renderSankey();
     }
-  }, [data, selectedNode, hoveredLink, zoom, pan, viewType, filterLevels]);
+  }, [data, selectedNode, hoveredLink, zoom, pan, viewType, filterLevels, activeCategories]);
   
   // Get unique categories from actual data for legend
   const uniqueCategories = useMemo(() => {
@@ -103,6 +104,38 @@ function SankeyDiagram({ minAmount = 0, includeRelationships = true, onNodeClick
     const categories = new Set(data.nodes.map(n => n.category).filter(Boolean));
     return Array.from(categories).sort();
   }, [data]);
+
+  const maxAmountValue = useMemo(() => {
+    return data?.links.reduce((max, l) => Math.max(max, l.value), 0) || 1_000_000_000;
+  }, [data]);
+
+  useEffect(() => {
+    if (minAmountFilter > maxAmountValue) {
+      setMinAmountFilter(maxAmountValue);
+    }
+  }, [minAmountFilter, maxAmountValue]);
+
+  const applyMinAmount = (rawValue: number) => {
+    if (!Number.isFinite(rawValue)) {
+      setMinAmountFilter(0);
+      return;
+    }
+    const clamped = Math.max(0, Math.min(maxAmountValue, rawValue));
+    setMinAmountFilter(clamped);
+  };
+
+  const toggleCategory = (category: string) => {
+    setActiveCategories((prev) => (
+      prev.includes(category)
+        ? prev.filter((c) => c !== category)
+        : [...prev, category]
+    ));
+  };
+
+  const openNodeReferences = useCallback((nodeName: string) => {
+    const query = encodeURIComponent(`${nodeName} contracts references`);
+    window.open(`https://duckduckgo.com/?q=${query}`, '_blank', 'noopener,noreferrer');
+  }, []);
 
   const renderSankey = () => {
     if (!data || !svgRef.current || !containerRef.current) return;
@@ -139,6 +172,16 @@ function SankeyDiagram({ minAmount = 0, includeRelationships = true, onNodeClick
       // Re-filter links to only include those connecting filtered nodes
       const filteredNodeNames = new Set(filteredNodes.map(n => n.name));
       filteredLinks = filteredLinks.filter(l => 
+        filteredNodeNames.has(l.source) && filteredNodeNames.has(l.target)
+      );
+    }
+
+    // Apply category filters from legend chips
+    if (activeCategories.length > 0) {
+      const allowedCategories = new Set(activeCategories);
+      filteredNodes = filteredNodes.filter(n => allowedCategories.has(n.category));
+      const filteredNodeNames = new Set(filteredNodes.map(n => n.name));
+      filteredLinks = filteredLinks.filter(l =>
         filteredNodeNames.has(l.source) && filteredNodeNames.has(l.target)
       );
     }
@@ -308,11 +351,17 @@ function SankeyDiagram({ minAmount = 0, includeRelationships = true, onNodeClick
           const tooltipContent = `${node.name}\nCategory: ${node.category}\nValue: ${formatValue(node.value)}`;
           setTooltip({ x: e.pageX, y: e.pageY, content: tooltipContent });
         })
+        .on('contextmenu', (e) => {
+          e.preventDefault();
+          openNodeReferences(node.name);
+        })
         .on('mouseleave', () => {
           if (!hoveredLink) setTooltip(null);
         });
 
       // Add label
+      const maxLabelChars = Math.max(20, Math.floor((width - (pos.x + pos.width + 10)) / 7));
+      const label = node.name.length > maxLabelChars ? `${node.name.substring(0, maxLabelChars - 3)}...` : node.name;
       nodeGroup.append('text')
         .attr('x', pos.x + pos.width + 5)
         .attr('y', pos.y + pos.height / 2)
@@ -320,7 +369,7 @@ function SankeyDiagram({ minAmount = 0, includeRelationships = true, onNodeClick
         .attr('fill', 'currentColor')
         .attr('font-size', '12px')
         .attr('opacity', selectedNode && !isSelected ? 0.3 : 0.8)
-        .text(node.name.length > 20 ? node.name.substring(0, 20) + '...' : node.name);
+        .text(label);
     });
   };
 
@@ -390,19 +439,36 @@ function SankeyDiagram({ minAmount = 0, includeRelationships = true, onNodeClick
         </div>
         <div className="control-group">
           <label>Min Amount: {formatValue(minAmountFilter)}</label>
-          <input
-            type="range"
-            min="0"
-            max={data?.links.reduce((max, l) => Math.max(max, l.value), 0) || 1000000000}
-            step="1000000"
-            value={minAmountFilter}
-            onChange={(e) => setMinAmountFilter(Number(e.target.value))}
-          />
+          <div className="amount-controls">
+            <input
+              type="range"
+              min="0"
+              max={maxAmountValue}
+              step="100000"
+              value={minAmountFilter}
+              onChange={(e) => applyMinAmount(Number(e.target.value))}
+            />
+            <input
+              type="number"
+              className="sankey-amount-input"
+              min={0}
+              max={Math.round(maxAmountValue)}
+              step={1000000}
+              value={Math.round(minAmountFilter)}
+              onChange={(e) => applyMinAmount(Number(e.target.value))}
+              aria-label="Minimum amount input"
+            />
+          </div>
         </div>
         <button onClick={resetView} className="btn btn-secondary">Reset View</button>
         {selectedNode && (
           <button onClick={() => setSelectedNode(null)} className="btn btn-secondary">
             Clear Selection
+          </button>
+        )}
+        {selectedNode && (
+          <button onClick={() => openNodeReferences(selectedNode)} className="btn btn-secondary">
+            Open References
           </button>
         )}
         <button 
@@ -417,16 +483,34 @@ function SankeyDiagram({ minAmount = 0, includeRelationships = true, onNodeClick
       {/* Legend */}
       {showLegend && uniqueCategories.length > 0 && (
         <div className="sankey-legend">
-          <h5>Entity Types</h5>
+          <h5>
+            Entity Types
+            {activeCategories.length > 0 && (
+              <button
+                type="button"
+                className="legend-clear-btn"
+                onClick={() => setActiveCategories([])}
+              >
+                Clear
+              </button>
+            )}
+          </h5>
           <div className="legend-items">
             {uniqueCategories.map(category => (
-              <div key={category} className="legend-item">
+              <button
+                key={category}
+                type="button"
+                className={`legend-item ${activeCategories.includes(category) ? 'active' : ''}`}
+                onClick={() => toggleCategory(category)}
+                aria-pressed={activeCategories.includes(category)}
+                title="Toggle this category filter"
+              >
                 <span 
                   className="legend-color" 
                   style={{ backgroundColor: colorMap[category] || colorMap['default'] }}
                 />
                 <span className="legend-label">{category}</span>
-              </div>
+              </button>
             ))}
           </div>
         </div>
@@ -446,6 +530,9 @@ function SankeyDiagram({ minAmount = 0, includeRelationships = true, onNodeClick
       <div className="sankey-stats">
         <span>{data?.nodes.length || 0} entities</span>
         <span>{data?.links.length || 0} flows</span>
+        {activeCategories.length > 0 && (
+          <span>{activeCategories.length} category filter(s)</span>
+        )}
         {filterLevels.length > 0 && (
           <span className="filter-badge">Filtered</span>
         )}

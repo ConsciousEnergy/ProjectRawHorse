@@ -8,7 +8,16 @@ import TableSkeleton from '../components/TableSkeleton';
 import EmptyState from '../components/EmptyState';
 import './FoiaTargetsPage.css';
 
-type SortKey = 'agency' | 'record_request' | 'timeframe' | 'priority_score' | 'specificity_score' | 'likelihood_score';
+type SortKey =
+  | 'agency'
+  | 'record_request'
+  | 'status'
+  | 'response_due_at'
+  | 'estimated_cost'
+  | 'actual_cost'
+  | 'priority_score'
+  | 'specificity_score'
+  | 'likelihood_score';
 type SortDirection = 'asc' | 'desc';
 
 function FoiaTargetsPage() {
@@ -16,6 +25,8 @@ function FoiaTargetsPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [agencyFilter, setAgencyFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [overdueOnly, setOverdueOnly] = useState(false);
   const [sortConfig, setSortConfig] = useState<{ key: SortKey; direction: SortDirection }>({
     key: 'priority_score',
     direction: 'desc',
@@ -31,6 +42,8 @@ function FoiaTargetsPage() {
         const params: Record<string, unknown> = { limit: 500 };
         if (searchTerm.trim()) params.search = searchTerm.trim();
         if (agencyFilter.trim()) params.agency = agencyFilter.trim();
+        if (statusFilter) params.status = statusFilter;
+        if (overdueOnly) params.overdue_only = true;
         const result = await getFOIATargets(params);
         setData(result);
       } catch (error) {
@@ -41,7 +54,7 @@ function FoiaTargetsPage() {
       }
     };
     load();
-  }, [searchTerm, agencyFilter]);
+  }, [searchTerm, agencyFilter, statusFilter, overdueOnly]);
 
   const handleSort = (key: SortKey) => {
     setSortConfig((prev) => ({
@@ -49,6 +62,16 @@ function FoiaTargetsPage() {
       direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc',
     }));
     setCurrentPage(1);
+  };
+
+  const formatDate = (value?: string | null) => (value ? value : 'N/A');
+  const formatCurrency = (value?: number | null) => {
+    if (value == null) return 'N/A';
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(value);
+  };
+  const displayStatus = (status?: string) => {
+    const raw = (status || 'draft').toLowerCase();
+    return raw.charAt(0).toUpperCase() + raw.slice(1);
   };
 
   const sortedData = useMemo(() => {
@@ -93,8 +116,13 @@ function FoiaTargetsPage() {
         </Link>
         <div className="foia-page-title">
           <h1>FOIA Targets</h1>
-          <p>Browse and prioritize FOIA targets with quality scoring</p>
+          <p>Track FOIA targets from draft through response with due dates, costs, and source links.</p>
         </div>
+      </div>
+
+      <div className="foia-purpose-note">
+        <strong>What this is for:</strong> Maintain a research FOIA pipeline, monitor response deadlines,
+        and keep reference/archive links for each request target.
       </div>
 
       <div className="foia-filters">
@@ -120,6 +148,33 @@ function FoiaTargetsPage() {
           className="foia-agency-input"
           aria-label="Filter by agency"
         />
+        <select
+          value={statusFilter}
+          onChange={(e) => {
+            setStatusFilter(e.target.value);
+            setCurrentPage(1);
+          }}
+          className="foia-status-input"
+          aria-label="Filter by status"
+        >
+          <option value="">All statuses</option>
+          <option value="draft">Draft</option>
+          <option value="submitted">Submitted</option>
+          <option value="acknowledged">Acknowledged</option>
+          <option value="responded">Responded</option>
+          <option value="closed">Closed</option>
+        </select>
+        <label className="foia-overdue-toggle">
+          <input
+            type="checkbox"
+            checked={overdueOnly}
+            onChange={(e) => {
+              setOverdueOnly(e.target.checked);
+              setCurrentPage(1);
+            }}
+          />
+          Overdue only
+        </label>
       </div>
 
       <div className="foia-content card">
@@ -164,8 +219,17 @@ function FoiaTargetsPage() {
                     <th onClick={() => handleSort('record_request')} className="sortable">
                       Record Request <SortIcon column="record_request" />
                     </th>
-                    <th onClick={() => handleSort('timeframe')} className="sortable">
-                      Timeframe <SortIcon column="timeframe" />
+                    <th onClick={() => handleSort('status')} className="sortable">
+                      Status <SortIcon column="status" />
+                    </th>
+                    <th onClick={() => handleSort('response_due_at')} className="sortable">
+                      Response Due <SortIcon column="response_due_at" />
+                    </th>
+                    <th onClick={() => handleSort('estimated_cost')} className="sortable">
+                      Est. Cost <SortIcon column="estimated_cost" />
+                    </th>
+                    <th onClick={() => handleSort('actual_cost')} className="sortable">
+                      Actual Cost <SortIcon column="actual_cost" />
                     </th>
                     <th onClick={() => handleSort('priority_score')} className="sortable">
                       Priority <SortIcon column="priority_score" />
@@ -191,7 +255,15 @@ function FoiaTargetsPage() {
                         <td className="foia-record-cell" title={foia.record_request}>
                           {foia.record_request}
                         </td>
-                        <td>{foia.timeframe || 'N/A'}</td>
+                        <td>
+                          <span className={`foia-status foia-status-${(foia.status || 'draft').toLowerCase()}`}>
+                            {displayStatus(foia.status)}
+                          </span>
+                          {foia.is_overdue && <span className="foia-overdue-chip">Overdue</span>}
+                        </td>
+                        <td>{formatDate(foia.response_due_at)}</td>
+                        <td>{formatCurrency(foia.estimated_cost)}</td>
+                        <td>{formatCurrency(foia.actual_cost)}</td>
                         <td>
                           <ScoreBadge score={foia.priority_score} type="priority" />
                         </td>
@@ -202,11 +274,24 @@ function FoiaTargetsPage() {
                           <ScoreBadge score={foia.likelihood_score} type="likelihood" />
                         </td>
                       </tr>
-                      {expandedRow === foia.id && foia.quality_notes && (
+                      {expandedRow === foia.id && (
                         <tr className="foia-notes-row">
-                          <td colSpan={6}>
+                          <td colSpan={9}>
                             <div className="foia-quality-notes">
-                              <strong>Quality Notes:</strong> {foia.quality_notes}
+                              <div><strong>Quality Notes:</strong> {foia.quality_notes}</div>
+                              <div><strong>Timeframe:</strong> {foia.timeframe || 'N/A'}</div>
+                              <div><strong>Submitted:</strong> {formatDate(foia.submitted_at)}</div>
+                              <div><strong>Responded:</strong> {formatDate(foia.responded_at)}</div>
+                              {(foia.reference_url || foia.archive_url) && (
+                                <div className="foia-links-row">
+                                  {foia.reference_url && (
+                                    <a href={foia.reference_url} target="_blank" rel="noreferrer noopener">Reference</a>
+                                  )}
+                                  {foia.archive_url && (
+                                    <a href={foia.archive_url} target="_blank" rel="noreferrer noopener">Archive</a>
+                                  )}
+                                </div>
+                              )}
                             </div>
                           </td>
                         </tr>

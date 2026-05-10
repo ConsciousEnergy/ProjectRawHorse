@@ -419,6 +419,14 @@ Built on publicly available data from:
 
 ## Version History
 
+### v0.4.4 (In Progress)
+- **UX Readability**: Reduced dashboard glow/noise; calmer hover behavior; Browse terminology clarity updates
+- **Analysis IA**: Entity Network Graph promoted as primary hero action on Analysis landing
+- **Sankey Usability**: Slider + numeric minimum amount controls, fuller labels, legend category filtering, reference quick-action
+- **Pyramid UX**: Stabilized side control/legend layout and clearer hidden-entity overflow indicator (`... +N`)
+- **FOIA Lifecycle**: Added status/dates/cost/overdue/reference tracking fields in backend and frontend workflow
+- **Offline Import MVP**: New `/import` page with CSV/JSON templates, validation preview, and commit-to-database flow
+
 ### v0.4.3Beta (2026-03)
 - **Simulation Timeline**: New `/analysis/simulation` tab unifying events, money flows, entities, and relationship traces
 - **Simulation API Contract**: Added `/api/simulation/timeline`, `/api/simulation/entities`, and `/api/simulation/flows` with deterministic paging/filtering

@@ -52,6 +52,26 @@ export interface FOIATarget {
   likelihood_score?: number;
   priority_score?: number;
   quality_notes?: string;
+  status?: 'draft' | 'submitted' | 'acknowledged' | 'responded' | 'closed' | string;
+  submitted_at?: string | null;
+  response_due_at?: string | null;
+  responded_at?: string | null;
+  estimated_cost?: number | null;
+  actual_cost?: number | null;
+  is_overdue?: boolean | null;
+  reference_url?: string | null;
+  archive_url?: string | null;
+}
+
+export interface OfflineImportResult {
+  data_type: string;
+  total_rows: number;
+  valid_rows: number;
+  inserted: number;
+  skipped: number;
+  errors: string[];
+  preview: Record<string, unknown>[];
+  dry_run: boolean;
 }
 
 export interface Stats {

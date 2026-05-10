@@ -5,7 +5,7 @@ Supports both SQLite (default/local) and PostgreSQL (production)
 import os
 import logging
 from datetime import datetime
-from sqlalchemy import create_engine, Column, Integer, String, Float, Date, Text, Index, DateTime
+from sqlalchemy import create_engine, Column, Integer, String, Float, Date, Text, Index, DateTime, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool, QueuePool
@@ -127,6 +127,15 @@ class FOIATarget(Base):
     likelihood_score = Column(Float, default=0.0)  # 0-1: Likelihood of getting a response
     priority_score = Column(Float, default=0.0)  # 0-1: Overall priority/importance
     quality_notes = Column(Text)  # Notes about quality assessment
+    status = Column(String, index=True, default="draft")  # draft, submitted, acknowledged, responded, closed
+    submitted_at = Column(Date)
+    response_due_at = Column(Date, index=True)
+    responded_at = Column(Date)
+    estimated_cost = Column(Float)
+    actual_cost = Column(Float)
+    is_overdue = Column(Boolean, default=False, index=True)
+    reference_url = Column(Text)
+    archive_url = Column(Text)
 
 
 class Relationship(Base):
@@ -345,6 +354,7 @@ def init_database(db_path: str = "data/prh.db"):
     if db_type == "sqlite":
         _migrate_relationship_columns(engine)
         _migrate_entity_pyramid_columns(engine)
+        _migrate_foia_lifecycle_columns(engine)
 
     return engine
 
@@ -391,6 +401,33 @@ def _migrate_entity_pyramid_columns(engine):
                     logger.info(f"Added column entities.{col}")
     except Exception as e:
         logger.warning(f"Migration of entities table skipped: {e}")
+
+
+def _migrate_foia_lifecycle_columns(engine):
+    """Add FOIA lifecycle tracking columns if missing."""
+    from sqlalchemy import text
+    col_types = {
+        "status": "TEXT",
+        "submitted_at": "DATE",
+        "response_due_at": "DATE",
+        "responded_at": "DATE",
+        "estimated_cost": "REAL",
+        "actual_cost": "REAL",
+        "is_overdue": "BOOLEAN",
+        "reference_url": "TEXT",
+        "archive_url": "TEXT",
+    }
+    try:
+        with engine.connect() as conn:
+            r = conn.execute(text("PRAGMA table_info(foia_targets)"))
+            cols = {row[1] for row in r}
+            for col, ctype in col_types.items():
+                if col not in cols:
+                    conn.execute(text(f"ALTER TABLE foia_targets ADD COLUMN {col} {ctype}"))
+                    conn.commit()
+                    logger.info(f"Added column foia_targets.{col}")
+    except Exception as e:
+        logger.warning(f"Migration of foia_targets table skipped: {e}")
 
 
 def get_session_maker(engine):

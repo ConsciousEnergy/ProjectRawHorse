@@ -88,6 +88,15 @@ class FOIATargetBase(BaseModel):
     likelihood_score: Optional[float] = None
     priority_score: Optional[float] = None
     quality_notes: Optional[str] = None
+    status: Optional[str] = "draft"
+    submitted_at: Optional[date] = None
+    response_due_at: Optional[date] = None
+    responded_at: Optional[date] = None
+    estimated_cost: Optional[float] = None
+    actual_cost: Optional[float] = None
+    is_overdue: Optional[bool] = None
+    reference_url: Optional[str] = None
+    archive_url: Optional[str] = None
 
 
 class FOIATargetCreate(FOIATargetBase):

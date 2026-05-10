@@ -3,7 +3,7 @@ import type {
   Entity, MoneyFlow, Award, FOIATarget, Stats, GraphData, SankeyData, DataVersion,
   PyramidData, HierarchyChain, EntityDetail, IntelStackSearchResponse,
   FinancialFlowsResponse, TimelineResponse, EntityRelationshipsResponse,
-  TimelineEventListResponse, TimelineEvent, TimelineBucket, SimulationTimelineResponse,
+  TimelineEventListResponse, TimelineEvent, TimelineBucket, SimulationTimelineResponse, OfflineImportResult,
 } from '../types';
 
 const API_BASE_URL = '/api';
@@ -33,6 +33,26 @@ export const getAwards = async (params?: any) => {
 
 export const getFOIATargets = async (params?: any) => {
   const response = await api.get<FOIATarget[]>('/data/foia-targets', { params });
+  return response.data;
+};
+
+export const getOfflineImportTemplate = async (dataType: string) => {
+  const response = await api.get<{ data_type: string; columns: string[] }>(`/import/templates/${encodeURIComponent(dataType)}`);
+  return response.data;
+};
+
+export const uploadOfflineImportFile = async (params: {
+  dataType: string;
+  file: File;
+  dryRun: boolean;
+}) => {
+  const formData = new FormData();
+  formData.append('data_type', params.dataType);
+  formData.append('dry_run', String(params.dryRun));
+  formData.append('file', params.file);
+  const response = await api.post<OfflineImportResult>('/import/offline', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
   return response.data;
 };
 

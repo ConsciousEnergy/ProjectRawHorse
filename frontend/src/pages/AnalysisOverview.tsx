@@ -10,8 +10,21 @@ function AnalysisOverview() {
         <p>Visualize relationships and financial networks</p>
       </div>
 
+      <div className="analysis-network-hero">
+        <div>
+          <h2>Start with the Entity Network Graph</h2>
+          <p>
+            For the quickest big-picture view, begin with the network graph to trace agencies, programs,
+            contractors, and their connected pathways.
+          </p>
+        </div>
+        <Link to="/analysis/network" className="btn btn-primary">
+          Open Network Graph
+        </Link>
+      </div>
+
       <div className="visualization-cards">
-        <Link to="/analysis/network" className="viz-card">
+        <Link to="/analysis/network" className="viz-card viz-card-primary">
           <div className="viz-card-icon" style={{ background: 'linear-gradient(135deg, #5B4FFF, #7c6fff)' }}>
             <Network size={48} />
           </div>
@@ -167,6 +180,28 @@ function AnalysisOverview() {
       </div>
 
       <style>{`
+        .analysis-network-hero {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 16px;
+          margin-bottom: 20px;
+          padding: 18px 20px;
+          border: 1px solid var(--border-color);
+          border-radius: 12px;
+          background: linear-gradient(135deg, rgba(91, 79, 255, 0.14), rgba(124, 111, 255, 0.08));
+        }
+
+        .analysis-network-hero h2 {
+          margin: 0 0 6px 0;
+          font-size: 1.15rem;
+        }
+
+        .analysis-network-hero p {
+          margin: 0;
+          color: var(--text-secondary);
+        }
+
         .visualization-cards {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
@@ -192,6 +227,10 @@ function AnalysisOverview() {
           border-color: var(--primary-color);
           box-shadow: 0 4px 20px rgba(91, 79, 255, 0.15);
           transform: translateY(-2px);
+        }
+
+        .viz-card-primary {
+          grid-column: 1 / -1;
         }
 
         .viz-card-icon {
@@ -312,6 +351,11 @@ function AnalysisOverview() {
         }
 
         @media (max-width: 768px) {
+          .analysis-network-hero {
+            flex-direction: column;
+            align-items: flex-start;
+          }
+
           .visualization-cards {
             grid-template-columns: 1fr;
           }

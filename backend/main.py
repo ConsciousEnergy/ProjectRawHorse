@@ -24,7 +24,7 @@ import logging
 from database import init_database, get_session_maker
 from data_loader import load_all_data, is_database_populated
 from dependencies import set_session_local, get_db
-from routers import data, analysis, export_router, contribute, search, auth_router, timeline, reconciliation, metrics, simulation
+from routers import data, analysis, export_router, contribute, search, auth_router, timeline, reconciliation, metrics, simulation, import_router
 
 # Rate limiting: global API 100/min; auth 10/min (applied in auth_router via slowapi)
 def _rate_limit_per_minute() -> int:
@@ -237,6 +237,7 @@ app.include_router(timeline.router, prefix="/api/timeline", tags=["timeline"])
 app.include_router(reconciliation.router, prefix="/api/reconciliation", tags=["reconciliation"])
 app.include_router(metrics.router, prefix="/api/metrics", tags=["metrics"])
 app.include_router(simulation.router, prefix="/api/simulation", tags=["simulation"])
+app.include_router(import_router.router, prefix="/api/import", tags=["import"])
 
 @app.get("/api/health")
 async def health_check():

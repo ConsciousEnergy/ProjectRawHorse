@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
-import { Home, Database, BarChart3, FileDown, Upload, Info } from 'lucide-react';
+import { Home, Database, BarChart3, FileDown, Upload, Info, FileUp } from 'lucide-react';
 
 import Dashboard from './pages/Dashboard';
 import Browse from './pages/Browse';
@@ -14,6 +14,7 @@ import TimelinePage from './pages/TimelinePage';
 import SimulationTimelinePage from './pages/SimulationTimelinePage';
 import Export from './pages/Export';
 import Contribute from './pages/Contribute';
+import OfflineImportPage from './pages/OfflineImportPage';
 import About from './pages/About';
 import LegalDisclaimer from './components/LegalDisclaimer';
 import ThemeToggle from './components/ThemeToggle';
@@ -34,6 +35,7 @@ function Navigation() {
     { path: '/analysis', icon: BarChart3, label: 'Analysis', exact: false },
     { path: '/export', icon: FileDown, label: 'Export', exact: true },
     { path: '/contribute', icon: Upload, label: 'Contribute', exact: true },
+    { path: '/import', icon: FileUp, label: 'Offline Import', exact: true },
     { path: '/about', icon: Info, label: 'About', exact: true },
   ];
   
@@ -119,6 +121,7 @@ function App() {
               <Route path="/analysis/legacy" element={<ErrorBoundary><Analysis /></ErrorBoundary>} />
               <Route path="/export" element={<ErrorBoundary><Export /></ErrorBoundary>} />
               <Route path="/contribute" element={<ErrorBoundary><Contribute /></ErrorBoundary>} />
+              <Route path="/import" element={<ErrorBoundary><OfflineImportPage /></ErrorBoundary>} />
               <Route path="/about" element={<ErrorBoundary><About /></ErrorBoundary>} />
             </Routes>
           </main>
